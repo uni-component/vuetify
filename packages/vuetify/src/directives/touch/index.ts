@@ -18,7 +18,7 @@ export interface TouchStoredHandlers {
   touchmove: (e: TouchEvent) => void
 }
 
-interface TouchDirectiveBinding extends Omit<DirectiveBinding, 'value'> {
+export interface TouchDirectiveBinding extends Omit<DirectiveBinding, 'value'> {
   value?: TouchValue
 }
 
