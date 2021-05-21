@@ -108,7 +108,7 @@ export default defineComponent({
         ]}
         disabled={ props.disabled }
         v-ripple={[
-          !props.disabled,
+          props.ripple && !props.disabled,
           null,
           props.icon ? ['center'] : null,
         ]}
