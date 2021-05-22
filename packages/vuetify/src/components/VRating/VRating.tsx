@@ -3,10 +3,11 @@ import './VRating.sass'
 
 // Components
 import { VBtn } from '../VBtn'
+import { VIcon } from '@/components'
 
 // Composables
 import { makeDensityProps } from '@/composables/density'
-import { makeSizeProps } from '@/composables/size'
+import { makeSizeProps, useSize } from '@/composables/size'
 import { makeTagProps } from '@/composables/tag'
 import { useProxiedModel } from '@/composables/proxiedModel'
 // import { useRefs } from '@/composables/refs'
@@ -15,7 +16,7 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { useTheme } from '@/composables/theme'
 
 // Utilities
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, toRef } from 'vue'
 import { createRange, makeProps } from '@/util'
 
 // Types
@@ -191,6 +192,7 @@ export default defineComponent({
     //   rating.value = clamp(rating.value + increment, 0, range.value.length)
     //   nextTick(updateFocus)
     // }
+    const { sizeClasses, sizeStyles } = useSize(props, 'v-rating__item')
 
     function VRatingItem ({ value, index, showStar = true }: { value: number, index: number, showStar?: boolean }) {
       const { onMouseenter, onMouseleave, onChange, onFocus, onBlur } = eventState.value[index + 1]
@@ -199,24 +201,34 @@ export default defineComponent({
         <>
           <label
             for={`${props.name}-${String(value).replace('.', '-')}`}
-            class={{
-              'v-rating__item--half': props.halfIncrements && value % 1 > 0,
-              'v-rating__item--full': props.halfIncrements && value % 1 === 0,
-            }}
+            class={[
+              'v-rating__item__label',
+              {
+                'v-rating__item__label--half': props.halfIncrements && value % 1 > 0,
+                'v-rating__item__label--full': props.halfIncrements && value % 1 === 0,
+              },
+            ]}
           >
             <span class="v-rating--hidden">{value} Stars</span>
             { showStar && (
-              <VBtn
-                tag="span"
-                tabindex="-1"
+              // <VBtn
+              //   tag="span"
+              //   tabindex="-1"
+              //   icon={itemState.value[index].icon}
+              //   color={itemState.value[index].color}
+              //   plain
+              //   size={props.size}
+              //   onMouseenter={onMouseenter}
+              //   onMouseleave={onMouseleave}
+              //   ripple={false}
+              //   density={props.density}
+              // />
+              <VIcon
+                size={props.size}
                 icon={itemState.value[index].icon}
                 color={itemState.value[index].color}
-                plain
-                size={props.size}
                 onMouseenter={onMouseenter}
                 onMouseleave={onMouseleave}
-                ripple={false}
-                density={props.density}
               />
             ) }
           </label>
@@ -265,7 +277,11 @@ export default defineComponent({
                   {
                     'v-rating__item--focused': Math.ceil(focusIndex.value) === value,
                   },
+                  sizeClasses.value,
                 ]}
+                style={{
+                  ...sizeStyles.value,
+                }}
               >
                 { props.halfIncrements ? (
                   <>

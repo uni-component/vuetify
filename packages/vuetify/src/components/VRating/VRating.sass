@@ -5,13 +5,6 @@
   display: inline-flex
   white-space: $rating-white-space
 
-  .v-icon
-    +ltr()
-      transform: scaleX(1)
-
-    +rtl()
-      transform: scaleX(-1)
-
   &--readonly
     pointer-events: none
 
@@ -25,10 +18,17 @@
 
 .v-rating__item
   position: relative
+  display: inline-flex
 
-  .v-btn
-    transition: none
-    opacity: 1
+  @each $name in $sizes
+    &--size-#{$name}
+      height: map-get($rating-sizes, $name)
+      width: map-get($rating-sizes, $name)
+
+      .v-icon--size-#{$name}
+        font-size: map-get($rating-sizes, $name)
+        height: map-get($rating-sizes, $name)
+        width: map-get($rating-sizes, $name)
 
 .v-rating__item--focused:before
   content: " "
@@ -37,7 +37,7 @@
   right: 0px
   top: 0px
   bottom: 0px
-  border: 1px solid black
+  border: 1px solid #777
   pointer-events: none
 
 .v-rating--hidden
@@ -46,11 +46,37 @@
   height: 0px
   opacity: 0
 
-.v-rating__item--half
+.v-rating__item__label
+  height: 100%
+  display: inline-flex
+
+.v-rating__item__label--half
   width: 50%
   overflow: hidden
   position: absolute
   z-index: 1
 
-.v-rating__item--full
-  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%)
+  +ltr()
+    left: 0
+    right: initial
+  +rtl()
+    left: initial
+    right: 0
+
+.v-rating__item__label--full
+  width: 50%
+  overflow: hidden
+  position: absolute
+
+  +ltr()
+    left: initial
+    right: 0
+  +rtl()
+    left: 0
+    right: initial
+
+  .v-icon
+    +ltr()
+      transform: translateX(-50%)
+    +rtl()
+      transform: translateX(50%)
