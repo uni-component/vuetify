@@ -5,7 +5,7 @@
     variant="text"
   >
     <v-icon icon="mdi-translate" />
-    <icons-chevron-down />
+    <chevron-down />
 
     <app-menu
       key="language-menu"

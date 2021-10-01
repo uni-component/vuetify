@@ -6,14 +6,15 @@
     class="v-bar--underline"
     elevation="1"
   >
-    <app-bar-logo :alt="lgAndUp" />
+    <logo :alt="lgAndUp" />
 
     <v-spacer />
 
-    <app-bar-learn-menu />
-    <app-bar-support-menu />
-    <app-bar-team-link />
-    <app-bar-language-menu />
+    <learn-menu />
+    <support-menu />
+    <team-link />
+    <language-menu />
+    <settings-toggle />
   </v-app-bar>
 </template>
 

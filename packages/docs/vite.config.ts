@@ -123,7 +123,7 @@ export default defineConfig({
     Components({
       deep: true,
       dirs: ['src/components-v3'],
-      directoryAsNamespace: true,
+      directoryAsNamespace: false,
       dts: true,
       extensions: ['vue', 'md'],
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],

@@ -1,7 +1,7 @@
 <template>
   <app-btn variant="text">
     {{ title }}
-    <icons-chevron-down />
+    <chevron-down />
 
     <app-menu
       :items="items"
