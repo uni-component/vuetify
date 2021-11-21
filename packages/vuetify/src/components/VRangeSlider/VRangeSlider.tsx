@@ -5,13 +5,15 @@ import { VSliderTrack } from '../VSlider/VSliderTrack'
 
 // Composables
 import { useProxiedModel } from '@/composables/proxiedModel'
-import { getOffset, makeSliderProps, useSlider } from '../VSlider/slider'
+import { getOffset, makeSliderProps, useFocus, useSlider } from '../VSlider/slider'
 
 // Utilities
 import { computed, defineComponent, ref } from 'vue'
 
 // Types
 import type { PropType } from 'vue'
+import { getUid } from '@/util'
+import { filterInputProps } from '../VInput/VInput'
 
 export const VRangeSlider = defineComponent({
   name: 'VRangeSlider',
@@ -53,6 +55,7 @@ export const VRangeSlider = defineComponent({
       trackContainerRef,
       position,
       hasLabels,
+      themeClasses,
     } = useSlider({
       props,
       handleSliderMouseUp: newValue => {
@@ -82,11 +85,16 @@ export const VRangeSlider = defineComponent({
       },
     )
 
-    const isDirty = computed(() => model.value.some(v => v > min.value))
+    const { isFocused, blur, focus } = useFocus()
+
     const trackStart = computed(() => position(model.value[0]))
     const trackStop = computed(() => position(model.value[1]))
 
     return () => {
+      const [inputProps, _] = filterInputProps(props)
+      const id = attrs.id as string ?? `input-${getUid()}`
+      const name = attrs.name as string ?? id
+
       return (
         <VInput
           class={[
@@ -94,15 +102,17 @@ export const VRangeSlider = defineComponent({
             'v-range-slider',
             {
               'v-slider--has-labels': !!slots['tick-label'] || hasLabels.value,
+              'v-slider--focused': isFocused.value,
+              'v-slider--disabled': props.disabled,
             },
+            themeClasses.value,
           ]}
           ref={ inputRef }
-          disabled={ props.disabled }
-          dirty={ isDirty.value }
-          direction={ props.direction }
+          {...inputProps}
+          hideDetails={ props.direction === 'vertical' }
           v-slots={{
             ...slots,
-            default: ({ id, isActive, isDirty, isFocused, focus, blur }: any) => (
+            default: () => (
               <div
                 class="v-slider__container"
                 onMousedown={ onSliderMousedown }
@@ -110,7 +120,7 @@ export const VRangeSlider = defineComponent({
               >
                 <input
                   id={ `${id}_start` }
-                  name={ attrs.name ?? id }
+                  name={ name }
                   disabled={ props.disabled }
                   readonly={ props.readonly }
                   tabindex="-1"
@@ -119,7 +129,7 @@ export const VRangeSlider = defineComponent({
 
                 <input
                   id={ `${id}_stop` }
-                  name={ attrs.name ?? id }
+                  name={ name }
                   disabled={ props.disabled }
                   readonly={ props.readonly }
                   tabindex="-1"
@@ -137,8 +147,6 @@ export const VRangeSlider = defineComponent({
 
                 <VSliderThumb
                   ref={ startThumbRef }
-                  active={ isActive }
-                  dirty={ isDirty }
                   focused={ isFocused && focusedThumb.value === startThumbRef.value }
                   modelValue={ model.value[0] }
                   onUpdate:modelValue={ v => (model.value = [v, model.value[1]]) }
@@ -170,8 +178,6 @@ export const VRangeSlider = defineComponent({
 
                 <VSliderThumb
                   ref={ stopThumbRef }
-                  active={ isActive }
-                  dirty={ isDirty }
                   focused={ isFocused && focusedThumb.value === stopThumbRef.value }
                   modelValue={ model.value[1] }
                   onUpdate:modelValue={ v => (model.value = [model.value[0], v]) }

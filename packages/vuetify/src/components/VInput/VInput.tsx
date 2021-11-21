@@ -12,10 +12,6 @@ import { VIcon } from '@/components/VIcon'
 import { makeDensityProps, useDensity } from '@/composables/density'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
-// Utilities
-import { computed, watchEffect } from 'vue'
-import { genericComponent, getUid } from '@/util'
-
 // Types
 import type { PropType } from 'vue'
 
@@ -24,6 +20,11 @@ export function filterInputAttrs (attrs: Record<string, unknown>) {
 }
 
 export const makeVInputProps = propsFactory({
+  direction: {
+    type: String as PropType<'horizontal' | 'vertical'>,
+    default: 'horizontal',
+    validator: (v: any) => ['horizontal', 'vertical'].includes(v),
+  },
   appendIcon: String,
   prependIcon: String,
   focused: Boolean,
@@ -47,18 +48,11 @@ export const VInput = defineComponent({
     'click:prepend': (e: MouseEvent) => true,
     'click:append': (e: MouseEvent) => true,
     'update:focused': (v: Boolean) => true,
-    'update:active': (v: Boolean) => true,
   },
 
   setup (props, { slots, emit }) {
-    const isActive = useProxiedModel(props, 'active')
     const isFocused = useProxiedModel(props, 'focused')
     const { densityClasses } = useDensity(props, 'v-input')
-
-    const uid = getUid()
-    const id = computed(() => props.id || `input-${uid}`)
-
-    watchEffect(() => isActive.value = isFocused.value || props.dirty)
 
     return () => {
       const hasPrepend = (slots.prepend || props.prependIcon)
@@ -77,9 +71,6 @@ export const VInput = defineComponent({
         <div class={[
           'v-input',
           {
-            'v-input--active': isActive.value,
-            'v-input--dirty': props.dirty,
-            'v-input--disabled': props.disabled,
             'v-input--focused': isFocused.value,
           },
           `v-input--${props.direction}`,
@@ -100,14 +91,7 @@ export const VInput = defineComponent({
           ) }
 
           <div class="v-input__control">
-            { slots.default?.({
-              id: id.value,
-              isActive: isActive.value,
-              isFocused: isFocused.value,
-              isDirty: props.dirty,
-              focus: () => isFocused.value = true,
-              blur: () => isFocused.value = false,
-            }) }
+            { slots.default?.() }
           </div>
 
           { hasAppend && (
