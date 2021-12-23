@@ -520,3 +520,11 @@ export class CircularBuffer<T = never> {
     return this.#arr.slice(this.#pointer).concat(this.#arr.slice(0, this.#pointer))
   }
 }
+
+export function getEventCoordinates (e: MouseEvent | TouchEvent) {
+  if ('touches' in e) {
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+  }
+
+  return { clientX: e.clientX, clientY: e.clientY }
+}
