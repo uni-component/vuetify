@@ -1,9 +1,9 @@
 // Utilities
-import { computed } from 'vue'
+import { computed } from '@uni-store/core'
 import { getCurrentInstanceName, propsFactory } from '@/util'
 
 // Types
-import type { PropType } from 'vue'
+import type { PropType } from '@uni-component/core'
 
 const allowedDensities = [null, 'default', 'comfortable', 'compact'] as const
 

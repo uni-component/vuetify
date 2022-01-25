@@ -1,23 +1,14 @@
-import type { PropType } from 'vue'
-import { Transition } from 'vue'
-import { acceleratedEasing, deceleratedEasing, defineComponent, nullifyTransforms } from '@/util'
+import type { TransitionHooks } from '../transition'
+import { acceleratedEasing, deceleratedEasing, nullifyTransforms } from '@/util'
 
-export const VDialogTransition = defineComponent({
-  name: 'VDialogTransition',
-
-  props: {
-    target: Object as PropType<HTMLElement>,
-  },
-
-  setup (props, { slots }) {
-    const functions = {
-      onBeforeEnter (el: Element) {
-        (el as HTMLElement).style.pointerEvents = 'none'
-      },
-      async onEnter (el: Element, done: () => void) {
-        await new Promise(resolve => requestAnimationFrame(resolve))
-
-        const { x, y } = getDimensions(props.target!, el as HTMLElement)
+export const dialogTransition = () => {
+  const hooks: TransitionHooks = {
+    beforeEnter (el) {
+      el.style.pointerEvents = 'none'
+    },
+    enter (el, done: () => void) {
+      new Promise(resolve => requestAnimationFrame(resolve)).then(() => {
+        const { x, y } = getDimensions((el as any).dialogTarget as HTMLElement, el)
 
         const animation = el.animate([
           { transform: `translate(${x}px, ${y}px) scale(0.1)`, opacity: 0 },
@@ -27,17 +18,17 @@ export const VDialogTransition = defineComponent({
           easing: deceleratedEasing,
         })
         animation.finished.then(() => done())
-      },
-      onAfterEnter (el: Element) {
-        (el as HTMLElement).style.removeProperty('pointer-events')
-      },
-      onBeforeLeave (el: Element) {
-        (el as HTMLElement).style.pointerEvents = 'none'
-      },
-      async onLeave (el: Element, done: () => void) {
-        await new Promise(resolve => requestAnimationFrame(resolve))
-
-        const { x, y } = getDimensions(props.target!, el as HTMLElement)
+      })
+    },
+    afterEnter (el) {
+      el.style.removeProperty('pointer-events')
+    },
+    beforeLeave (el) {
+      el.style.pointerEvents = 'none'
+    },
+    leave (el, done: () => void) {
+      new Promise(resolve => requestAnimationFrame(resolve)).then(() => {
+        const { x, y } = getDimensions((el as any).dialogTarget as HTMLElement, el)
 
         const animation = el.animate([
           { transform: '' },
@@ -47,26 +38,14 @@ export const VDialogTransition = defineComponent({
           easing: acceleratedEasing,
         })
         animation.finished.then(() => done())
-      },
-      onAfterLeave (el: Element) {
-        (el as HTMLElement).style.removeProperty('pointer-events')
-      },
-    }
-
-    return () => {
-      return props.target
-        ? (
-          <Transition
-            name="dialog-transition"
-            { ...functions }
-            css={ false }
-            v-slots={ slots }
-          />
-        )
-        : <Transition name="dialog-transition" v-slots={ slots } />
-    }
-  },
-})
+      })
+    },
+    afterLeave (el) {
+      el.style.removeProperty('pointer-events')
+    },
+  }
+  return hooks
+}
 
 function getDimensions (target: HTMLElement, el: HTMLElement) {
   const targetBox = target.getBoundingClientRect()

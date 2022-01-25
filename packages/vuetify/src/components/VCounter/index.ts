@@ -1,1 +1,1 @@
-export { VCounter } from './VCounter'
+export { VCounter, CounterRender } from './VCounter'

@@ -1,5 +1,5 @@
-import { attachedRoot } from '@/util'
-import type { DirectiveBinding } from 'vue'
+import { attachedRoot, getUid } from '@/util'
+import type { DirectiveBinding, ObjectDirective } from '@/composables/directive'
 
 interface ClickOutsideBindingArgs {
   handler: (e: MouseEvent) => void
@@ -7,8 +7,8 @@ interface ClickOutsideBindingArgs {
   include?: () => HTMLElement[]
 }
 
-interface ClickOutsideDirectiveBinding extends DirectiveBinding {
-  value: ((e: MouseEvent) => void) | ClickOutsideBindingArgs
+interface ClickOutsideDirectiveBinding extends DirectiveBinding<((e: MouseEvent) => void) | ClickOutsideBindingArgs> {
+  uid: number
 }
 
 function defaultConditional () {
@@ -70,7 +70,7 @@ function handleShadow (el: HTMLElement, callback: Function): void {
   }
 }
 
-export const ClickOutside = {
+export const ClickOutside: ObjectDirective = {
   // [data-app] may not be found
   // if using bind, inserted makes
   // sure that the root element is
@@ -93,7 +93,9 @@ export const ClickOutside = {
       }
     }
 
-    el._clickOutside[binding.instance!.$.uid] = {
+    const uid = getUid()
+    ;(el as any)._clickOutside_uid = uid
+    el._clickOutside[uid] = {
       onClick,
       onMousedown,
     }
@@ -102,16 +104,18 @@ export const ClickOutside = {
   unmounted (el: HTMLElement, binding: ClickOutsideDirectiveBinding) {
     if (!el._clickOutside) return
 
-    handleShadow(el, (app: HTMLElement) => {
-      if (!app || !el._clickOutside?.[binding.instance!.$.uid]) return
+    const uid = (el as any)._clickOutside_uid
 
-      const { onClick, onMousedown } = el._clickOutside[binding.instance!.$.uid]!
+    handleShadow(el, (app: HTMLElement) => {
+      if (!app || !el._clickOutside?.[uid]) return
+
+      const { onClick, onMousedown } = el._clickOutside[uid]!
 
       app.removeEventListener('click', onClick, true)
       app.removeEventListener('mousedown', onMousedown, true)
     })
 
-    delete el._clickOutside[binding.instance!.$.uid]
+    delete el._clickOutside[uid]
   },
 }
 

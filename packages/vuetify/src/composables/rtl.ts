@@ -1,8 +1,10 @@
-import { computed, inject, provide, ref } from 'vue'
+import { computed, ref } from '@uni-store/core'
+import { inject, provide } from '@uni-component/core'
 import { rtl } from '@/locale'
 
 // Types
-import type { InjectionKey, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { InjectionKey } from '@uni-component/core'
 import type { LocaleInstance } from './locale'
 
 export interface RtlOptions {

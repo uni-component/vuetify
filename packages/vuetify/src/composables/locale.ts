@@ -1,11 +1,15 @@
-import { computed, inject, provide } from 'vue'
+import { computed } from '@uni-store/core'
+import { inject, provide } from '@uni-component/core'
 import { consoleError, consoleWarn, getObjectValueByPath, wrapInRef } from '@/util'
 
 import en from '@/locale/en'
 
 // Types
-import type { App, InjectionKey, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { getRootInstance, InjectionKey } from '@uni-component/core'
 import type { MaybeRef } from '@/util'
+
+type App = ReturnType<typeof getRootInstance>
 
 export interface LocaleMessages {
   [key: string]: LocaleMessages | string
@@ -147,7 +151,7 @@ export function createDefaultLocaleAdapter (options?: LocaleOptions): LocaleAdap
         messages: options?.messages ?? { en },
       })
 
-      app.provide(VuetifyLocaleSymbol, rootScope)
+      app.provides[VuetifyLocaleSymbol as symbol] = rootScope
 
       return rootScope
     },

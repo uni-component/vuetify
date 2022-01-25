@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "include": [
-    "src"
+    "src",
+    "dev"
   ],
   "exclude": ["types-temp"],
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./types-temp",
     "paths": {
+      "vuetify": ["src/entry-bundler.ts"],
       "@/*": [
         "src/*"
       ],
@@ -16,6 +18,9 @@
         "node",
         "vue-router"
       ]
-    }
+    },
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   }
 }

@@ -1,32 +1,32 @@
+import { uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { provideDefaults } from '@/composables/defaults'
 
 // Utilities
-import { defineComponent, toRefs } from 'vue'
+import { toRefs } from '@uni-store/core'
 
 // Types
+import type { PropType } from '@uni-component/core'
 import type { DefaultsOptions } from '@/composables/defaults'
-import type { PropType } from 'vue'
 
-export const VDefaultsProvider = defineComponent({
-  name: 'VDefaultsProvider',
+const UniVDefaultsProvider = uniComponent('v-defaults-provider', {
+  defaults: Object as PropType<DefaultsOptions>,
+  reset: [Number, String],
+  root: Boolean,
+  scoped: Boolean,
+}, (name, props) => {
+  const { defaults, reset, root, scoped } = toRefs(props)
 
-  props: {
-    defaults: Object as PropType<DefaultsOptions>,
-    reset: [Number, String],
-    root: Boolean,
-    scoped: Boolean,
-  },
+  provideDefaults(defaults, {
+    reset,
+    root,
+    scoped,
+  })
 
-  setup (props, { slots }) {
-    const { defaults, reset, root, scoped } = toRefs(props)
+  return {}
+})
 
-    provideDefaults(defaults, {
-      reset,
-      root,
-      scoped,
-    })
-
-    return () => slots.default?.()
-  },
+export const VDefaultsProvider = uni2Platform(UniVDefaultsProvider, (_, __, { renders }) => {
+  return renders.defaultRender?.()
 })

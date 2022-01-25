@@ -1,37 +1,36 @@
+import {
+  h,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Components
 import { VSelectionControl } from '@/components/VSelectionControl'
+import { makeSelectionControlProps } from '@/components/VSelectionControl/VSelectionControl'
 
-// Utility
-import { defineComponent } from 'vue'
-import { useRender } from '@/util'
-
-export const VRadio = defineComponent({
-  name: 'VRadio',
-
-  props: {
-    falseIcon: {
-      type: String,
-      default: '$radioOff',
-    },
-    trueIcon: {
-      type: String,
-      default: '$radioOn',
-    },
+const UniVRadio = uniComponent('v-radio', {
+  ...makeSelectionControlProps(),
+  falseIcon: {
+    type: String,
+    default: '$radioOff',
   },
-
-  setup (props, { slots }) {
-    useRender(() => (
-      <VSelectionControl
-        class="v-radio"
-        trueIcon={ props.trueIcon }
-        falseIcon={ props.falseIcon }
-        type="radio"
-        v-slots={ slots }
-      />
-    ))
-
-    return {}
+  trueIcon: {
+    type: String,
+    default: '$radioOn',
   },
+}, (name, props) => {
+  return {}
 })
 
-export type VRadio = InstanceType<typeof VRadio>
+export const VRadio = uni2Platform(UniVRadio, (props, state, { renders }) => {
+  return (
+    <VSelectionControl
+      id={state.rootId}
+      class={state.rootClass}
+      style={state.rootStyle}
+      { ...props }
+      { ...renders }
+      type="radio"
+    />
+  )
+})

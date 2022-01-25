@@ -6,7 +6,7 @@
 
       <h2>custom ctrl + click open strategy</h2>
       <v-list :items="listItems" :open-strategy="openStrategyFn" density="compact">
-        <template #prepend v-if="useSlot">
+        <template #prepend >
           foo
         </template>
       </v-list>
@@ -106,14 +106,28 @@
       <v-list :items="listItems" :open-strategy="openStrategy" />
 
       <h2>router view</h2>
-      <router-view />
+      <router-view></router-view>
     </div>
   </v-app>
 </template>
 
 <script>
+  import {
+    VApp,
+    VBtn,
+    VList,
+    VListGroup,
+    VListItem,
+  } from 'vuetify'
   export default {
     name: 'Playground',
+    components: {
+      VApp,
+      VBtn,
+      VList,
+      VListGroup,
+      VListItem,
+    },
     data: () => ({
       useSlot: false,
       selected: [],
@@ -272,7 +286,8 @@
         const item = this.findItem(id)
 
         if (item.loaded) {
-          value ? this.opened.push(id) : this.opened.splice(this.opened.indexOf(id), 1)
+          const index = this.opened.indexOf(id)
+          value ? (index === -1 && this.opened.push(id)) : this.opened.splice(index, 1)
         } else {
           setTimeout(() => {
             const value = `child #${this.count++}`

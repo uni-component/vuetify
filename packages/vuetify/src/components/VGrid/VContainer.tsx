@@ -1,32 +1,33 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VGrid.sass'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
+import { computed } from '@uni-store/core'
 
-// Utilities
-import { defineComponent } from '@/util'
-
-export const VContainer = defineComponent({
-  name: 'VContainer',
-
-  props: {
-    fluid: {
-      type: Boolean,
-      default: false,
-    },
-    ...makeTagProps(),
+const UniVContainer = uniComponent('v-container', {
+  fluid: {
+    type: Boolean,
+    default: false,
   },
+  ...makeTagProps(),
+}, (name, props) => {
+  const rootClass = computed(() => {
+    return {
+      [`${name}--fluid`]: props.fluid,
+    }
+  })
+  return {
+    rootClass,
+  }
+})
 
-  setup (props, { slots }) {
-    return () => (
-      <props.tag
-        class={[
-          'v-container',
-          { 'v-container--fluid': props.fluid },
-        ]}
-        v-slots={ slots }
-      />
-    )
-  },
+export const VContainer = uni2Platform(UniVContainer, (props, state, { renders }) => {
+  return (
+    <props.tag
+      class={state.rootClass}
+    >{ renders.defaultRender?.() }</props.tag>
+  )
 })

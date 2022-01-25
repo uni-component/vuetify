@@ -1,3 +1,6 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VBanner.sass'
 
@@ -21,107 +24,117 @@ import { useDisplay } from '@/composables/display'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { toRef } from 'vue'
-import { defineComponent } from '@/util'
+import { computed, toRef } from '@uni-store/core'
 
-export const VBanner = defineComponent({
-  name: 'VBanner',
-
-  props: {
-    avatar: String,
-    color: String,
-    icon: String,
-    lines: {
-      type: String,
-      default: 'one',
-    },
-    sticky: Boolean,
-    text: String,
-
-    ...makeBorderProps(),
-    ...makeDensityProps(),
-    ...makeDimensionProps(),
-    ...makeElevationProps(),
-    ...makePositionProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
+const UniVBanner = uniComponent('v-banner', {
+  avatar: String,
+  color: String,
+  icon: String,
+  lines: {
+    type: String as PropType<'one' | 'two' | 'three'>,
+    default: 'one',
   },
+  sticky: Boolean,
+  text: String,
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { borderClasses } = useBorder(props)
-    const { densityClasses } = useDensity(props)
-    const { dimensionStyles } = useDimension(props)
-    const { mobile } = useDisplay()
-    const { elevationClasses } = useElevation(props)
-    const { positionClasses, positionStyles } = usePosition(props)
-    const { roundedClasses } = useRounded(props)
-    const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
+  ...makeBorderProps(),
+  ...makeDensityProps(),
+  ...makeDimensionProps(),
+  ...makeElevationProps(),
+  ...makePositionProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
+  avatarRender: Function as PropType<() => UniNode | undefined>,
+  textRender: Function as PropType<() => UniNode | undefined>,
+  iconRender: Function as PropType<() => UniNode | undefined>,
+  actionsRender: Function as PropType<() => UniNode | undefined>,
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
+  const { borderClasses } = useBorder(props)
+  const { densityClasses } = useDensity(props)
+  const { dimensionStyles } = useDimension(props)
+  const { mobile } = useDisplay()
+  const { elevationClasses } = useElevation(props)
+  const { positionClasses, positionStyles } = usePosition(props)
+  const { roundedClasses } = useRounded(props)
+  const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
 
-    return () => {
-      const hasAvatar = !!(props.avatar || props.icon || slots.avatar || slots.icon)
-      const hasText = !!(props.text || slots.text)
-      const hasContent = hasAvatar || hasText || slots.default
-
-      return (
-        <props.tag
-          class={[
-            'v-banner',
-            {
-              'v-banner--mobile': mobile.value,
-              'v-banner--sticky': props.sticky,
-              [`v-banner--${props.lines}-line`]: true,
-            },
-            borderClasses.value,
-            densityClasses.value,
-            elevationClasses.value,
-            positionClasses.value,
-            roundedClasses.value,
-            textColorClasses.value,
-            themeClasses.value,
-          ]}
-          style={[
-            dimensionStyles.value,
-            positionStyles.value,
-            textColorStyles.value,
-          ]}
-          role="banner"
-        >
-          { hasContent && (
-            <VBannerContent>
-              { hasAvatar && (
-                <VBannerAvatar>
-                  { slots.avatar
-                    ? slots.avatar()
-                    : (
-                      <VAvatar
-                        density={ props.density }
-                        icon={ props.icon }
-                        image={ props.avatar }
-                      />
-                    )
-                  }
-                </VBannerAvatar>
-              ) }
-
-              { hasText && (
-                <VBannerText>
-                  { slots.text ? slots.text() : props.text }
-                </VBannerText>
-              ) }
-
-              { slots.default?.() }
-            </VBannerContent>
-          ) }
-
-          { slots.actions && (
-            <VBannerActions v-slots={{ default: slots.actions }} />
-          ) }
-        </props.tag>
-      )
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--mobile`]: mobile.value,
+        [`${name}--sticky`]: props.sticky,
+        [`${name}--${props.lines}-line`]: true,
+      },
+      borderClasses.value,
+      densityClasses.value,
+      elevationClasses.value,
+      positionClasses.value,
+      roundedClasses.value,
+      textColorClasses.value,
+      themeClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return {
+      ...dimensionStyles.value,
+      ...positionStyles.value,
+      ...textColorStyles.value,
     }
-  },
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+  }
 })
 
-export type VBanner = InstanceType<typeof VBanner>
+export const VBanner = uni2Platform(UniVBanner, (props, state, { renders }) => {
+  const hasAvatar = !!(props.avatar || props.icon || props.avatarRender || props.iconRender)
+  const hasText = !!(props.text || props.textRender)
+  const defaultContent = renders.defaultRender?.()
+  const hasContent = hasAvatar || hasText || defaultContent
+
+  return (
+    <props.tag
+      class={state.rootClass}
+      style={state.rootStyle}
+      role="banner"
+    >
+      { hasContent && (
+        <VBannerContent>
+          { hasAvatar && (
+            <VBannerAvatar>
+              { props.avatarRender
+                ? props.avatarRender()
+                : (
+                  // todo icon render
+                  <VAvatar
+                    density={ props.density }
+                    icon={ props.icon }
+                    image={ props.avatar }
+                  />
+                )
+              }
+            </VBannerAvatar>
+          ) }
+
+          { hasText && (
+            <VBannerText>
+              { props.textRender ? props.textRender() : props.text }
+            </VBannerText>
+          ) }
+
+          { defaultContent }
+        </VBannerContent>
+      ) }
+
+      { props.actionsRender && (
+        <VBannerActions>
+          { props.actionsRender() }
+        </VBannerActions>
+      ) }
+    </props.tag>
+  )
+})

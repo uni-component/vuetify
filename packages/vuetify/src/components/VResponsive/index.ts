@@ -1,1 +1,1 @@
-export { VResponsive } from './VResponsive'
+export { VResponsive, VResponsiveSymbol } from './VResponsive'

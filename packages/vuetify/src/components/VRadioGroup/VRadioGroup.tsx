@@ -1,3 +1,14 @@
+import type {
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  Fragment,
+  h,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VRadioGroup.sass'
 
@@ -8,94 +19,88 @@ import { VSelectionControlGroup } from '@/components/VSelectionControlGroup'
 import { filterControlProps, makeSelectionControlProps } from '@/components/VSelectionControl/VSelectionControl'
 
 // Utility
-import { computed, defineComponent } from 'vue'
-import { filterInputAttrs, getUid, useRender } from '@/util'
+import { computed } from '@uni-store/core'
+import { filterInputAttrs, getUid } from '@/util'
 
-export const VRadioGroup = defineComponent({
-  name: 'VRadioGroup',
-
-  inheritAttrs: false,
-
-  props: {
-    height: {
-      type: [Number, String],
-      default: 'auto',
-    },
-
-    ...makeVInputProps(),
-    ...makeSelectionControlProps(),
-
-    trueIcon: {
-      type: String,
-      default: '$radioOn',
-    },
-    falseIcon: {
-      type: String,
-      default: '$radioOff',
-    },
-    type: {
-      type: String,
-      default: 'radio',
-    },
+const UniVRadioGroup = uniComponent('v-radio-group', {
+  height: {
+    type: [Number, String],
+    default: 'auto',
   },
 
-  setup (props, { attrs, slots }) {
-    const uid = getUid()
-    const id = computed(() => props.id || `radio-group-${uid}`)
+  ...makeVInputProps(),
+  ...makeSelectionControlProps(),
 
-    useRender(() => {
-      const [inputAttrs, controlAttrs] = filterInputAttrs(attrs)
-      const [inputProps, _1] = filterInputProps(props)
-      const [controlProps, _2] = filterControlProps(props)
-      const label = slots.label
-        ? slots.label({
-          label: props.label,
-          props: { for: id.value },
-        })
-        : props.label
+  trueIcon: {
+    type: String,
+    default: '$radioOn',
+  },
+  falseIcon: {
+    type: String,
+    default: '$radioOff',
+  },
+  type: {
+    type: String,
+    default: 'radio',
+  },
+  labelRender: Function as PropType<(scope: {
+    label?: string | undefined
+    props: {
+      for: string
+    }
+  }) => UniNode | undefined>,
+}, (_, props) => {
+  const uid = getUid()
+  const id = computed(() => props.id || `radio-group-${uid}`)
 
-      return (
-        <VInput
-          class="v-radio-group"
-          { ...inputAttrs }
-          { ...inputProps }
-        >
-          {{
-            ...slots,
-            default: ({
-              isDisabled,
-              isReadonly,
-              isValid,
-            }) => (
-              <>
-                { label && (
-                  <VLabel
-                    disabled={ isDisabled.value }
-                    error={ isValid.value === false }
-                    for={ id.value }
-                  >
-                    { label }
-                  </VLabel>
-                ) }
+  return {
+    id,
+  }
+})
 
-                <VSelectionControlGroup
-                  { ...controlProps }
-                  id={ id.value }
-                  trueIcon={ props.trueIcon }
-                  falseIcon={ props.falseIcon }
-                  type={ props.type }
-                  disabled={ isDisabled.value }
-                  readonly={ isReadonly.value }
-                  { ...controlAttrs }
-                  v-slots={ slots }
-                />
-              </>
-            ),
-          }}
-        </VInput>
-      )
+export const VRadioGroup = uni2Platform(UniVRadioGroup, (props, state, { renders, $attrs }) => {
+  const [inputAttrs, controlAttrs] = filterInputAttrs($attrs)
+  const [inputProps, _1] = filterInputProps(props)
+  const [controlProps, _2] = filterControlProps(props)
+  const label = props.labelRender
+    ? props.labelRender({
+      label: props.label,
+      props: { for: state.id },
     })
+    : props.label
+  return (
+    <VInput
+      id={state.rootId}
+      class={state.rootClass}
+      style={state.rootStyle}
+      { ...inputAttrs }
+      { ...inputProps }
+      { ...renders }
+      defaultRender={({ isDisabled, isReadonly, isValid }) => (
+        <>
+          { label && (
+            <VLabel
+              disabled={ isDisabled.value }
+              error={ isValid.value === false }
+              for={ state.id }
+            >
+              { label }
+            </VLabel>
+          ) }
 
-    return {}
-  },
+          <VSelectionControlGroup
+            { ...controlProps }
+            { ...controlAttrs }
+            { ...renders }
+            id={ state.id }
+            trueIcon={ props.trueIcon }
+            falseIcon={ props.falseIcon }
+            type={ props.type }
+            disabled={ isDisabled.value }
+            readonly={ isReadonly.value }
+          />
+        </>
+      )}
+    />
+  )
 })

@@ -1,3 +1,6 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Components
 import { VIcon } from '@/components/VIcon'
 import { VExpansionPanelSymbol } from './VExpansionPanels'
@@ -6,11 +9,12 @@ import { VExpansionPanelSymbol } from './VExpansionPanels'
 import { useBackgroundColor } from '@/composables/color'
 
 // Directives
-import ripple from '@/directives/ripple'
+import { Ripple } from '@/directives/ripple'
+import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, inject } from 'vue'
-import { defineComponent, propsFactory } from '@/util'
+import { computed, toRef } from '@uni-store/core'
+import { propsFactory } from '@/util'
 
 export const makeVExpansionPanelTitleProps = propsFactory({
   expandIcon: {
@@ -29,57 +33,87 @@ export const makeVExpansionPanelTitleProps = propsFactory({
   color: String,
 })
 
-export const VExpansionPanelTitle = defineComponent({
-  name: 'VExpansionPanelTitle',
+type Scope = {
+  expanded: boolean
+  disabled: boolean | undefined
+  expandIcon: string
+  collapseIcon: string
+}
 
-  directives: { ripple },
+const UniVExpansionPanelTitle = uniComponent('v-expansion-panel-title', {
+  ...makeVExpansionPanelTitleProps(),
+  defaultRender: Function as PropType<(scope: Scope) => UniNode | undefined>,
+  actionsRender: Function as PropType<(scope: Scope) => UniNode | undefined>,
+}, (name, props) => {
+  const expansionPanel = inject(VExpansionPanelSymbol)
 
-  props: {
-    ...makeVExpansionPanelTitleProps(),
-  },
+  if (!expansionPanel) throw new Error('[Vuetify] v-expansion-panel-title needs to be placed inside v-expansion-panel')
 
-  setup (props, { slots }) {
-    const expansionPanel = inject(VExpansionPanelSymbol)
+  const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(toRef(props, 'color'))
 
-    if (!expansionPanel) throw new Error('[Vuetify] v-expansion-panel-title needs to be placed inside v-expansion-panel')
+  const slotProps = computed(() => ({
+    expanded: expansionPanel.isSelected.value,
+    disabled: expansionPanel.disabled.value,
+    expandIcon: props.expandIcon,
+    collapseIcon: props.collapseIcon,
+  }))
 
-    const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(props, 'color')
+  const rootClass = computed(() => {
+    return [
+      expansionPanel.isSelected.value && `${name}--active`,
+      backgroundColorClasses.value,
+    ]
+  })
 
-    const slotProps = computed(() => ({
-      expanded: expansionPanel.isSelected.value,
-      disabled: expansionPanel.disabled.value,
-      expandIcon: props.expandIcon,
-      collapseIcon: props.collapseIcon,
-    }))
+  const rootStyle = computed(() => {
+    return backgroundColorStyles.value
+  })
 
-    return () => (
-      <button
-        class={[
-          'v-expansion-panel-title',
+  const rippleDirective = useDirective(Ripple, computed(() => {
+    return {
+      value: props.ripple,
+      modifiers: {},
+    }
+  }))
+
+  return {
+    rootClass,
+    rootStyle,
+    rippleDirective,
+    expansionPanel,
+    slotProps,
+  }
+})
+
+export const VExpansionPanelTitle = uni2Platform(UniVExpansionPanelTitle, (props, state, { renders }) => {
+  const {
+    rootClass,
+    rootStyle,
+    rippleDirective,
+    expansionPanel,
+    slotProps,
+  } = state
+  return (
+    <button
+      class={rootClass}
+      style={rootStyle}
+      ref={rippleDirective.setEleRef}
+      type="button"
+      tabindex={ expansionPanel.disabled ? -1 : undefined }
+      disabled={ expansionPanel.disabled }
+      aria-expanded={ expansionPanel.isSelected }
+      onClick={ expansionPanel.toggle }
+    >
+      <div class="v-expansion-panel-title__overlay" />
+      { props.defaultRender ? props.defaultRender(slotProps) : renders.defaultRender?.(slotProps) }
+      { !props.hideActions && (
+        <div class="v-expansion-panel-title__icon">
           {
-            'v-expansion-panel-title--active': expansionPanel.isSelected.value,
-          },
-          backgroundColorClasses.value,
-        ]}
-        style={ backgroundColorStyles.value }
-        type="button"
-        tabindex={ expansionPanel.disabled.value ? -1 : undefined }
-        disabled={ expansionPanel.disabled.value }
-        aria-expanded={ expansionPanel.isSelected.value }
-        onClick={ expansionPanel.toggle }
-        v-ripple={ props.ripple }
-      >
-        <div class="v-expansion-panel-title__overlay" />
-        { slots.default?.(slotProps.value) }
-        { !props.hideActions && (
-          <div class="v-expansion-panel-title__icon">
-            {
-              slots.actions ? slots.actions(slotProps.value)
-              : <VIcon icon={ expansionPanel.isSelected.value ? props.collapseIcon : props.expandIcon } />
-            }
-          </div>
-        ) }
-      </button>
-    )
-  },
+            props.actionsRender ? props.actionsRender(slotProps)
+            : <VIcon icon={ expansionPanel.isSelected ? props.collapseIcon : props.expandIcon } />
+          }
+        </div>
+      ) }
+    </button>
+  )
 })

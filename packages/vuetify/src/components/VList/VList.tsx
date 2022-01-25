@@ -1,3 +1,5 @@
+import { h, inject, provide, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VList.sass'
 
@@ -17,12 +19,11 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { makeNestedProps, useNested } from '@/composables/nested/nested'
 
 // Utilities
-import { inject, provide, ref, toRef } from 'vue'
-import { genericComponent, useRender } from '@/util'
+import { computed, ref, toRef } from '@uni-store/core'
 
 // Types
-import type { InjectionKey, Prop, Ref } from 'vue'
-import type { MakeSlots } from '@/util'
+import type { Ref } from '@uni-store/core'
+import type { InjectionKey, Prop, PropType, UniNode } from '@uni-component/core'
 import type { ListGroupHeaderSlot } from './VListGroup'
 
 export type ListItem = {
@@ -58,112 +59,106 @@ export const useList = () => {
   return inject(ListKey, null)
 }
 
-export const VList = genericComponent<new <T>() => {
-  $props: {
-    items?: T[]
-  }
-  $slots: MakeSlots<{
-    subheader: []
-    header: [ListGroupHeaderSlot]
-    item: [T]
-  }>
-}>()({
-  name: 'VList',
-
-  props: {
-    color: String,
-    disabled: Boolean,
-    lines: {
-      type: String,
-      default: 'one',
-    },
-    nav: Boolean,
-    subheader: {
-      type: [Boolean, String],
-      default: false,
-    },
-    items: Array as Prop<ListItem[]>,
-
-    ...makeNestedProps({
-      selectStrategy: 'leaf' as const,
-      openStrategy: 'multiple' as const,
-      activeStrategy: 'single' as const,
-    }),
-    ...makeBorderProps(),
-    ...makeDensityProps(),
-    ...makeDimensionProps(),
-    ...makeElevationProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
+const UniVList = uniComponent('v-list', {
+  color: String,
+  disabled: Boolean,
+  lines: {
+    type: String,
+    default: 'one',
   },
-
-  emits: {
-    'update:selected': (val: string[]) => true,
-    'update:opened': (val: string[]) => true,
-    'update:active': (val: string[]) => true,
+  nav: Boolean,
+  subheader: {
+    type: [Boolean, String],
+    default: false,
   },
+  items: Array as Prop<ListItem[]>,
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(toRef(props, 'color'))
-    const { borderClasses } = useBorder(props)
-    const { densityClasses } = useDensity(props)
-    const { dimensionStyles } = useDimension(props)
-    const { elevationClasses } = useElevation(props)
-    const { roundedClasses } = useRounded(props)
-    const { open, select, activate } = useNested(props)
-    createList()
+  ...makeNestedProps({
+    selectStrategy: 'leaf' as const,
+    openStrategy: 'multiple' as const,
+    activeStrategy: 'single' as const,
+  }),
+  ...makeBorderProps(),
+  ...makeDensityProps(),
+  ...makeDimensionProps(),
+  ...makeElevationProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
 
-    useRender(() => {
-      const hasHeader = typeof props.subheader === 'string' || slots.subheader
+  'onUpdate:selected': Function as PropType<(val: string[]) => void>,
+  'onUpdate:opened': Function as PropType<(val: string[]) => void>,
+  'onUpdate:active': Function as PropType<(val: string[]) => void>,
 
-      return (
-        <props.tag
-          class={[
-            'v-list',
-            {
-              'v-list--disabled': props.disabled,
-              'v-list--nav': props.nav,
-              'v-list--subheader': props.subheader,
-              'v-list--subheader-sticky': props.subheader === 'sticky',
-              [`v-list--${props.lines}-line`]: true,
-            },
-            themeClasses.value,
-            backgroundColorClasses.value,
-            borderClasses.value,
-            densityClasses.value,
-            elevationClasses.value,
-            roundedClasses.value,
-          ]}
-          style={[
-            backgroundColorStyles.value,
-            dimensionStyles.value,
-          ]}
-        >
-          { hasHeader && (
-            slots.subheader
-              ? slots.subheader()
-              : <VListSubheader>{ props.subheader }</VListSubheader>
-          ) }
+  subheaderRender: Function as PropType<() => UniNode | undefined>,
+  headerRender: Function as PropType<(scope: ListGroupHeaderSlot) => UniNode | undefined>,
+  itemRender: Function as PropType<(scope: ListItem) => UniNode | undefined>,
+}, (name, props, context) => {
+  const { themeClasses } = provideTheme(props)
+  const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(toRef(props, 'color'))
+  const { borderClasses } = useBorder(props)
+  const { densityClasses } = useDensity(props)
+  const { dimensionStyles } = useDimension(props)
+  const { elevationClasses } = useElevation(props)
+  const { roundedClasses } = useRounded(props)
+  const { open, select, activate } = useNested(props, context)
+  createList()
 
-          <VListChildren items={ props.items }>
-            {{
-              default: slots.default,
-              item: slots.item,
-              externalHeader: slots.header,
-            }}
-          </VListChildren>
-        </props.tag>
-      )
-    })
-
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--disabled`]: props.disabled,
+        [`${name}--nav`]: props.nav,
+        [`${name}--subheader`]: props.subheader,
+        [`${name}--subheader-sticky`]: props.subheader === 'sticky',
+        [`${name}--${props.lines}-line`]: true,
+      },
+      themeClasses.value,
+      backgroundColorClasses.value,
+      borderClasses.value,
+      densityClasses.value,
+      elevationClasses.value,
+      roundedClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
     return {
-      open,
-      select,
-      activate,
+      ...backgroundColorStyles.value,
+      ...dimensionStyles.value,
     }
-  },
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+    open,
+    select,
+    activate,
+  }
 })
 
-export type VList = InstanceType<typeof VList>
+export const VList = uni2Platform(UniVList, (props, state, { renders }) => {
+  const hasHeader = typeof props.subheader === 'string' || props.subheaderRender
+  const {
+    rootId,
+    rootClass,
+    rootStyle,
+  } = state
+  return (
+    <props.tag
+      id={rootId}
+      class={rootClass}
+      style={rootStyle}
+    >
+      { hasHeader && (
+        props.subheaderRender
+          ? props.subheaderRender()
+          : <VListSubheader>{ props.subheader }</VListSubheader>
+      ) }
+
+      <VListChildren items={ props.items } itemRender={props.itemRender} externalHeaderRender={props.headerRender}>
+        { renders.defaultRender?.() }
+      </VListChildren>
+    </props.tag>
+  )
+})

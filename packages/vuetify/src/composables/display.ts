@@ -1,12 +1,14 @@
 // Utilities
-import { inject, reactive, ref, toRefs, watchEffect } from 'vue'
+import { reactive, ref, toRefs, watchEffect } from '@uni-store/core'
+import { inject } from '@uni-component/core'
 import { mergeDeep } from '@/util'
 
 // Globals
 import { IN_BROWSER, SUPPORTS_TOUCH } from '@/util/globals'
 
 // Types
-import type { InjectionKey, ToRefs } from 'vue'
+import type { ToRefs } from '@uni-store/core'
+import type { InjectionKey } from '@uni-component/core'
 
 export type DisplayBreakpoint = keyof DisplayThresholds
 

@@ -1,33 +1,32 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { makeTagProps } from '@/composables/tag'
+import { computed } from '@uni-store/core'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVListItemAvatar = uniComponent('v-list-item-avatar', {
+  left: Boolean,
+  right: Boolean,
 
-export const VListItemAvatar = defineComponent({
-  name: 'VListItemAvatar',
-
-  props: {
-    left: Boolean,
-    right: Boolean,
-
-    ...makeTagProps(),
-  },
-
-  setup (props, { slots }) {
-    return () => {
-      return (
-        <props.tag
-          class={[
-            'v-list-item-avatar',
-            {
-              'v-list-item-avatar--start': props.left,
-              'v-list-item-avatar--end': props.right,
-            },
-          ]}
-          v-slots={ slots }
-        />
-      )
+  ...makeTagProps(),
+}, (name, props) => {
+  const rootClass = computed(() => {
+    return {
+      [`${name}--start`]: props.left,
+      [`${name}--end`]: props.right,
     }
-  },
+  })
+  return {
+    rootClass,
+  }
+})
+
+export const VListItemAvatar = uni2Platform(UniVListItemAvatar, (props, state, { renders }) => {
+  return (
+    <props.tag
+      id={state.rootId}
+      class={state.rootClass}
+      style={state.rootStyle}
+    >{ renders.defaultRender?.() }</props.tag>
+  )
 })

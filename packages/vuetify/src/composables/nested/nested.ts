@@ -1,12 +1,14 @@
 import { useProxiedModel } from '@/composables/proxiedModel'
 import { getUid, propsFactory } from '@/util'
-import { computed, inject, onBeforeUnmount, provide, ref } from 'vue'
+import { computed, ref } from '@uni-store/core'
+import { inject, onUnmounted, provide } from '@uni-component/core'
 import { multipleOpenStrategy, singleOpenStrategy } from './openStrategies'
 import { classicSelectStrategy, independentSelectStrategy, leafSelectStrategy } from './selectStrategies'
 import { classicActiveStrategy } from './activeStrategies'
 
 // Types
-import type { InjectionKey, Prop, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { Context, InjectionKey, Prop } from '@uni-component/core'
 import type { SelectStrategyFn } from './selectStrategies'
 import type { OpenStrategyFn } from './openStrategies'
 import type { ActiveStrategyFn } from './activeStrategies'
@@ -16,15 +18,15 @@ export type OpenStrategy = 'single' | 'multiple' | OpenStrategyFn
 export type ActiveStrategy = 'single' | 'multiple' | ActiveStrategyFn
 
 export interface NestedProps {
-  selectStrategy: SelectStrategy | undefined
-  openStrategy: OpenStrategy | undefined
-  activeStrategy: ActiveStrategy | undefined
-  selected: string[] | undefined
-  opened: string[] | undefined
-  active: string[] | undefined
-  'onUpdate:selected': ((val: string[]) => void) | undefined
-  'onUpdate:opened': ((val: string[]) => void) | undefined
-  'onUpdate:active': ((val: string[]) => void) | undefined
+  selectStrategy?: SelectStrategy
+  openStrategy?: OpenStrategy
+  activeStrategy?: ActiveStrategy
+  selected?: string[]
+  opened?: string[]
+  active?: string[]
+  'onUpdate:selected'?: ((val: string[]) => void)
+  'onUpdate:opened'?: ((val: string[]) => void)
+  'onUpdate:active'?: ((val: string[]) => void)
 }
 
 type NestedProvide = {
@@ -72,13 +74,13 @@ export const makeNestedProps = propsFactory({
   active: Array as Prop<string[]>,
 }, 'nested')
 
-export const useNested = (props: NestedProps) => {
+export const useNested = (props: NestedProps, context: Context) => {
   let isUnmounted = false
   const children = ref(new Map<string, string[]>())
   const parents = ref(new Map<string, string>())
 
-  const opened = useProxiedModel(props, 'opened', props.opened, v => new Set(v), v => [...v.values()])
-  const active = useProxiedModel(props, 'active', props.active, v => new Set(v), v => [...v.values()])
+  const opened = useProxiedModel(props, context, 'opened', props.opened, v => new Set(v), v => [...v.values()])
+  const active = useProxiedModel(props, context, 'active', props.active, v => new Set(v), v => [...v.values()])
 
   const activeStrategy = computed(() => {
     if (typeof props.activeStrategy === 'object') return props.activeStrategy
@@ -115,13 +117,14 @@ export const useNested = (props: NestedProps) => {
 
   const selected = useProxiedModel(
     props,
+    context,
     'selected',
     props.selected,
     v => selectStrategy.value.in(v, children.value, parents.value),
     v => selectStrategy.value.out(v, children.value, parents.value),
   )
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     isUnmounted = true
   })
 
@@ -141,7 +144,7 @@ export const useNested = (props: NestedProps) => {
         return arr
       }),
       register: (id, parentId, isGroup) => {
-        parentId && parents.value.set(id, parentId)
+        parentId && id !== parentId && parents.value.set(id, parentId)
 
         isGroup && children.value.set(id, [])
 
@@ -226,14 +229,14 @@ export const useNestedItem = (id: Ref<string | undefined>) => {
 
   parent.root.register(computedId.value, parent.id.value, false)
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     parent.root.unregister(computedId.value)
   })
 
   return item
 }
 
-export const useNestedGroup = (props: { value: string }) => {
+export const useNestedGroup = (props: { value?: string }) => {
   const parent = inject(VNestedSymbol, emptyNested)
 
   const id = computed(() => props.value ?? getUid().toString())
@@ -249,7 +252,7 @@ export const useNestedGroup = (props: { value: string }) => {
 
   parent.root.register(id.value, parent.id.value, true)
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     parent.root.unregister(id.value)
   })
 

@@ -13,7 +13,7 @@ module.exports = {
     // 'plugin:import/typescript', // slow, only enable if needed
   ],
   rules: {
-    'no-console': 'error',
+    'no-console': 'off',
     'no-debugger': 'error',
 
     // 'vue/html-self-closing': 'off',

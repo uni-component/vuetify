@@ -2,11 +2,14 @@
 import { useProxiedModel } from './proxiedModel'
 
 // Utilities
-import { computed, inject, onBeforeUnmount, onMounted, provide, reactive, toRef } from 'vue'
-import { consoleWarn, deepEqual, findChildren, getCurrentInstance, getUid, propsFactory, wrapInArray } from '@/util'
+import { computed, reactive, toRef } from '@uni-store/core'
+import { inject, onMounted, onUnmounted, provide } from '@uni-component/core'
+import { consoleWarn, deepEqual, getCurrentInstance, getUid, propsFactory, wrapInArray } from '@/util'
 
 // Types
-import type { ComponentInternalInstance, ExtractPropTypes, InjectionKey, PropType, Ref, UnwrapRef } from 'vue'
+import type { Ref, UnwrapRef } from '@uni-store/core'
+import type { Context, InjectionKey, PropType } from '@uni-component/core'
+import type { ExtractPropTypes } from '@vue/runtime-core'
 
 interface GroupItem {
   id: number
@@ -15,17 +18,17 @@ interface GroupItem {
 }
 
 interface GroupProps {
-  disabled: boolean
-  modelValue: unknown
-  multiple: boolean
-  mandatory: boolean | 'force' | undefined
-  max: number | undefined
-  selectedClass: string | undefined
-  'onUpdate:modelValue': ((val: unknown) => void) | undefined
+  disabled?: boolean
+  multiple?: boolean
+  modelValue?: unknown
+  mandatory?: boolean | 'force'
+  max?: number
+  selectedClass?: string
+  'onUpdate:modelValue'?: (val: unknown) => void
 }
 
 export interface GroupProvide {
-  register: (item: GroupItem, cmp: ComponentInternalInstance) => void
+  register: (item: GroupItem) => void
   unregister: (id: number) => void
   select: (id: number, value: boolean) => void
   selected: Ref<any[]>
@@ -42,7 +45,7 @@ export interface GroupItemProvide {
   isSelected: Ref<boolean>
   toggle: () => void
   select: (value: boolean) => void
-  selectedClass: Ref<string | false | undefined>
+  selectedClass: Ref<string | undefined>
   value: Ref<unknown>
   disabled: Ref<boolean | undefined>
   group: GroupProvide
@@ -58,10 +61,13 @@ export const makeGroupProps = propsFactory({
   max: Number,
   selectedClass: String,
   disabled: Boolean,
+  'onUpdate:modelValue': Function as PropType<(val: unknown) => void>,
 }, 'group')
 
 export const makeGroupItemProps = propsFactory({
-  value: null,
+  value: {
+    type: null,
+  },
   disabled: Boolean,
   selectedClass: String,
 }, 'group-item')
@@ -108,9 +114,9 @@ export function useGroupItem (
     id,
     value,
     disabled,
-  }, vm)
+  })
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     group.unregister(id)
   })
 
@@ -118,7 +124,10 @@ export function useGroupItem (
     return group.isSelected(id)
   })
 
-  const selectedClass = computed(() => isSelected.value && (group.selectedClass.value ?? props.selectedClass))
+  const selectedClass = computed(() => {
+    const cls = isSelected.value && (group.selectedClass.value ?? props.selectedClass)
+    return cls === false ? undefined : cls
+  })
 
   return {
     id,
@@ -134,12 +143,14 @@ export function useGroupItem (
 
 export function useGroup (
   props: GroupProps,
-  injectKey: InjectionKey<GroupProvide>
+  injectKey: InjectionKey<GroupProvide>,
+  context: Context
 ) {
   let isUnmounted = false
   const items = reactive<GroupItem[]>([])
   const selected = useProxiedModel(
     props,
+    context,
     'modelValue',
     [],
     v => {
@@ -154,17 +165,12 @@ export function useGroup (
     }
   )
 
-  const groupVm = getCurrentInstance('useGroup')
-
-  function register (item: GroupItem, vm: ComponentInternalInstance) {
+  function register (item: GroupItem) {
     // Is there a better way to fix this typing?
     const unwrapped = item as unknown as UnwrapRef<GroupItem>
+    const id = unwrapped.id
 
-    const children = findChildren(groupVm?.vnode)
-    const instances = children
-      .slice(1) // First one is group component itself
-      .filter(cmp => !!cmp.provides[injectKey as any]) // TODO: Fix in TS 4.4
-    const index = instances.indexOf(vm)
+    const index = items.findIndex(item => item.id === id)
 
     if (index > -1) items.splice(index, 0, unwrapped)
     else items.push(unwrapped)
@@ -195,7 +201,7 @@ export function useGroup (
     forceMandatoryValue()
   })
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     isUnmounted = true
   })
 

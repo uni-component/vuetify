@@ -1,3 +1,6 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { classNames, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VSliderTrack.sass'
 
@@ -9,157 +12,200 @@ import { useBackgroundColor } from '@/composables/color'
 import { useRounded } from '@/composables/rounded'
 
 // Utilities
-import { computed, inject } from 'vue'
-import { convertToUnit, defineComponent } from '@/util'
+import { computed } from '@uni-store/core'
+import { convertToUnit } from '@/util'
 
-export const VSliderTrack = defineComponent({
-  name: 'VSliderTrack',
+import type { Tick } from './slider'
 
-  props: {
-    start: {
-      type: Number,
-      required: true,
-    },
-    stop: {
-      type: Number,
-      required: true,
-    },
+const UniVSliderTrack = uniComponent('v-slider-track', {
+  start: {
+    type: Number,
+    required: true,
   },
+  stop: {
+    type: Number,
+    required: true,
+  },
+  tickLabelRender: Function as PropType<(scope: {
+    tick: Tick
+    index: number
+  }) => UniNode | undefined>,
+}, (name, props) => {
+  const slider = inject(VSliderSymbol)
 
-  emits: {},
+  if (!slider) throw new Error('[Vuetify] v-slider-track must be inside v-slider or v-range-slider')
 
-  setup (props, { slots }) {
-    const slider = inject(VSliderSymbol)
+  const {
+    trackColor,
+    trackFillColor,
+    vertical,
+    tickSize,
+    showTicks,
+    trackSize,
+    color,
+    rounded,
+    parsedTicks,
+    horizontalDirection,
+  } = slider
 
-    if (!slider) throw new Error('[Vuetify] v-slider-track must be inside v-slider or v-range-slider')
+  const { roundedClasses } = useRounded(rounded)
 
-    const {
-      trackColor,
-      trackFillColor,
-      vertical,
-      tickSize,
-      showTicks,
-      trackSize,
-      color,
-      rounded,
-      parsedTicks,
-      horizontalDirection,
-    } = slider
+  const {
+    backgroundColorClasses: trackFillColorClasses,
+    backgroundColorStyles: trackFillColorStyles,
+  } = useBackgroundColor(trackFillColor)
 
-    const { roundedClasses } = useRounded(rounded)
+  const {
+    backgroundColorClasses: trackColorClasses,
+    backgroundColorStyles: trackColorStyles,
+  } = useBackgroundColor(trackColor)
 
-    const {
-      backgroundColorClasses: trackFillColorClasses,
-      backgroundColorStyles: trackFillColorStyles,
-    } = useBackgroundColor(trackFillColor)
+  const startDir = computed(() => `inset-${vertical.value ? 'block-end' : 'inline-start'}`)
+  const endDir = computed(() => vertical.value ? 'height' : 'width')
 
-    const {
-      backgroundColorClasses: trackColorClasses,
-      backgroundColorStyles: trackColorStyles,
-    } = useBackgroundColor(trackColor)
+  const backgroundStyles = computed(() => {
+    return {
+      [startDir.value]: '0%',
+      [endDir.value]: '100%',
+    }
+  })
 
-    const startDir = computed(() => `inset-${vertical.value ? 'block-end' : 'inline-start'}`)
-    const endDir = computed(() => vertical.value ? 'height' : 'width')
+  const trackFillWidth = computed(() => props.stop - props.start)
 
-    const backgroundStyles = computed(() => {
-      return {
-        [startDir.value]: '0%',
-        [endDir.value]: '100%',
-      }
-    })
+  const trackFillStyles = computed(() => {
+    return {
+      [startDir.value]: convertToUnit(props.start, '%'),
+      [endDir.value]: convertToUnit(trackFillWidth.value, '%'),
+    }
+  })
 
-    const trackFillWidth = computed(() => props.stop - props.start)
+  const computedTicks = computed(() => {
+    const ticks = vertical.value ? parsedTicks.value.slice().reverse() : parsedTicks.value
 
-    const trackFillStyles = computed(() => {
-      return {
-        [startDir.value]: convertToUnit(props.start, '%'),
-        [endDir.value]: convertToUnit(trackFillWidth.value, '%'),
-      }
-    })
-
-    const computedTicks = computed(() => {
-      const ticks = vertical.value ? parsedTicks.value.slice().reverse() : parsedTicks.value
-
-      return ticks.map((tick, index) => {
-        const directionProperty = vertical.value ? 'inset-block-end' : 'margin-inline-start'
-        return (
-          <div
-            key={ tick.value }
-            class={[
-              'v-slider-track__tick',
-              {
-                'v-slider-track__tick--filled': tick.position >= props.start && tick.position <= props.stop,
-              },
-            ]}
-            style={{
-              [directionProperty]: (tick.position > 0 && tick.position < 100) && convertToUnit(tick.position, '%'),
-            }}
-          >
-            {
-              (tick.label || slots['tick-label']) && (
-                <div class="v-slider-track__tick-label">
-                  { slots['tick-label']?.({ tick, index }) ?? tick.label }
-                </div>
-              )
-            }
-          </div>
-        )
-      })
-    })
-
-    return () => {
+    return ticks.map((tick, index) => {
+      const directionProperty = vertical.value ? 'inset-block-end' : 'margin-inline-start'
       return (
         <div
-          class={[
-            'v-slider-track',
-            roundedClasses.value,
-          ]}
+          key={ tick.value }
+          class={classNames([
+            `${name}__tick`,
+            {
+              [`${name}__tick--filled`]: tick.position >= props.start && tick.position <= props.stop,
+            },
+          ])}
           style={{
-            '--v-slider-track-size': convertToUnit(trackSize.value),
-            '--v-slider-tick-size': convertToUnit(tickSize.value),
-            direction: !vertical.value ? horizontalDirection.value : undefined,
+            [directionProperty]: (tick.position > 0 && tick.position < 100) ? convertToUnit(tick.position, '%') : undefined,
           }}
         >
-          <div
-            class={[
-              'v-slider-track__background',
-              trackColorClasses.value,
-              {
-                'v-slider-track__background--opacity': !!color.value || !trackFillColor.value,
-              },
-            ]}
-            style={{
-              ...backgroundStyles.value,
-              ...trackColorStyles.value,
-            }}
-          />
-          <div
-            class={[
-              'v-slider-track__fill',
-              trackFillColorClasses.value,
-            ]}
-            style={{
-              ...trackFillStyles.value,
-              ...trackFillColorStyles.value,
-            }}
-          />
-
-          { showTicks.value && (
-            <div
-              class={[
-                'v-slider-track__ticks',
-                {
-                  'v-slider-track__ticks--always-show': showTicks.value === 'always',
-                },
-              ]}
-            >
-              { computedTicks.value }
-            </div>
-          ) }
+          {
+            (tick.label || props.tickLabelRender) && (
+              <div class={`${name}__tick-label`}>
+                { props.tickLabelRender?.({ tick, index }) ?? tick.label }
+              </div>
+            )
+          }
         </div>
       )
+    })
+  })
+
+  const rootClass = computed(() => {
+    return roundedClasses.value
+  })
+  const rootStyle = computed(() => {
+    return {
+      '--v-slider-track-size': convertToUnit(trackSize.value),
+      '--v-slider-tick-size': convertToUnit(tickSize.value),
+      direction: !vertical.value ? horizontalDirection.value : undefined,
     }
-  },
+  })
+
+  const backgroundClass = computed(() => {
+    return classNames([
+      `${name}__background`,
+      trackColorClasses.value,
+      {
+        [`${name}__background--opacity`]: !!color.value || !trackFillColor.value,
+      },
+    ])
+  })
+  const backgroundStyle = computed(() => {
+    return {
+      ...backgroundStyles.value,
+      ...trackColorStyles.value,
+    }
+  })
+
+  const fillClass = computed(() => {
+    return classNames([
+      `${name}__fill`,
+      trackFillColorClasses.value,
+    ])
+  })
+  const fillStyle = computed(() => {
+    return {
+      ...trackFillStyles.value,
+      ...trackFillColorStyles.value,
+    }
+  })
+
+  const ticksClass = computed(() => {
+    return showTicks.value ? classNames([
+      `${name}__ticks`,
+      {
+        [`${name}__ticks--always-show`]: showTicks.value === 'always',
+      },
+    ]) : ''
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+    backgroundClass,
+    backgroundStyle,
+    fillClass,
+    fillStyle,
+    showTicks,
+    computedTicks,
+    ticksClass,
+  }
 })
 
-export type VSliderTrack = InstanceType<typeof VSliderTrack>
+export const VSliderTrack = uni2Platform(UniVSliderTrack, (props, state) => {
+  const {
+    rootId,
+    rootClass,
+    rootStyle,
+    backgroundClass,
+    backgroundStyle,
+    fillClass,
+    fillStyle,
+    showTicks,
+    computedTicks,
+    ticksClass,
+  } = state
+  return (
+    <div
+      id={rootId}
+      class={rootClass}
+      style={rootStyle}
+    >
+      <div
+        class={backgroundClass}
+        style={backgroundStyle}
+      />
+      <div
+        class={fillClass}
+        style={fillStyle}
+      />
+
+      { showTicks && (
+        <div
+          class={ticksClass}
+        >
+          { computedTicks }
+        </div>
+      ) }
+    </div>
+  )
+})

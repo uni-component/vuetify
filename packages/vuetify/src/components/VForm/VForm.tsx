@@ -1,39 +1,25 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { createForm, makeFormProps } from '@/composables/form'
 
-// Utilities
-import { defineComponent, useRender } from '@/util'
-
-export const VForm = defineComponent({
-  name: 'VForm',
-
-  props: {
-    ...makeFormProps(),
-  },
-
-  emits: {
-    'update:modelValue': (val: boolean | null) => true,
-    resetValidation: () => true,
-    reset: (e: Event) => true,
-    submit: (e: Event) => true,
-  },
-
-  setup (props, { slots }) {
-    const form = createForm(props)
-
-    useRender(() => ((
-      <form
-        class="v-form"
-        novalidate
-        onReset={ form.reset }
-        onSubmit={ form.submit }
-      >
-        { slots.default?.(form) }
-      </form>
-    )))
-
-    return form
-  },
+const UniVForm = uniComponent('v-form', {
+  ...makeFormProps(),
+}, (_, props, context) => {
+  return createForm(props, context)
 })
 
-export type VForm = InstanceType<typeof VForm>
+export const VForm = uni2Platform(UniVForm, (props, state, { renders }) => {
+  return (
+    <form
+      id={state.rootId}
+      class={state.rootClass}
+      style={state.rootStyle}
+      novalidate
+      onReset={ state.reset }
+      onSubmit={ state.submit }
+    >
+      { props.defaultRender ? props.defaultRender(state) : renders.defaultRender?.(state) }
+    </form>
+  )
+})

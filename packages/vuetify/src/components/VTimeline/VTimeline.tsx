@@ -1,3 +1,11 @@
+import type { PropType } from '@uni-component/core'
+import {
+  h,
+  provide,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VTimeline.sass'
 
@@ -10,88 +18,99 @@ import { makeDensityProps, useDensity } from '@/composables/density'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Helpers
-import { computed, provide, toRef } from 'vue'
-import { convertToUnit, defineComponent } from '@/util'
+import { computed, toRef } from '@uni-store/core'
+import { convertToUnit } from '@/util'
 import { VTimelineSymbol } from './shared'
 
-// Types
-import type { Prop } from 'vue'
-
 export type TimelineDirection = 'vertical' | 'horizontal'
-export type TimelineSide = 'before' | 'after' | undefined
+export type TimelineSide = 'before' | 'after'
 
-export const VTimeline = defineComponent({
-  name: 'VTimeline',
-
-  props: {
-    direction: {
-      type: String,
-      default: 'vertical',
-      validator: (v: any) => ['vertical', 'horizontal'].includes(v),
-    } as Prop<TimelineDirection>,
-    side: {
-      type: String,
-      validator: (v: any) => v == null || ['start', 'end'].includes(v),
-    } as Prop<TimelineSide>,
-    lineInset: {
-      type: [String, Number],
-      default: 0,
-    },
-    lineThickness: {
-      type: [String, Number],
-      default: 2,
-    },
-    lineColor: String,
-    truncateLine: {
-      type: String,
-      default: 'start',
-      validator: (v: any) => ['none', 'start', 'end', 'both'].includes(v),
-    },
-
-    ...makeDensityProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
+const UniVTimeline = uniComponent('v-timeline', {
+  direction: {
+    type: String as PropType<TimelineDirection>,
+    default: 'vertical',
+    validator: (v: any) => ['vertical', 'horizontal'].includes(v),
+  },
+  side: {
+    type: String as PropType<TimelineSide>,
+    validator: (v: any) => v == null || ['before', 'after'].includes(v),
+  },
+  lineInset: {
+    type: [String, Number],
+    default: 0,
+  },
+  lineThickness: {
+    type: [String, Number],
+    default: 2,
+  },
+  lineColor: String,
+  truncateLine: {
+    type: String as PropType<'none' | 'start' | 'end' | 'both'>,
+    default: 'start',
+    validator: (v: any) => ['none', 'start', 'end', 'both'].includes(v),
   },
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { densityClasses } = useDensity(props)
+  ...makeDensityProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
+  const { densityClasses } = useDensity(props)
 
-    provide(VTimelineSymbol, {
-      density: toRef(props, 'density'),
-      lineColor: toRef(props, 'lineColor'),
-    })
+  provide(VTimelineSymbol, {
+    density: toRef(props, 'density'),
+    lineColor: toRef(props, 'lineColor'),
+  })
 
-    const sideClass = computed(() => {
-      const side = props.side ? props.side : props.density !== 'default' ? 'end' : null
+  const sideClass = computed(() => {
+    const side = props.side ? props.side : props.density !== 'default' ? 'end' : null
 
-      return side && `v-timeline--side-${side}`
-    })
+    return side && `${name}--side-${side}`
+  })
 
-    return () => (
-      <props.tag
-        class={[
-          'v-timeline',
-          `v-timeline--${props.direction}`,
-          {
-            'v-timeline--inset-line': !!props.lineInset,
-            'v-timeline--truncate-line-end': props.truncateLine === 'end' || props.truncateLine === 'both',
-          },
-          themeClasses.value,
-          densityClasses.value,
-          sideClass.value,
-        ]}
-        style={{
-          '--v-timeline-line-thickness': convertToUnit(props.lineThickness),
-          '--v-timeline-line-inset': convertToUnit(props.lineInset || undefined),
-        }}
-      >
-        { (props.truncateLine === 'none' || props.truncateLine === 'end') && (
-          <VTimelineItem hideDot />
-        ) }
+  const rootClass = computed(() => {
+    return [
+      `${name}--${props.direction}`,
+      {
+        [`${name}--inset-line`]: !!props.lineInset,
+        [`${name}--truncate-line-end`]: props.truncateLine === 'end' || props.truncateLine === 'both',
+      },
+      themeClasses.value,
+      densityClasses.value,
+      sideClass.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return {
+      '--v-timeline-line-thickness': convertToUnit(props.lineThickness),
+      '--v-timeline-line-inset': convertToUnit(props.lineInset || undefined),
+    }
+  })
 
-        { slots.default?.() }
-      </props.tag>
-    )
-  },
+  return {
+    rootClass,
+    rootStyle,
+  }
+})
+
+export const VTimeline = uni2Platform(UniVTimeline, (props, state, { renders, $attrs }) => {
+  const {
+    rootId,
+    rootClass,
+    rootStyle,
+  } = state
+  return (
+    <props.tag
+      id={rootId}
+      class={rootClass}
+      style={rootStyle}
+      {...$attrs}
+    >
+      { (props.truncateLine === 'none' || props.truncateLine === 'end') && (
+        <VTimelineItem hideDot />
+      ) }
+
+      { renders.defaultRender?.() }
+    </props.tag>
+  )
 })

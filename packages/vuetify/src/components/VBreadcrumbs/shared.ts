@@ -1,4 +1,5 @@
-import type { InjectionKey, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { InjectionKey } from '@uni-component/core'
 
 interface BreadcrumbsContext {
   color: Ref<string | undefined>

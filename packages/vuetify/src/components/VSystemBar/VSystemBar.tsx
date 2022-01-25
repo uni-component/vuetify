@@ -1,3 +1,10 @@
+import {
+  h,
+  mergeStyle,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VSystemBar.sass'
 
@@ -9,54 +16,65 @@ import { makePositionProps, usePosition } from '@/composables/position'
 import { makeRoundedProps, useRounded } from '@/composables/rounded'
 import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
+import { computed } from '@uni-store/core'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVSystemBar = uniComponent('v-system-bar', {
+  lightsOut: Boolean,
+  window: Boolean,
 
-export const VSystemBar = defineComponent({
-  name: 'VSystemBar',
+  ...makeBorderProps(),
+  ...makeDimensionProps(),
+  ...makeElevationProps(),
+  ...makePositionProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
+  const { borderClasses } = useBorder(props)
+  const { dimensionStyles } = useDimension(props)
+  const { elevationClasses } = useElevation(props)
+  const { positionClasses, positionStyles } = usePosition(props)
+  const { roundedClasses } = useRounded(props)
 
-  props: {
-    lightsOut: Boolean,
-    window: Boolean,
-
-    ...makeBorderProps(),
-    ...makeDimensionProps(),
-    ...makeElevationProps(),
-    ...makePositionProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
-  },
-
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { borderClasses } = useBorder(props)
-    const { dimensionStyles } = useDimension(props)
-    const { elevationClasses } = useElevation(props)
-    const { positionClasses, positionStyles } = usePosition(props)
-    const { roundedClasses } = useRounded(props)
-
-    return () => (
-      <props.tag
-        class={[
-          {
-            'v-system-bar': true,
-            'v-system-bar--lights-out': props.lightsOut,
-            'v-system-bar--window': props.window,
-          },
-          themeClasses.value,
-          borderClasses.value,
-          elevationClasses.value,
-          positionClasses.value,
-          roundedClasses.value,
-        ]}
-        style={[
-          dimensionStyles.value,
-          positionStyles.value,
-        ]}
-        v-slots={ slots }
-      />
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--lights-out`]: props.lightsOut,
+        [`${name}--window`]: props.window,
+      },
+      themeClasses.value,
+      borderClasses.value,
+      elevationClasses.value,
+      positionClasses.value,
+      roundedClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return mergeStyle(
+      dimensionStyles.value,
+      positionStyles.value,
     )
-  },
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+  }
+})
+
+export const VSystemBar = uni2Platform(UniVSystemBar, (props, state, { renders, $attrs }) => {
+  const {
+    rootId,
+    rootClass,
+    rootStyle,
+  } = state
+  return (
+    <props.tag
+      id={rootId}
+      class={rootClass}
+      style={rootStyle}
+      {...$attrs}
+    >{ renders.defaultRender?.() }</props.tag>
+  )
 })

@@ -1,11 +1,13 @@
 // Utilities
-import { computed, inject, isRef } from 'vue'
-import { defineComponent, propsFactory } from '@/util'
+import { computed, isRef } from '@uni-store/core'
+import { h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { propsFactory } from '@/util'
 
 // Types
-import type { InjectionKey, JSXComponent, PropType, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { InjectionKey, PlatformComponent, PropType } from '@uni-component/core'
 
-export type IconValue = string | JSXComponent
+export type IconValue = string | PlatformComponent<any>
 
 export interface IconAliases {
   [name: string]: IconValue
@@ -50,7 +52,7 @@ export interface IconProps {
   disabled?: Boolean
 }
 
-type IconComponent = JSXComponent<IconProps>
+type IconComponent = PlatformComponent<IconProps>
 
 export interface IconSet {
   component: IconComponent
@@ -81,70 +83,56 @@ export const makeIconProps = propsFactory({
   },
 }, 'icon')
 
-export const VComponentIcon = defineComponent({
-  name: 'VComponentIcon',
-
-  props: makeIconProps(),
-
-  setup (props) {
-    return () => {
-      return (
-        <props.tag>
-          <props.icon />
-        </props.tag>
-      )
-    }
-  },
+const UniVComponentIcon = uniComponent('v-component-icon', makeIconProps(), () => {
+  return {}
 })
 
-export const VSvgIcon = defineComponent({
-  name: 'VSvgIcon',
-
-  inheritAttrs: false,
-
-  props: makeIconProps(),
-
-  setup (props, { attrs }) {
-    return () => {
-      return (
-        <props.tag { ...attrs } style={ null }>
-          <svg
-            class="v-icon__svg"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            role="img"
-            aria-hidden="true"
-          >
-            <path d={ props.icon as string }></path>
-          </svg>
-        </props.tag>
-      )
-    }
-  },
+export const VComponentIcon = uni2Platform(UniVComponentIcon, (props, state) => {
+  return (
+    <props.tag class={state.rootClass}>
+      <props.icon />
+    </props.tag>
+  )
 })
 
-export const VLigatureIcon = defineComponent({
-  name: 'VLigatureIcon',
-
-  props: makeIconProps(),
-
-  setup (props) {
-    return () => {
-      return <props.tag>{ props.icon }</props.tag>
-    }
-  },
+const UniVSvgIcon = uniComponent('v-svg-icon', makeIconProps(), () => {
+  return {}
 })
 
-export const VClassIcon = defineComponent({
-  name: 'VClassIcon',
+export const VSvgIcon = uni2Platform(UniVSvgIcon, (props, state) => {
+  // todo attrs
+  return (
+    <props.tag class={state.rootClass} style={ null }>
+      <svg
+        class="v-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        role="img"
+        aria-hidden="true"
+      >
+        <path d={ props.icon as string }></path>
+      </svg>
+    </props.tag>
+  )
+})
 
-  props: makeIconProps(),
+const UniVLigatureIcon = uniComponent('v-ligature-icon', makeIconProps(), () => {
+  return {}
+})
 
-  setup (props) {
-    return () => {
-      return <props.tag class={ props.icon }></props.tag>
-    }
-  },
+export const VLigatureIcon = uni2Platform(UniVLigatureIcon, (props, state) => {
+  return <props.tag class={state.rootClass}>{ props.icon }</props.tag>
+})
+
+const UniVClassIcon = uniComponent('v-class-icon', makeIconProps(), (_, props) => {
+  const rootClass = computed(() => props.icon)
+  return {
+    rootClass,
+  }
+})
+
+export const VClassIcon = uni2Platform(UniVClassIcon, (props, state) => {
+  return <props.tag class={ state.rootClass }></props.tag>
 })
 
 export const defaultSets: Record<string, IconSet> = {

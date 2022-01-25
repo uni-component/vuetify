@@ -1,3 +1,16 @@
+import type {
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  classNames,
+  Fragment,
+  h,
+  provide,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Components
 import { makeVExpansionPanelTitleProps, VExpansionPanelTitle } from './VExpansionPanelTitle'
 import { VExpansionPanelText } from './VExpansionPanelText'
@@ -11,88 +24,103 @@ import { useBackgroundColor } from '@/composables/color'
 import { makeTagProps } from '@/composables/tag'
 import { makeLazyProps } from '@/composables/lazy'
 
-// Utilities
-import { computed, provide } from 'vue'
-import { defineComponent } from '@/util'
+import { computed, toRef } from '@uni-store/core'
 
-export const VExpansionPanel = defineComponent({
-  name: 'VExpansionPanel',
+const UniVExpansionPanel = uniComponent('v-expansion-panel', {
+  title: String,
+  text: String,
+  bgColor: String,
 
-  props: {
-    title: String,
-    text: String,
-    bgColor: String,
+  ...makeLazyProps(),
+  ...makeGroupItemProps(),
+  ...makeRoundedProps(),
+  ...makeElevationProps(),
+  ...makeTagProps(),
+  ...makeVExpansionPanelTitleProps(),
 
-    ...makeLazyProps(),
-    ...makeGroupItemProps(),
-    ...makeRoundedProps(),
-    ...makeElevationProps(),
-    ...makeTagProps(),
-    ...makeVExpansionPanelTitleProps(),
-  },
+  titleRender: Function as PropType<() => UniNode | undefined>,
+  textRender: Function as PropType<() => UniNode | undefined>,
+}, (name, props) => {
+  const groupItem = useGroupItem(props, VExpansionPanelSymbol)
+  const { roundedClasses } = useRounded(props)
+  const { elevationClasses } = useElevation(props)
 
-  setup (props, { slots }) {
-    const groupItem = useGroupItem(props, VExpansionPanelSymbol)
-    const { roundedClasses } = useRounded(props)
-    const { elevationClasses } = useElevation(props)
+  provide(VExpansionPanelSymbol, groupItem)
 
-    provide(VExpansionPanelSymbol, groupItem)
+  const isBeforeSelected = computed(() => {
+    const index = groupItem.group.items.value.indexOf(groupItem.id)
+    return !groupItem.isSelected.value &&
+      groupItem.group.selected.value.some(id => groupItem.group.items.value.indexOf(id) - index === 1)
+  })
 
-    const isBeforeSelected = computed(() => {
-      const index = groupItem.group.items.value.indexOf(groupItem.id)
-      return !groupItem.isSelected.value &&
-        groupItem.group.selected.value.some(id => groupItem.group.items.value.indexOf(id) - index === 1)
-    })
+  const isAfterSelected = computed(() => {
+    const index = groupItem.group.items.value.indexOf(groupItem.id)
+    return !groupItem.isSelected.value &&
+      groupItem.group.selected.value.some(id => groupItem.group.items.value.indexOf(id) - index === -1)
+  })
 
-    const isAfterSelected = computed(() => {
-      const index = groupItem.group.items.value.indexOf(groupItem.id)
-      return !groupItem.isSelected.value &&
-        groupItem.group.selected.value.some(id => groupItem.group.items.value.indexOf(id) - index === -1)
-    })
+  const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(toRef(props, 'bgColor'))
 
-    const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(props, 'bgColor')
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--active`]: groupItem.isSelected.value,
+        [`${name}--before-active`]: isBeforeSelected.value,
+        [`${name}--after-active`]: isAfterSelected.value,
+        [`${name}--disabled`]: groupItem.disabled.value,
+      },
+      roundedClasses.value,
+      backgroundColorClasses.value,
+    ]
+  })
 
-    return () => (
-      <props.tag
-        class={[
-          'v-expansion-panel',
-          {
-            'v-expansion-panel--active': groupItem.isSelected.value,
-            'v-expansion-panel--before-active': isBeforeSelected.value,
-            'v-expansion-panel--after-active': isAfterSelected.value,
-            'v-expansion-panel--disabled': groupItem.disabled.value,
-          },
-          roundedClasses.value,
-          backgroundColorClasses.value,
-        ]}
-        style={ backgroundColorStyles.value }
-        aria-expanded={ groupItem.isSelected.value }
-      >
-        <div
-          class={[
-            'v-expansion-panel__shadow',
-            ...elevationClasses.value,
-          ]}
-        />
-        { slots.default?.() || (
-          <>
-            <VExpansionPanelTitle
-              expandIcon={ props.expandIcon }
-              collapseIcon={ props.collapseIcon }
-              color={ props.color }
-              hideActions={ props.hideActions }
-              ripple={ props.ripple }
-            >
-              { slots.title ? slots.title() : props.title }
-            </VExpansionPanelTitle>
-            <VExpansionPanelText eager={ props.eager }>
-              { slots.text ? slots.text() : props.text }
-            </VExpansionPanelText>
-          </>
-        ) }
-      </props.tag>
-    )
-  },
+  const rootStyle = computed(() => backgroundColorStyles.value)
+
+  return {
+    rootClass,
+    rootStyle,
+    groupItem,
+    elevationClasses,
+  }
 })
 
-export type VExpansionPanel = InstanceType<typeof VExpansionPanel>
+export const VExpansionPanel = uni2Platform(UniVExpansionPanel, (props, state, { renders }) => {
+  const {
+    rootClass,
+    rootStyle,
+    groupItem,
+    elevationClasses,
+  } = state
+  const content = renders.defaultRender?.() || (
+    <>
+      <VExpansionPanelTitle
+        expandIcon={ props.expandIcon }
+        collapseIcon={ props.collapseIcon }
+        color={ props.color }
+        hideActions={ props.hideActions }
+        ripple={ props.ripple }
+      >
+        { props.titleRender ? props.titleRender() : props.title }
+      </VExpansionPanelTitle>
+      <VExpansionPanelText eager={ props.eager }>
+        { props.textRender ? props.textRender() : props.text }
+      </VExpansionPanelText>
+    </>
+  )
+
+  return (
+    <props.tag
+      class={rootClass}
+      style={rootStyle}
+      aria-expanded={ groupItem.isSelected }
+    >
+      <div
+        class={classNames([
+          'v-expansion-panel__shadow',
+          ...elevationClasses,
+        ])}
+      />
+      { content }
+    </props.tag>
+  )
+})

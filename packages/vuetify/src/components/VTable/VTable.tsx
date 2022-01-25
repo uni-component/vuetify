@@ -1,3 +1,13 @@
+import type {
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  h,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VTable.sass'
 
@@ -6,56 +16,70 @@ import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Utilities
-import { convertToUnit, defineComponent } from '@/util'
+import { convertToUnit } from '@/util'
 import { makeDensityProps, useDensity } from '@/composables/density'
+import { computed } from '@uni-store/core'
 
-export const VTable = defineComponent({
-  name: 'VTable',
+const UniVTable = uniComponent('v-table', {
+  fixedHeader: Boolean,
+  fixedFooter: Boolean,
+  height: [Number, String],
 
-  props: {
-    fixedHeader: Boolean,
-    fixedFooter: Boolean,
-    height: [Number, String],
+  ...makeDensityProps(),
+  ...makeThemeProps(),
+  ...makeTagProps(),
+  topRender: Function as PropType<() => UniNode | undefined>,
+  bottomRender: Function as PropType<() => UniNode | undefined>,
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
+  const { densityClasses } = useDensity(props)
 
-    ...makeDensityProps(),
-    ...makeThemeProps(),
-    ...makeTagProps(),
-  },
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--fixed-height`]: !!props.height,
+        [`${name}--fixed-header`]: props.fixedHeader,
+        [`${name}--fixed-footer`]: props.fixedFooter,
+        [`${name}--has-top`]: !!props.topRender,
+        [`${name}--has-bottom`]: !!props.bottomRender,
+      },
+      themeClasses.value,
+      densityClasses.value,
+    ]
+  })
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { densityClasses } = useDensity(props)
+  return {
+    rootClass,
+  }
+})
 
-    return () => (
-      <props.tag
-        class={[
-          'v-table',
-          {
-            'v-table--fixed-height': !!props.height,
-            'v-table--fixed-header': props.fixedHeader,
-            'v-table--fixed-footer': props.fixedFooter,
-            'v-table--has-top': !!slots.top,
-            'v-table--has-bottom': !!slots.bottom,
-          },
-          themeClasses.value,
-          densityClasses.value,
-        ]}
-      >
-        { slots.top?.() }
+export const VTable = uni2Platform(UniVTable, (props, state, { renders, $attrs }) => {
+  const {
+    rootId,
+    rootClass,
+    rootStyle,
+  } = state
+  return (
+    <props.tag
+      id={rootId}
+      class={rootClass}
+      style={rootStyle}
+      {...$attrs}
+    >
+      { props.topRender?.() }
 
-        { slots.default && (
-          <div
-            class="v-table__wrapper"
-            style={{ height: convertToUnit(props.height) }}
-          >
-            <table>
-              { slots.default?.() }
-            </table>
-          </div>
-        ) }
+      { renders.defaultRender && (
+        <div
+          class="v-table__wrapper"
+          style={{ height: convertToUnit(props.height) }}
+        >
+          <table>
+            { renders.defaultRender?.() }
+          </table>
+        </div>
+      ) }
 
-        { slots.bottom?.() }
-      </props.tag>
-    )
-  },
+      { props.bottomRender?.() }
+    </props.tag>
+  )
 })

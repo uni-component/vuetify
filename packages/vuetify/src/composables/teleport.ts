@@ -1,9 +1,9 @@
 // Utilities
-import { computed, warn } from 'vue'
+import { computed } from '@uni-store/core'
 import { IN_BROWSER } from '@/util'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
 
 export function useTeleport (target: Ref<boolean | string | Element>) {
   const teleportTarget = computed(() => {
@@ -17,7 +17,7 @@ export function useTeleport (target: Ref<boolean | string | Element>) {
       : _target
 
     if (targetElement == null) {
-      warn(`Unable to locate target ${_target}`)
+      console.warn(`[useTeleport] Unable to locate target ${_target}`)
       return undefined
     }
 

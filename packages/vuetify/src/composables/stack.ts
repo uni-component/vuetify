@@ -1,10 +1,11 @@
-import { computed, effectScope, onScopeDispose, ref, toRaw, watch } from 'vue'
+import { computed, effectScope, onScopeDispose, ref, toRaw, watch } from '@uni-store/core'
 import { getCurrentInstance } from '@/util'
 
 // Types
-import type { ComponentInternalInstance, EffectScope, Ref } from 'vue'
+import type { EffectScope, Ref } from '@uni-store/core'
+import type { Instance, RootInstance } from '@uni-component/core'
 
-const stack = ref<ComponentInternalInstance[]>([])
+const stack = ref<(Instance<any, any, any> | RootInstance)[]>([])
 
 export function useStack (isActive: Ref<boolean>) {
   const vm = getCurrentInstance('useStack')

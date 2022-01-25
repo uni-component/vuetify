@@ -1,4 +1,4 @@
-import type { Ref, UnwrapRef } from 'vue'
+import type { Ref, UnwrapRef } from '@uni-store/core'
 import type { UnionToIntersection } from '@/util'
 
 export function useForwardRef<T extends {}, U extends Ref<{} | undefined>[]> (

@@ -1,14 +1,12 @@
+import type { UniNode } from '@uni-component/core'
+import { h } from '@uni-component/core'
+
 // Components
 import { VProgressLinear } from '@/components/VProgressLinear'
 
 // Utilities
-import { computed } from 'vue'
+import { computed } from '@uni-store/core'
 import { getCurrentInstanceName, propsFactory } from '@/util'
-
-// Types
-import type { ExtractPropTypes } from 'vue'
-import type { SetupContext } from '@vue/runtime-core'
-import type { MakeSlots, SlotsToProps } from '@/util'
 
 export interface LoaderSlotProps {
   color: string | undefined
@@ -40,17 +38,15 @@ export function LoaderSlot (
     active: boolean
     name: string
     color?: string
-  } & ExtractPropTypes<SlotsToProps<MakeSlots<{
-    default: [LoaderSlotProps]
-  }>>>,
-  { slots }: SetupContext,
+    defaultRender?: (scope: LoaderSlotProps) => UniNode | undefined
+  }
 ) {
   return (
     <div class={`${props.name}__loader`}>
-      { slots.default?.({
+      { props.defaultRender?.({
         color: props.color,
         isActive: props.active,
-      } as LoaderSlotProps) || (
+      }) || (
         <VProgressLinear
           active={ props.active }
           color={ props.color }

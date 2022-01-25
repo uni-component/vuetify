@@ -1,5 +1,6 @@
 // Utilities
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { ref, watch } from '@uni-store/core'
+import { onUnmounted } from '@uni-component/core'
 
 export function useIntersectionObserver (callback?: IntersectionObserverCallback) {
   const intersectionRef = ref<HTMLElement>()
@@ -11,7 +12,7 @@ export function useIntersectionObserver (callback?: IntersectionObserverCallback
     isIntersecting.value = !!entries.find(entry => entry.isIntersecting)
   })
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     observer.disconnect()
   })
 

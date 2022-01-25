@@ -1,11 +1,11 @@
 // Utils
-import { SUPPORTS_INTERSECTION } from '@/util'
+import { getUid, SUPPORTS_INTERSECTION } from '@/util'
 
 // Types
 import type {
   DirectiveBinding,
   ObjectDirective,
-} from 'vue'
+} from '@/composables/directive'
 
 type ObserveHandler = (
   isIntersecting: boolean,
@@ -14,7 +14,7 @@ type ObserveHandler = (
 ) => void
 
 export interface ObserveDirectiveBinding extends Omit<DirectiveBinding, 'modifiers' | 'value'> {
-  value?: ObserveHandler | { handler: ObserveHandler, options?: IntersectionObserverInit }
+  value: ObserveHandler | { handler: ObserveHandler, options?: IntersectionObserverInit }
   modifiers: {
     once?: boolean
     quiet?: boolean
@@ -30,11 +30,13 @@ function mounted (el: HTMLElement, binding: ObserveDirectiveBinding) {
     ? value
     : { handler: value, options: {} }
 
+  const uid = getUid()
+
   const observer = new IntersectionObserver((
     entries: IntersectionObserverEntry[] = [],
     observer: IntersectionObserver
   ) => {
-    const _observe = el._observe?.[binding.instance!.$.uid]
+    const _observe = el._observe?.[uid]
     if (!_observe) return // Just in case, should never fire
 
     const isIntersecting = entries.some(entry => entry.isIntersecting)
@@ -42,7 +44,7 @@ function mounted (el: HTMLElement, binding: ObserveDirectiveBinding) {
     // If is not quiet or has already been
     // initted, invoke the user callback
     if (
-      handler && (
+      (
         !modifiers.quiet ||
         _observe.init
       ) && (
@@ -59,17 +61,19 @@ function mounted (el: HTMLElement, binding: ObserveDirectiveBinding) {
   }, options)
 
   el._observe = Object(el._observe)
-  el._observe![binding.instance!.$.uid] = { init: false, observer }
+  ;(el as any)._observe_uid = uid
+  el._observe![uid] = { init: false, observer }
 
   observer.observe(el)
 }
 
 function unmounted (el: HTMLElement, binding: ObserveDirectiveBinding) {
-  const observe = el._observe?.[binding.instance!.$.uid]
+  const uid = (el as any)._observe_uid
+  const observe = el._observe?.[uid]
   if (!observe) return
 
   observe.observer.unobserve(el)
-  delete el._observe![binding.instance!.$.uid]
+  delete el._observe![uid]
 }
 
 export const Intersect: ObjectDirective<HTMLElement> = {

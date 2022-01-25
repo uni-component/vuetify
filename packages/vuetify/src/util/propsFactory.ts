@@ -1,4 +1,5 @@
-import type { ComponentObjectPropsOptions, Prop, PropType } from 'vue'
+// todo
+import type { ComponentObjectPropsOptions, Prop, PropType } from '@vue/runtime-core'
 
 /**
  * Creates a factory function for props definitions.

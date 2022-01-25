@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref } from '@uni-store/core'
 
 export const useFocus = () => {
   const isFocused = ref(false)

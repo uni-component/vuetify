@@ -1,5 +1,5 @@
 // Utilities
-import { computed } from 'vue'
+import { computed } from '@uni-store/core'
 import { convertToUnit, getCurrentInstanceName, propsFactory } from '@/util'
 
 // Types

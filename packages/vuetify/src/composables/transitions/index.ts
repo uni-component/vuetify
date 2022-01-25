@@ -1,9 +1,11 @@
+import type { Ref } from '@uni-store/core'
 import {
   createCssTransition,
   createJavascriptTransition,
 } from './createTransition'
 
 import ExpandTransitionGenerator from './expand-transition'
+import { dialogTransition } from './dialog-transition'
 
 // Component specific transitions
 export const VCarouselTransition = createCssTransition('carousel-transition')
@@ -11,6 +13,7 @@ export const VCarouselReverseTransition = createCssTransition('carousel-reverse-
 export const VTabTransition = createCssTransition('tab-transition')
 export const VTabReverseTransition = createCssTransition('tab-reverse-transition')
 export const VMenuTransition = createCssTransition('menu-transition')
+// todo mode
 export const VFabTransition = createCssTransition('fab-transition', 'center center', 'out-in')
 
 // Generic transitions
@@ -31,4 +34,12 @@ export const VSlideYReverseTransition = createCssTransition('slide-y-reverse-tra
 export const VExpandTransition = createJavascriptTransition('expand-transition', ExpandTransitionGenerator())
 export const VExpandXTransition = createJavascriptTransition('expand-x-transition', ExpandTransitionGenerator('', true))
 
-export { VDialogTransition } from './dialog-transition'
+export const VDialogTransition = (props: {
+  model: Ref
+  // origin?: string,
+  // leaveAbsolute?: boolean,
+  // hideOnLeave?: boolean,
+  appear?: boolean
+}) => {
+  return createJavascriptTransition('dialog-transition', dialogTransition())(props)
+}

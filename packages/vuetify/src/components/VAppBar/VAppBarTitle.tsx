@@ -1,28 +1,21 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VAppBarTitle.sass'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVAppBarTitle = uniComponent('v-app-bar-title', {
+  ...makeTagProps({ tag: 'header' }),
+}, () => ({}))
 
-export const VAppBarTitle = defineComponent({
-  name: 'VAppBarTitle',
-
-  props: {
-    ...makeTagProps({ tag: 'header' }),
-  },
-
-  setup (props, { slots }) {
-    return () => (
-      <props.tag class="v-app-bar-title">
-        { slots.default && (
-          <div class="v-app-bar-title__placeholder">
-            { slots.default() }
-          </div>
-        ) }
-      </props.tag>
-    )
-  },
+export const VAppBarTitle = uni2Platform(UniVAppBarTitle, (props, state, { renders }) => {
+  return (
+    <props.tag class={state.rootClass}>
+      <div class="v-app-bar-title__placeholder">
+        { renders.defaultRender?.() }
+      </div>
+    </props.tag>
+  )
 })

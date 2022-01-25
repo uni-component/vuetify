@@ -1,54 +1,78 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VCounter.sass'
 
-// Components
-import { VSlideYTransition } from '@/components/transitions'
+import { VSlideYTransition } from '@/composables/transitions'
 
 // Utilities
-import { makeTransitionProps, MaybeTransition } from '@/composables/transition'
-import { computed, defineComponent } from 'vue'
+import type { Transition } from '@/composables/transition'
+import { makeTransitionProps, useTransition } from '@/composables/transition'
+import { computed } from '@uni-store/core'
+import { isObject } from '@/util'
 
-export const VCounter = defineComponent({
-  name: 'VCounter',
+export const CounterRender = Function as PropType<(scope: {
+  counter: string
+  max: number | string | undefined
+  value: number | string
+}) => UniNode | undefined>
 
-  functional: true,
-
-  props: {
-    active: Boolean,
-    max: [Number, String],
-    value: {
-      type: [Number, String],
-      default: 0,
-    },
-
-    ...makeTransitionProps({
-      transition: { component: VSlideYTransition },
-    }),
+const UniVCounter = uniComponent('v-counter', {
+  active: Boolean,
+  max: [Number, String],
+  value: {
+    type: [Number, String],
+    default: 0,
   },
 
-  setup (props, { slots }) {
-    const counter = computed(() => {
-      return props.max ? `${props.value} / ${props.max}` : String(props.value)
-    })
+  ...makeTransitionProps({
+    transition: { component: VSlideYTransition },
+  }),
 
-    return () => {
-      return (
-        <MaybeTransition transition={ props.transition }>
-          <div
-            v-show={ props.active }
-            class="v-counter"
-          >
-            { slots.default
-              ? slots.default({
-                counter: counter.value,
-                max: props.max,
-                value: props.value,
-              })
-              : counter.value
-            }
-          </div>
-        </MaybeTransition>
-      )
-    }
-  },
+  defaultRender: CounterRender,
+}, (_, props) => {
+  const counter = computed(() => {
+    return props.max ? `${props.value} / ${props.max}` : String(props.value)
+  })
+
+  const isActive = computed(() => props.active)
+  const transition: Transition = isObject(props.transition) ? props.transition.component({
+    model: isActive,
+  }) : useTransition(isActive, props.transition)
+
+  const rootClass = computed(() => {
+    return transition.transtionClass.value
+  })
+
+  return {
+    counter,
+    rootClass,
+    transition,
+  }
+})
+
+export const VCounter = uni2Platform(UniVCounter, (props, state) => {
+  const {
+    counter,
+    rootClass,
+    transition,
+  } = state
+  return (
+    <div
+      class={rootClass}
+      ref={transition.setEleRef}
+      style={transition.style}
+      onTransitionEnd={transition.onTransitionEnd}
+    >
+      { props.defaultRender
+        ? props.defaultRender({
+          counter,
+          max: props.max,
+          value: props.value,
+        })
+        : counter
+      }
+    </div>
+  )
 })

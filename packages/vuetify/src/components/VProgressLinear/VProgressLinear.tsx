@@ -1,3 +1,15 @@
+import type {
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  classNames,
+  h,
+  uni2Platform,
+  uniComponent,
+  useRef,
+} from '@uni-component/core'
+
 // Styles
 import './VProgressLinear.sass'
 
@@ -9,177 +21,260 @@ import { useBackgroundColor, useTextColor } from '@/composables/color'
 import { useIntersectionObserver } from '@/composables/intersectionObserver'
 import { useProxiedModel } from '@/composables/proxiedModel'
 import { useRtl } from '@/composables/rtl'
+import { useTransition } from '@/composables/transition'
 
-// Utilities
-import { convertToUnit, defineComponent } from '@/util'
-import { computed, Transition } from 'vue'
+import { convertToUnit } from '@/util'
+import { computed, toRef } from '@uni-store/core'
 
-export const VProgressLinear = defineComponent({
-  name: 'VProgressLinear',
-
-  props: {
-    active: {
-      type: Boolean,
-      default: true,
-    },
-    bgColor: String,
-    bgOpacity: [Number, String],
-    bufferValue: {
-      type: [Number, String],
-      default: 0,
-    },
-    clickable: Boolean,
-    color: String,
-    height: {
-      type: [Number, String],
-      default: 4,
-    },
-    indeterminate: Boolean,
-    max: {
-      type: [Number, String],
-      default: 100,
-    },
-    modelValue: {
-      type: [Number, String],
-      default: 0,
-    },
-    reverse: Boolean,
-    stream: Boolean,
-    striped: Boolean,
-    roundedBar: Boolean,
-
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
+const UniVProgressLinear = uniComponent('v-progress-linear', {
+  active: {
+    type: Boolean,
+    default: true,
   },
-
-  emits: {
-    'update:modelValue': (value: number) => true,
+  bgColor: String,
+  bgOpacity: [Number, String],
+  bufferValue: {
+    type: [Number, String],
+    default: 0,
   },
+  clickable: Boolean,
+  color: String,
+  height: {
+    type: [Number, String],
+    default: 4,
+  },
+  indeterminate: Boolean,
+  max: {
+    type: [Number, String],
+    default: 100,
+  },
+  modelValue: {
+    type: [Number, String],
+    default: 0,
+  },
+  reverse: Boolean,
+  stream: Boolean,
+  striped: Boolean,
+  roundedBar: Boolean,
 
-  setup (props, { slots }) {
-    const progress = useProxiedModel(props, 'modelValue')
-    const { isRtl } = useRtl()
-    const { themeClasses } = provideTheme(props)
-    const { textColorClasses, textColorStyles } = useTextColor(props, 'color')
-    const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(computed(() => props.bgColor || props.color))
-    const { backgroundColorClasses: barColorClasses, backgroundColorStyles: barColorStyles } = useBackgroundColor(props, 'color')
-    const { roundedClasses } = useRounded(props)
-    const { intersectionRef, isIntersecting } = useIntersectionObserver()
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
 
-    const max = computed(() => parseInt(props.max, 10))
-    const height = computed(() => parseInt(props.height, 10))
-    const normalizedBuffer = computed(() => parseFloat(props.bufferValue) / max.value * 100)
-    const normalizedValue = computed(() => parseFloat(progress.value) / max.value * 100)
-    const isReversed = computed(() => isRtl.value !== props.reverse)
-    const transition = computed(() => props.indeterminate ? 'fade-transition' : 'slide-x-transition')
-    const opacity = computed(() => {
-      return props.bgOpacity == null
-        ? props.bgOpacity
-        : parseFloat(props.bgOpacity)
-    })
+  'onUpdate:modelValue': Function as PropType<(value: number) => void>,
 
-    function handleClick (e: MouseEvent) {
-      if (!intersectionRef.value) return
+  defaultRender: Function as PropType<(scope: {
+    value: number
+    buffer: number
+  }) => UniNode | undefined>,
+}, (name, props, context) => {
+  const progress = useProxiedModel(props, context, 'modelValue')
+  const { isRtl } = useRtl()
+  const { themeClasses } = provideTheme(props)
+  const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
+  const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(computed(() => props.bgColor || props.color))
+  const { backgroundColorClasses: barColorClasses, backgroundColorStyles: barColorStyles } = useBackgroundColor(toRef(props, 'color'))
+  const { roundedClasses } = useRounded(props)
+  const { intersectionRef, isIntersecting } = useIntersectionObserver()
+  const setIntersectionRef = useRef(intersectionRef)
 
-      const { left, right, width } = intersectionRef.value.getBoundingClientRect()
-      const value = isReversed.value ? (width - e.clientX) + (right - width) : e.clientX - left
+  const max = computed(() => parseInt(props.max, 10))
+  const height = computed(() => parseInt(props.height, 10))
+  const normalizedBuffer = computed(() => parseFloat(props.bufferValue) / max.value * 100)
+  const normalizedValue = computed(() => parseFloat(progress.value) / max.value * 100)
+  const isReversed = computed(() => isRtl.value !== props.reverse)
 
-      progress.value = Math.round(value / width * max.value)
+  const determinateTransition = useTransition(computed(() => !props.indeterminate), 'slide-x-transition')
+  const indeterminateTransition = useTransition(computed(() => props.indeterminate), 'fade-transition')
+
+  const opacity = computed(() => {
+    return props.bgOpacity == null
+      ? props.bgOpacity
+      : parseFloat(props.bgOpacity)
+  })
+
+  function onClick (e: MouseEvent) {
+    if (!intersectionRef.value) return
+
+    const { left, right, width } = intersectionRef.value.getBoundingClientRect()
+    const value = isReversed.value ? (width - e.clientX) + (right - width) : e.clientX - left
+
+    progress.value = Math.round(value / width * max.value)
+  }
+
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--active`]: props.active && isIntersecting.value,
+        [`${name}--reverse`]: isReversed.value,
+        [`${name}--rounded`]: props.rounded,
+        [`${name}--rounded-bar`]: props.roundedBar,
+        [`${name}--striped`]: props.striped,
+      },
+      roundedClasses.value,
+      themeClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return {
+      height: props.active ? convertToUnit(height.value) : 0,
+      '--v-progress-linear-height': convertToUnit(height.value),
     }
+  })
 
-    return () => (
-      <props.tag
-        ref={ intersectionRef }
-        class={[
-          'v-progress-linear',
-          {
-            'v-progress-linear--active': props.active && isIntersecting.value,
-            'v-progress-linear--reverse': isReversed.value,
-            'v-progress-linear--rounded': props.rounded,
-            'v-progress-linear--rounded-bar': props.roundedBar,
-            'v-progress-linear--striped': props.striped,
-          },
-          roundedClasses.value,
-          themeClasses.value,
-        ]}
-        style={{
-          height: props.active ? convertToUnit(height.value) : 0,
-          '--v-progress-linear-height': convertToUnit(height.value),
-        }}
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax={ props.max }
-        aria-valuenow={ props.indeterminate ? undefined : normalizedValue.value }
-        onClick={ props.clickable && handleClick }
-      >
-        { props.stream && (
-          <div
-            class={[
-              'v-progress-linear__stream',
-              textColorClasses.value,
-            ]}
-            style={{
-              ...textColorStyles.value,
-              [isReversed.value ? 'left' : 'right']: convertToUnit(-height.value),
-              borderTop: `${convertToUnit(height.value / 2)} dotted`,
-              opacity: opacity.value,
-              top: `calc(50% - ${convertToUnit(height.value / 4)})`,
-              width: convertToUnit(100 - normalizedBuffer.value, '%'),
-              '--v-progress-linear-stream-to': convertToUnit(height.value * (isReversed.value ? 1 : -1)),
-            }}
-          />
-        ) }
+  const streamClass = computed(() => {
+    return classNames([
+      `${name}__stream`,
+      textColorClasses.value,
+    ])
+  })
+  const streamStyle = computed(() => {
+    return {
+      ...textColorStyles.value,
+      [isReversed.value ? 'left' : 'right']: convertToUnit(-height.value),
+      borderTop: `${convertToUnit(height.value / 2)} dotted`,
+      opacity: String(opacity.value),
+      top: `calc(50% - ${convertToUnit(height.value / 4)})`,
+      width: convertToUnit(100 - normalizedBuffer.value, '%'),
+      '--v-progress-linear-stream-to': convertToUnit(height.value * (isReversed.value ? 1 : -1)),
+    }
+  })
 
+  const backgroundClass = computed(() => {
+    return classNames([
+      `${name}__background`,
+      backgroundColorClasses.value,
+    ])
+  })
+  const backgroundStyle = computed(() => {
+    return {
+      ...backgroundColorStyles.value,
+      opacity: String(opacity.value),
+      width: convertToUnit((!props.stream ? 100 : normalizedBuffer.value), '%'),
+    }
+  })
+
+  const determinateClass = computed(() => {
+    return classNames([
+      `${name}__determinate`,
+      barColorClasses.value,
+      determinateTransition.transtionClass.value,
+    ])
+  })
+  const determinateStyle = computed(() => {
+    return {
+      ...barColorStyles.value,
+      width: convertToUnit(normalizedValue.value, '%'),
+      ...determinateTransition.style.value,
+    }
+  })
+  const indeterminateClass = computed(() => {
+    return classNames([
+      `${name}__indeterminate`,
+      indeterminateTransition.transtionClass.value,
+    ])
+  })
+  const indeterminateStyle = computed(() => {
+    return {
+      ...indeterminateTransition.style.value,
+    }
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+    normalizedValue,
+    normalizedBuffer,
+    setIntersectionRef,
+    onClick,
+    streamClass,
+    streamStyle,
+    backgroundClass,
+    backgroundStyle,
+    indeterminateTransition,
+    indeterminateClass,
+    indeterminateStyle,
+    determinateTransition,
+    determinateClass,
+    determinateStyle,
+    barColorClasses,
+    barColorStyles,
+  }
+})
+
+export const VProgressLinear = uni2Platform(UniVProgressLinear, (props, state) => {
+  const {
+    rootClass,
+    rootStyle,
+    normalizedValue,
+    normalizedBuffer,
+    setIntersectionRef,
+    onClick,
+    streamClass,
+    streamStyle,
+    backgroundClass,
+    backgroundStyle,
+    indeterminateTransition,
+    indeterminateClass,
+    indeterminateStyle,
+    determinateTransition,
+    determinateClass,
+    determinateStyle,
+    barColorClasses,
+    barColorStyles,
+  } = state
+
+  return (
+    <props.tag
+      ref={ setIntersectionRef }
+      class={ rootClass }
+      style={ rootStyle }
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax={ props.max }
+      aria-valuenow={ props.indeterminate ? undefined : normalizedValue }
+      onClick={ props.clickable && onClick }
+    >
+      { props.stream && (
         <div
-          class={[
-            'v-progress-linear__background',
-            backgroundColorClasses.value,
-          ]}
-          style={[
-            backgroundColorStyles.value,
-            {
-              opacity: opacity.value,
-              width: convertToUnit((!props.stream ? 100 : normalizedBuffer.value), '%'),
-            },
-          ]}
+          class={ streamClass }
+          style={ streamStyle }
         />
+      ) }
 
-        <Transition name={ transition.value }>
-          { !props.indeterminate ? (
-            <div
-              class={[
-                'v-progress-linear__determinate',
-                barColorClasses.value,
-              ]}
-              style={[
-                barColorStyles.value,
-                { width: convertToUnit(normalizedValue.value, '%') },
-              ]}
-            />
-          ) : (
-            <div class="v-progress-linear__indeterminate">
-              { ['long', 'short'].map(bar => (
-                <div
-                  key={ bar }
-                  class={[
-                    'v-progress-linear__indeterminate',
-                    bar,
-                    barColorClasses.value,
-                  ]}
-                  style={ barColorStyles.value }
-                />
-              )) }
-            </div>
-          ) }
-        </Transition>
+      <div
+        class={backgroundClass}
+        style={backgroundStyle}
+      />
 
-        { slots.default && (
-          <div class="v-progress-linear__content">
-            { slots.default({ value: normalizedValue.value, buffer: normalizedBuffer.value }) }
-          </div>
-        ) }
-      </props.tag>
-    )
-  },
+      <div
+        class={determinateClass}
+        style={determinateStyle}
+        onTransitionEnd={determinateTransition.onTransitionEnd}
+      />
+      <div
+        class={indeterminateClass}
+        style={indeterminateStyle}
+        onTransitionEnd={indeterminateTransition.onTransitionEnd}
+      >
+        { ['long', 'short'].map(bar => (
+          <div
+            key={ bar }
+            class={classNames([
+              'v-progress-linear__indeterminate',
+              bar,
+              barColorClasses,
+            ])}
+            style={ barColorStyles }
+          />
+        )) }
+      </div>
+
+      { props.defaultRender && (
+        <div class="v-progress-linear__content">
+          { props.defaultRender({ value: normalizedValue, buffer: normalizedBuffer }) }
+        </div>
+      ) }
+    </props.tag>
+  )
 })

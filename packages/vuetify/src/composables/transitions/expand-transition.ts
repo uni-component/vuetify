@@ -1,5 +1,5 @@
 // Utilities
-import { camelize } from 'vue'
+import { camelize } from '@uni-component/core'
 
 interface HTMLExpandElement extends HTMLElement {
   _parent?: (Node & ParentNode & HTMLElement) | null
@@ -16,7 +16,7 @@ export default function (expandedParentClass = '', x = false) {
   const offsetProperty = camelize(`offset-${sizeProperty}`) as 'offsetHeight' | 'offsetWidth'
 
   return {
-    onBeforeEnter (el: HTMLExpandElement) {
+    beforeEnter (el: HTMLExpandElement) {
       el._parent = el.parentNode as (Node & ParentNode & HTMLElement) | null
       el._initialStyle = {
         transition: el.style.transition,
@@ -25,7 +25,7 @@ export default function (expandedParentClass = '', x = false) {
       }
     },
 
-    onEnter (el: HTMLExpandElement) {
+    enter (el: HTMLExpandElement) {
       const initialStyle = el._initialStyle!
 
       el.style.setProperty('transition', 'none', 'important')
@@ -48,10 +48,10 @@ export default function (expandedParentClass = '', x = false) {
       })
     },
 
-    onAfterEnter: resetStyles,
-    onEnterCancelled: resetStyles,
+    afterEnter: resetStyles,
+    enterCancelled: resetStyles,
 
-    onLeave (el: HTMLExpandElement) {
+    leave (el: HTMLExpandElement) {
       el._initialStyle = {
         transition: '',
         overflow: el.style.overflow,
@@ -65,8 +65,8 @@ export default function (expandedParentClass = '', x = false) {
       requestAnimationFrame(() => (el.style[sizeProperty] = '0'))
     },
 
-    onAfterLeave,
-    onLeaveCancelled: onAfterLeave,
+    afterLeave: onAfterLeave,
+    leaveCancelled: onAfterLeave,
   }
 
   function onAfterLeave (el: HTMLExpandElement) {
@@ -77,9 +77,11 @@ export default function (expandedParentClass = '', x = false) {
   }
 
   function resetStyles (el: HTMLExpandElement) {
-    const size = el._initialStyle![sizeProperty]
-    el.style.overflow = el._initialStyle!.overflow
-    if (size != null) el.style[sizeProperty] = size
-    delete el._initialStyle
+    if (el._initialStyle) {
+      const size = el._initialStyle[sizeProperty]
+      el.style.overflow = el._initialStyle!.overflow
+      if (size != null) el.style[sizeProperty] = size
+      delete el._initialStyle
+    }
   }
 }

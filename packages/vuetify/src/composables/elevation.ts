@@ -1,9 +1,9 @@
 // Utilities
-import { computed, isRef } from 'vue'
+import { computed, isRef } from '@uni-store/core'
 import { propsFactory } from '@/util'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
 export interface ElevationProps {
   elevation?: number | string | null
 }

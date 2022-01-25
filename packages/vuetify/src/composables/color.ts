@@ -1,19 +1,24 @@
 // Utilities
-import { computed, isRef } from 'vue'
+import { computed, isRef } from '@uni-store/core'
 import { isCssColor } from '@/util'
 
 // Types
-import type { CSSProperties, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import { classNames } from '@uni-component/core'
+
+type CSSProperties = {
+  [key: string]: string | undefined
+}
 
 type ColorValue = string | false | null | undefined
 
 export interface TextColorData {
-  textColorClasses: Ref<string[]>
+  textColorClasses: Ref<string>
   textColorStyles: Ref<CSSProperties>
 }
 
 export interface BackgroundColorData {
-  backgroundColorClasses: Ref<string[]>
+  backgroundColorClasses: Ref<string>
   backgroundColorStyles: Ref<CSSProperties>
 }
 
@@ -33,7 +38,7 @@ export function useColor (colors: Ref<{ background?: ColorValue, text?: ColorVal
       classes.push(`text-${colors.value.text}`)
     }
 
-    return classes
+    return classNames(classes)
   })
 
   const colorStyles = computed(() => {

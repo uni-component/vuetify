@@ -1,5 +1,6 @@
 // Utilities
-import { computed, inject, provide, ref, watch, watchEffect } from 'vue'
+import { computed, ref, watch } from '@uni-store/core'
+import { inject, provide } from '@uni-component/core'
 import {
   colorToInt,
   colorToRGB,
@@ -7,7 +8,7 @@ import {
   darken,
   getCurrentInstance,
   getLuma,
-  IN_BROWSER,
+  // IN_BROWSER,
   intToHex,
   lighten,
   mergeDeep,
@@ -16,8 +17,11 @@ import {
 import { APCAcontrast } from '@/util/color/APCA'
 
 // Types
-import type { App, InjectionKey, Ref } from 'vue'
-import type { HeadClient } from '@vueuse/head'
+import type { Ref } from '@uni-store/core'
+import type { getRootInstance, InjectionKey } from '@uni-component/core'
+// import type { HeadClient } from '@vueuse/head'
+
+type App = ReturnType<typeof getRootInstance>
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T
 
@@ -181,8 +185,11 @@ const parseThemeOptions = (options: ThemeOptions = defaultThemeOptions): Interna
 }
 
 // Composables
+// app: App,
 export function createTheme (app: App, options?: ThemeOptions): ThemeInstance {
-  const head = app._context.provides.usehead as HeadClient | undefined
+  // todo use @uni-component rootInstance
+  // const head = app._context.provides.usehead as HeadClient | undefined
+  const head = undefined
   const parsedOptions = parseThemeOptions(options)
   const styleEl = ref<HTMLStyleElement>()
   const current = ref(parsedOptions.defaultTheme)
@@ -308,17 +315,17 @@ export function createTheme (app: App, options?: ThemeOptions): ThemeInstance {
   }
 
   if (head) {
-    head.addHeadObjs(computed(() => ({
-      style: [{
-        children: styles.value,
-        type: 'text/css',
-        id: 'vuetify-theme-stylesheet',
-      }],
-    })))
+    // head.addHeadObjs(computed(() => ({
+    //   style: [{
+    //     children: styles.value,
+    //     type: 'text/css',
+    //     id: 'vuetify-theme-stylesheet',
+    //   }],
+    // })))
 
-    if (IN_BROWSER) {
-      watchEffect(() => head.updateDOM())
-    }
+    // if (IN_BROWSER) {
+    //   watchEffect(() => head.updateDOM())
+    // }
   } else {
     watch(themes, updateStyles, { deep: true, immediate: true })
 

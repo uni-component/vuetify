@@ -1,8 +1,11 @@
 // Utilities
-import { camelize, Fragment, isRef, ref } from 'vue'
+import { isRef, ref } from '@uni-store/core'
+import { camelize } from '@uni-component/core'
 
 // Types
-import type { ComponentInternalInstance, ComponentPublicInstance, Ref, Slots, VNode, VNodeChild } from 'vue'
+// todo
+import type { ComponentInternalInstance, ComponentPublicInstance, Slots, VNodeChild } from 'vue'
+import type { Ref } from '@uni-store/core'
 
 export function getNestedValue (obj: any, path: (string | number)[], fallback?: any): any {
   const last = path.length - 1
@@ -454,16 +457,6 @@ export function getUid () {
   return getUid._uid++
 }
 getUid._uid = 0
-
-export function flattenFragments (nodes: VNode[]): VNode[] {
-  return nodes.map(node => {
-    if (node.type === Fragment) {
-      return flattenFragments(node.children as VNode[])
-    } else {
-      return node
-    }
-  }).flat()
-}
 
 export const randomHexColor = () => {
   const n = (Math.random() * 0xfffff * 1000000).toString(16)

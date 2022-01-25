@@ -1,3 +1,6 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { Fragment, h, provide, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VBreadcrumbs.sass'
 
@@ -13,94 +16,115 @@ import { makeTagProps } from '@/composables/tag'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed, provide, toRef } from 'vue'
-import { defineComponent } from '@/util'
+import type { ComputedRef } from '@uni-store/core'
+import { computed, toRef } from '@uni-store/core'
 import { VBreadcrumbsSymbol } from './shared'
 
 // Types
-import type { PropType } from 'vue'
-import type { LinkProps } from '@/composables/router'
+// import type { LinkProps } from '@/composables/router'
 
-export type BreadcrumbItem = string | (LinkProps & {
+// export type BreadcrumbItem = string | (LinkProps & {
+//   text: string
+// })
+
+export type BreadcrumbItem = string | {
+  href?: string
   text: string
-})
+}
 
-export const VBreadcrumbs = defineComponent({
-  name: 'VBreadcrumbs',
-
+type InnerItem = {
   props: {
-    color: String,
-    disabled: Boolean,
-    divider: {
-      type: String,
-      default: '/',
-    },
-    icon: String,
-    items: {
-      type: Array as PropType<BreadcrumbItem[]>,
-      default: () => ([]),
-    },
+    href?: string | undefined
+    text: string
+    disabled: boolean
+  }
+}
 
-    ...makeDensityProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps({ tag: 'ul' }),
+const UniVBreadcrumbs = uniComponent('v-breadcrumbs', {
+  color: String,
+  disabled: Boolean,
+  divider: {
+    type: String,
+    default: '/',
+  },
+  icon: String,
+  items: {
+    type: Array as PropType<BreadcrumbItem[]>,
+    default: () => ([]),
   },
 
-  setup (props, { slots }) {
-    const { densityClasses } = useDensity(props)
-    const { roundedClasses } = useRounded(props)
-    const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
-    const items = computed(() => {
-      return props.items.map((item, index, array) => ({
-        props: {
-          disabled: index >= array.length - 1,
-          ...(typeof item === 'string' ? { text: item } : item),
-        },
-      }))
-    })
+  ...makeDensityProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps({ tag: 'ul' }),
+  itemRender: Function as PropType<(scope: InnerItem & {index: number}) => UniNode | string | undefined>,
+  dividerRender: Function as PropType<(scope: InnerItem & {index: number}) => UniNode | string | undefined>,
+}, (_, props) => {
+  const { densityClasses } = useDensity(props)
+  const { roundedClasses } = useRounded(props)
+  const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
+  const items: ComputedRef<InnerItem[]> = computed(() => {
+    return props.items.map((item, index, array) => ({
+      props: {
+        disabled: index >= array.length - 1,
+        ...(typeof item === 'string' ? { text: item } : item),
+      },
+    }))
+  })
 
-    provide(VBreadcrumbsSymbol, {
-      color: toRef(props, 'color'),
-      disabled: toRef(props, 'disabled'),
-    })
+  provide(VBreadcrumbsSymbol, {
+    color: toRef(props, 'color'),
+    disabled: toRef(props, 'disabled'),
+  })
 
-    return () => (
-      <props.tag
-        class={[
-          'v-breadcrumbs',
-          densityClasses.value,
-          roundedClasses.value,
-          textColorClasses.value,
-        ]}
-        style={[
-          textColorStyles.value,
-        ]}
-      >
-        { props.icon && (
-          <VIcon icon={ props.icon } left />
-        ) }
+  const rootClass = computed(() => {
+    return [
+      densityClasses.value,
+      roundedClasses.value,
+      textColorClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => textColorStyles.value)
 
-        { items.value.map((item, index) => (
-          <>
-            <VBreadcrumbsItem
-              key={ index }
-              { ...item.props }
-            >
-              { slots.item?.({ ...item, index }) }
-            </VBreadcrumbsItem>
-
-            { index < props.items.length - 1 && (
-              <VBreadcrumbsDivider>
-                { slots.divider ? slots.divider({ ...item, index }) : props.divider }
-              </VBreadcrumbsDivider>
-            ) }
-          </>
-        )) }
-
-        { slots.default?.() }
-      </props.tag>
-    )
-  },
+  return {
+    rootClass,
+    rootStyle,
+    items,
+  }
 })
 
-export type VBreadcrumbs = InstanceType<typeof VBreadcrumbs>
+export const VBreadcrumbs = uni2Platform(UniVBreadcrumbs, (props, state, { renders }) => {
+  const {
+    rootClass,
+    rootStyle,
+    items,
+  } = state
+  return (
+    <props.tag
+      class={rootClass}
+      style={rootStyle}
+    >
+      { props.icon && (
+        <VIcon icon={ props.icon } left />
+      ) }
+
+      { items.map((item, index) => (
+        <>
+          <VBreadcrumbsItem
+            key={ String(index) }
+            { ...item.props }
+          >
+            { props.itemRender?.({ ...item, index }) }
+          </VBreadcrumbsItem>
+
+          { index < props.items.length - 1 && (
+            <VBreadcrumbsDivider tag={props.tag === 'ul' ? 'li' : 'span'}>
+              { props.dividerRender ? props.dividerRender({ ...item, index }) : props.divider }
+            </VBreadcrumbsDivider>
+          ) }
+        </>
+      )) }
+
+      { renders.defaultRender?.() }
+    </props.tag>
+  )
+})

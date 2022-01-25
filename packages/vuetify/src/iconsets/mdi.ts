@@ -1,5 +1,5 @@
 // Utilities
-import { h } from 'vue'
+import { h } from '@uni-component/core'
 
 // Components
 import { VClassIcon } from '@/composables/icons'

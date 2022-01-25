@@ -1,3 +1,5 @@
+import { h, provide, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VInput.sass'
 
@@ -10,12 +12,12 @@ import { makeDensityProps, useDensity } from '@/composables/density'
 import { makeValidationProps, useValidation } from '@/composables/validation'
 
 // Utilities
-import { computed, provide, toRef } from 'vue'
-import { genericComponent, getUid, pick, propsFactory, useRender } from '@/util'
+import { computed, toRef } from '@uni-store/core'
+import { getUid, pick, propsFactory } from '@/util'
 
 // Types
-import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, Ref } from 'vue'
-import type { MakeSlots } from '@/util'
+import type { ComputedRef, Ref } from '@uni-store/core'
+import type { ExtractPropTypes, InjectionKey, PropType, UniNode } from '@uni-component/core'
 
 export interface VInputSlot {
   id: ComputedRef<string>
@@ -32,6 +34,8 @@ export interface VInputSlot {
 
 export const VInputSymbol = 'VInput' as any as InjectionKey<ComputedRef<VInputSlot>>
 
+type RenderType = PropType<(scope: VInputSlot) => UniNode | undefined>
+
 export const makeVInputProps = propsFactory({
   id: String,
   appendIcon: String,
@@ -46,54 +50,48 @@ export const makeVInputProps = propsFactory({
   direction: {
     type: String as PropType<'horizontal' | 'vertical'>,
     default: 'horizontal',
-    validator: (v: any) => ['horizontal', 'vertical'].includes(v),
+    // validator: (v: any) => ['horizontal', 'vertical'].includes(v),
   },
 
   ...makeDensityProps(),
   ...makeValidationProps(),
+  defaultRender: Function as RenderType,
+  prependRender: Function as RenderType,
+  appendRender: Function as RenderType,
+  detailsRender: Function as RenderType,
+  hintRender: Function as RenderType,
+  messagesRender: Function as RenderType,
 })
 
-export const VInput = genericComponent<new <T>() => {
-  $slots: MakeSlots<{
-    default: [VInputSlot]
-    prepend: [VInputSlot]
-    append: [VInputSlot]
-    details: [VInputSlot]
-  }>
-}>()({
-  name: 'VInput',
+const UniVInput = uniComponent('v-input', {
+  focused: Boolean,
 
-  props: {
-    focused: Boolean,
+  ...makeVInputProps(),
 
-    ...makeVInputProps(),
-  },
+  // todo
+  'onClick:prepend': Function as PropType<(e: MouseEvent) => void>,
+  'onClick:append': Function as PropType<(e: MouseEvent) => void>,
+}, (name, props) => {
+  const { densityClasses } = useDensity(props)
+  const {
+    errorMessages,
+    isDisabled,
+    isReadonly,
+    isPristine,
+    isValid,
+    isValidating,
+    reset,
+    resetValidation,
+    validate,
+    validationClasses,
+  } = useValidation(props)
 
-  emits: {
-    'click:prepend': (e: MouseEvent) => true,
-    'click:append': (e: MouseEvent) => true,
-  },
+  const uid = getUid()
+  const id = computed(() => props.id || `input-${uid}`)
+  const isFocused = toRef(props, 'focused')
 
-  setup (props, { slots, emit }) {
-    const { densityClasses } = useDensity(props)
-    const {
-      errorMessages,
-      isDisabled,
-      isReadonly,
-      isPristine,
-      isValid,
-      isValidating,
-      reset,
-      resetValidation,
-      validate,
-      validationClasses,
-    } = useValidation(props)
-
-    const uid = getUid()
-    const id = computed(() => props.id || `input-${uid}`)
-    const isFocused = toRef(props, 'focused')
-
-    const slotProps = computed<VInputSlot>(() => ({
+  const slotProps = computed<VInputSlot>(() => {
+    return {
       id,
       isDisabled,
       isFocused,
@@ -104,93 +102,97 @@ export const VInput = genericComponent<new <T>() => {
       reset,
       resetValidation,
       validate,
-    }))
-
-    provide(VInputSymbol, slotProps)
-
-    useRender(() => {
-      const hasPrepend = (slots.prepend || props.prependIcon)
-      const hasAppend = (slots.append || props.appendIcon)
-      const hasHint = !!(slots.hint || props.hint)
-      const hasMessages = !!(
-        slots.messages ||
-        props.messages?.length ||
-        errorMessages.value.length
-      )
-      const hasDetails = !props.hideDetails || (
-        props.hideDetails === 'auto' &&
-        (hasMessages || hasHint)
-      )
-      const showMessages = hasMessages || (
-        hasHint &&
-        (props.persistentHint || props.focused)
-      )
-
-      return (
-        <div class={[
-          'v-input',
-          `v-input--${props.direction}`,
-          densityClasses.value,
-          validationClasses.value,
-        ]}
-        >
-          { hasPrepend && (
-            <div
-              class="v-input__prepend"
-              onClick={ e => emit('click:prepend', e) }
-            >
-              { slots?.prepend?.(slotProps.value) }
-
-              { props.prependIcon && (
-                <VIcon icon={ props.prependIcon } />
-              ) }
-            </div>
-          ) }
-
-          <div class="v-input__control">
-            { slots.default?.(slotProps.value) }
-          </div>
-
-          { hasAppend && (
-            <div
-              class="v-input__append"
-              onClick={ e => emit('click:append', e) }
-            >
-              { slots?.append?.(slotProps.value) }
-
-              { props.appendIcon && (
-                <VIcon icon={ props.appendIcon } />
-              ) }
-            </div>
-          ) }
-
-          { hasDetails && (
-            <div class="v-input__details">
-              <VMessages
-                active={ showMessages }
-                value={ errorMessages.value || (hasMessages ? props.messages : props.hint) }
-                v-slots={{ default: slots.messages }}
-              />
-
-              { slots.details?.(slotProps.value) }
-            </div>
-          ) }
-        </div>
-      )
-    })
-
-    return {
-      isValid,
-      validate,
-      reset,
-      resetValidation,
-      errorMessages,
     }
-  },
+  })
+
+  provide(VInputSymbol, slotProps)
+
+  const rootClass = computed(() => {
+    return [
+      `${name}--${props.direction}`,
+      densityClasses.value,
+      validationClasses.value,
+    ]
+  })
+
+  return {
+    rootClass,
+    slotProps,
+    isValid,
+    validate,
+    reset,
+    resetValidation,
+    errorMessages,
+  }
 })
 
-export type VInput = InstanceType<typeof VInput>
+export const VInput = uni2Platform(UniVInput, (props, state, { renders }) => {
+  const hasPrepend = (props.prependRender || props.prependIcon)
+  const hasAppend = (props.appendRender || props.appendIcon)
+  const hasHint = !!(props.hintRender || props.hint)
+  const hasMessages = !!(
+    props.messagesRender ||
+    props.messages?.length ||
+    state.errorMessages.length
+  )
+  const hasDetails = !props.hideDetails || (
+    props.hideDetails === 'auto' &&
+    (hasMessages || hasHint)
+  )
+  const showMessages = hasMessages || (
+    hasHint &&
+    (props.persistentHint || props.focused)
+  )
+  const defaultContent = (props.defaultRender || renders.defaultRender)?.(state.slotProps)
+
+  return (
+    <div class={state.rootClass}>
+      { hasPrepend && (
+        <div
+          class="v-input__prepend"
+          onClick={ props['onClick:prepend'] }
+        >
+          { props.prependRender?.(state.slotProps) }
+
+          { props.prependIcon && (
+            <VIcon icon={ props.prependIcon } />
+          ) }
+        </div>
+      ) }
+
+      <div class="v-input__control">
+        { defaultContent }
+      </div>
+
+      { hasAppend && (
+        <div
+          class="v-input__append"
+          onClick={ props['onClick:append'] }
+        >
+          { props.appendRender?.(state.slotProps) }
+
+          { props.appendIcon && (
+            <VIcon icon={ props.appendIcon } />
+          ) }
+        </div>
+      ) }
+
+      { hasDetails && (
+        <div class="v-input__details">
+          <VMessages
+            active={ showMessages }
+            value={ state.errorMessages.length ? state.errorMessages : (hasMessages ? props.messages : props.hint) }
+          >
+            { props.messagesRender?.(state.slotProps) }
+          </VMessages>
+
+          { props.detailsRender?.(state.slotProps) }
+        </div>
+      ) }
+    </div>
+  )
+})
 
 export function filterInputProps (props: ExtractPropTypes<ReturnType<typeof makeVInputProps>>) {
-  return pick(props, Object.keys(VInput.props) as any)
+  return pick(props, Object.keys(UniVInput.rawProps!) as any)
 }

@@ -1,1 +1,1 @@
-export { VImg } from './VImg'
+export { VImg, VImgSymbol } from './VImg'

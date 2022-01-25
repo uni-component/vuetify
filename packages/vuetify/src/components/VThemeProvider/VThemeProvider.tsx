@@ -1,3 +1,5 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VThemeProvider.sass'
 
@@ -5,30 +7,25 @@ import './VThemeProvider.sass'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { makeTagProps } from '@/composables/tag'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVThemeProvider = uniComponent('v-theme-provider', {
+  withBackground: Boolean,
 
-export const VThemeProvider = defineComponent({
-  name: 'VThemeProvider',
+  ...makeThemeProps(),
+  ...makeTagProps(),
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
 
-  props: {
-    withBackground: Boolean,
+  return {
+    rootClass: themeClasses,
+  }
+})
 
-    ...makeThemeProps(),
-    ...makeTagProps(),
-  },
+export const VThemeProvider = uni2Platform(UniVThemeProvider, (props, state, { renders }) => {
+  if (!props.withBackground) return renders.defaultRender?.()
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-
-    return () => {
-      if (!props.withBackground) return slots.default?.()
-
-      return (
-        <props.tag class={['v-theme-provider', themeClasses.value]}>
-          { slots.default?.() }
-        </props.tag>
-      )
-    }
-  },
+  return (
+    <props.tag id={state.rootId} class={state.rootClass} style={state.rootStyle}>
+      { renders.defaultRender?.() }
+    </props.tag>
+  )
 })

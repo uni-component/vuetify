@@ -1,3 +1,10 @@
+import type { PropType } from '@uni-component/core'
+import {
+  h,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VTooltip.sass'
 
@@ -9,106 +16,114 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { makeTransitionProps } from '@/composables/transition'
 
 // Utilities
-import { computed } from 'vue'
-import { genericComponent, getUid } from '@/util'
+import { computed, watch } from '@uni-store/core'
+import { getUid } from '@/util'
 
-// Types
-import type { PropType } from 'vue'
-import type { OverlaySlots } from '@/components/VOverlay/VOverlay'
+import { overlayRenders } from '@/components/VOverlay/VOverlay'
 import type { StrategyProps } from '@/components/VOverlay/positionStrategies'
 
-export const VTooltip = genericComponent<new () => {
-  $slots: OverlaySlots
-}>()({
-  name: 'VTooltip',
+const UniVTooltip = uniComponent('v-tooltip', {
+  id: String,
+  modelValue: Boolean,
+  'onUpdate:modelValue': Function as PropType<(value: boolean) => void>,
+  text: String,
 
-  inheritAttrs: false,
-
-  props: {
-    id: String,
-    modelValue: Boolean,
-    text: String,
-
-    anchor: {
-      type: String as PropType<StrategyProps['anchor']>,
-      default: 'end',
-    },
-    origin: {
-      type: String as PropType<StrategyProps['origin']>,
-      default: 'auto',
-    },
-
-    ...makeTransitionProps({
-      transition: false,
-    } as const),
+  anchor: {
+    type: String as PropType<StrategyProps['anchor']>,
+    default: 'end',
+  },
+  origin: {
+    type: String as PropType<StrategyProps['origin']>,
+    default: 'auto',
   },
 
-  emits: {
-    'update:modelValue': (value: boolean) => true,
-  },
+  ...makeTransitionProps({
+    transition: false,
+  } as const),
+  ...overlayRenders,
+}, (_, props, context) => {
+  const isActive = useProxiedModel(props, context, 'modelValue')
+  const updateIsActive = (v: boolean) => isActive.value = v
 
-  setup (props, { attrs, slots }) {
-    const isActive = useProxiedModel(props, 'modelValue')
+  watch(isActive, v => {
+    console.log('v', v)
+  })
 
-    const uid = getUid()
-    const id = computed(() => props.id || `v-tooltip-${uid}`)
+  const uid = getUid()
+  const id = computed(() => props.id || `v-tooltip-${uid}`)
 
-    const anchor = computed(() => {
-      return props.anchor.split(' ').length > 1
-        ? props.anchor
-        : props.anchor + ' center' as StrategyProps['anchor']
-    })
+  const anchor = computed(() => {
+    return props.anchor.split(' ').length > 1
+      ? props.anchor
+      : props.anchor + ' center' as StrategyProps['anchor']
+  })
 
-    const origin = computed(() => {
-      return (
-        props.origin === 'auto' ||
-        props.origin === 'overlap' ||
-        props.origin.split(' ').length > 1 ||
-        props.anchor.split(' ').length > 1
-      ) ? props.origin
-        : props.origin + ' center' as StrategyProps['origin']
-    })
+  const origin = computed(() => {
+    return (
+      props.origin === 'auto' ||
+      props.origin === 'overlap' ||
+      props.origin.split(' ').length > 1 ||
+      props.anchor.split(' ').length > 1
+    ) ? props.origin
+      : props.origin + ' center' as StrategyProps['origin']
+  })
 
-    const transition = computed(() => {
-      if (props.transition) return props.transition
-      return isActive.value ? 'scale-transition' : 'fade-transition'
-    })
+  const transition = computed(() => {
+    if (props.transition) return props.transition
+    return isActive.value ? 'scale-transition' : 'fade-transition'
+  })
 
-    return () => {
-      return (
-        <VOverlay
-          v-model={ isActive.value }
-          class={[
-            'v-tooltip',
-          ]}
-          id={ id.value }
-          transition={ transition.value }
-          absolute
-          positionStrategy="connected"
-          scrollStrategy="reposition"
-          anchor={ anchor.value }
-          origin={ origin.value }
-          min-width={ 0 }
-          offset={ 10 }
-          scrim={ false }
-          persistent
-          open-on-click={ false }
-          open-on-hover
-          role="tooltip"
-          eager
-          activatorProps={{
-            'aria-describedby': id.value,
-          }}
-          { ...attrs }
-        >
-          {{
-            activator: slots.activator,
-            default: (...args) => slots.default?.(...args) ?? props.text,
-          }}
-        </VOverlay>
-      )
-    }
-  },
+  return {
+    isActive,
+    updateIsActive,
+    id,
+    anchor,
+    origin,
+    transition,
+  }
 })
 
-export type VTooltip = InstanceType<typeof VTooltip>
+export const VTooltip = uni2Platform(UniVTooltip, (props, state, { $attrs }) => {
+  const {
+    rootClass,
+    rootStyle,
+    isActive,
+    updateIsActive,
+    id,
+    anchor,
+    origin,
+    transition,
+  } = state
+  return (
+    <VOverlay
+      modelValue={isActive}
+      onUpdate:modelValue={updateIsActive}
+      class={rootClass}
+      style={rootStyle}
+      id={ id }
+      transition={ transition }
+      absolute
+      positionStrategy="connected"
+      scrollStrategy="reposition"
+      anchor={ anchor }
+      origin={ origin }
+      minWidth={0}
+      offset={ 10 }
+      scrim={ false }
+      persistent
+      openOnClick={ false }
+      openOnHover
+      // @ts-expect-error
+      role="tooltip"
+      eager
+      activatorProps={{
+        'aria-describedby': id,
+      }}
+      { ...$attrs }
+      activatorRender={props.activatorRender}
+      defaultRender={scope => {
+        return props.defaultRender?.(scope) ?? props.text
+      }}
+    />
+  )
+})

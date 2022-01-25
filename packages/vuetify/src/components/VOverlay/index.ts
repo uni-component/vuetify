@@ -1,1 +1,1 @@
-export { VOverlay } from './VOverlay'
+export { VOverlay, VOverlaySymbol } from './VOverlay'

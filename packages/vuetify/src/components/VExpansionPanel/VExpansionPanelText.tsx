@@ -1,43 +1,66 @@
+import {
+  h,
+  inject,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Components
-import { VExpandTransition } from '@/components/transitions'
 import { VExpansionPanelSymbol } from './VExpansionPanels'
 
 // Composables
 import { makeLazyProps, useLazy } from '@/composables/lazy'
+import { VExpandTransition } from '@/composables/transitions'
 
-// Utilities
-import { inject } from 'vue'
-import { defineComponent } from '@/util'
+import { computed } from '@uni-store/core'
 
-export const VExpansionPanelText = defineComponent({
-  name: 'VExpansionPanelText',
+const UniVExpansionPanelText = uniComponent('v-expansion-panel-text', {
+  ...makeLazyProps(),
+}, (name, props) => {
+  const expansionPanel = inject(VExpansionPanelSymbol)
 
-  props: {
-    ...makeLazyProps(),
-  },
+  if (!expansionPanel) throw new Error('[Vuetify] v-expansion-panel-text needs to be placed inside v-expansion-panel')
 
-  setup (props, { slots }) {
-    const expansionPanel = inject(VExpansionPanelSymbol)
+  const { hasContent, onAfterLeave } = useLazy(props, expansionPanel.isSelected)
 
-    if (!expansionPanel) throw new Error('[Vuetify] v-expansion-panel-text needs to be placed inside v-expansion-panel')
+  const transition = VExpandTransition({
+    model: expansionPanel.isSelected,
+  }, {
+    afterLeave: onAfterLeave,
+  })
 
-    const { hasContent, onAfterLeave } = useLazy(props, expansionPanel.isSelected)
+  const rootClass = computed(() => {
+    return transition.transtionClass.value
+  })
 
-    return () => (
-      <VExpandTransition onAfterLeave={ onAfterLeave }>
-        <div
-          v-show={ expansionPanel.isSelected.value }
-          class={[
-            'v-expansion-panel-text',
-          ]}
-        >
-          { slots.default && hasContent.value && (
-            <div class="v-expansion-panel-text__wrapper">
-              { slots.default?.() }
-            </div>
-          ) }
+  return {
+    rootClass,
+    hasContent,
+    transition,
+  }
+})
+
+export const VExpansionPanelText = uni2Platform(UniVExpansionPanelText, (props, state, { renders }) => {
+  const {
+    rootClass,
+    hasContent,
+    transition,
+  } = state
+
+  const content = renders.defaultRender?.()
+
+  return (
+    <div
+      ref={transition.setEleRef}
+      class={rootClass}
+      style={transition.style}
+      onTransitionEnd={transition.onTransitionEnd}
+    >
+      { content && hasContent && (
+        <div class="v-expansion-panel-text__wrapper">
+          { content }
         </div>
-      </VExpandTransition>
-    )
-  },
+      ) }
+    </div>
+  )
 })

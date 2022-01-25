@@ -1,19 +1,18 @@
+import { uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { useHydration } from '@/composables/hydration'
 
-// Utilities
-import { defineComponent } from '@/util'
-import { ref } from 'vue'
+import { ref } from '@uni-store/core'
 
-export const VNoSsr = defineComponent({
-  name: 'VNoSsr',
+export const VNoSsr = uni2Platform(uniComponent('v-no-ssr', () => {
+  const show = ref(false)
 
-  setup (_, { slots }) {
-    const show = ref(false)
+  useHydration(() => (show.value = true))
 
-    useHydration(() => (show.value = true))
-
-    return () => show.value && slots.default?.()
-  },
-
+  return {
+    show,
+  }
+}), (_, state, { renders }) => {
+  return state.show && renders.defaultRender?.()
 })

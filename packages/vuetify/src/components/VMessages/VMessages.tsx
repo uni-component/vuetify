@@ -1,54 +1,75 @@
+import type { PropType } from '@uni-component/core'
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VMessages.sass'
 
-// Components
-import { VSlideYTransition } from '@/components/transitions'
+import { VSlideYTransition } from '@/composables/transitions'
 
 // Composables
-import { makeTransitionProps, MaybeTransition } from '@/composables/transition'
+import type { Transition } from '@/composables/transition'
+import { makeTransitionProps, useTransition } from '@/composables/transition'
 
 // Utilities
-import { defineComponent, wrapInArray } from '@/util'
-import { computed } from 'vue'
-import type { PropType } from 'vue'
+import { isObject, wrapInArray } from '@/util'
+import { computed } from '@uni-store/core'
 
-export const VMessages = defineComponent({
-  name: 'VMessages',
+const UniVMessages = uniComponent('v-messages', {
+  active: Boolean,
+  value: {
+    type: [Array, String] as PropType<string | string[]>,
+    default: () => ([]),
+  },
 
-  props: {
-    active: Boolean,
-    value: {
-      type: [Array, String] as PropType<string | string[]>,
-      default: () => ([]),
+  ...makeTransitionProps({
+    transition: {
+      component: VSlideYTransition,
+      // todo group
+      // group: true,
     },
+  }),
+}, (name, props) => {
+  const messages = computed(() => wrapInArray(props.value))
 
-    ...makeTransitionProps({
-      transition: {
-        component: VSlideYTransition,
-        group: true,
-      },
-    }),
-  },
+  const showMessages = computed(() => messages.value.length > 0 && props.active)
+  const transition = (isObject(props.transition) ? props.transition.component({
+    model: showMessages,
+  }) : useTransition(showMessages, props.transition)) as Transition
 
-  setup (props, { slots }) {
-    const messages = computed(() => wrapInArray(props.value))
+  const rootClass = computed(() => {
+    return transition.transtionClass.value
+  })
 
-    return () => (
-      <MaybeTransition
-        transition={ props.transition }
-        tag="div"
-        class="v-messages"
-      >
-        { (messages.value.length > 0 && props.active) && (
-          messages.value.map((message, i) => (
-            <div class="v-messages__message" key={ i }>
-              { message }
-            </div>
-          ))
-        ) }
+  return {
+    rootClass,
+    messages,
+    showMessages,
+    transition,
+  }
+})
 
-        { slots?.default?.() }
-      </MaybeTransition>
-    )
-  },
+export const VMessages = uni2Platform(UniVMessages, (props, state, { renders }) => {
+  const {
+    rootClass,
+    messages,
+    showMessages,
+    transition,
+  } = state
+  return (
+    <div
+      class={rootClass}
+      ref={transition.setEleRef}
+      style={transition.style}
+      onTransitionEnd={transition.onTransitionEnd}
+    >
+      { showMessages && (
+        messages.map((message, i) => (
+          <div class="v-messages__message" key={ i }>
+            { message }
+          </div>
+        ))
+      ) }
+
+      { renders.defaultRender?.() }
+    </div>
+  )
 })

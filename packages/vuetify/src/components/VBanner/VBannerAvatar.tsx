@@ -1,32 +1,30 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { makeTagProps } from '@/composables/tag'
+import { computed } from '@uni-store/core'
 
-// Utilities
-import { defineComponent } from '@/util'
-
-export const VBannerAvatar = defineComponent({
-  name: 'VBannerAvatar',
-
-  props: {
-    left: Boolean,
-    right: Boolean,
-    ...makeTagProps(),
-  },
-
-  setup (props, { slots }) {
-    return () => {
-      return (
-        <props.tag
-          class={[
-            'v-banner-avatar',
-            {
-              'v-banner-avatar--start': props.left,
-              'v-banner-avatar--end': props.right,
-            },
-          ]}
-          v-slots={ slots }
-        />
-      )
+const UniVBannerAvatar = uniComponent('v-banner-avatar', {
+  left: Boolean,
+  right: Boolean,
+  ...makeTagProps(),
+}, (name, props) => {
+  const rootClass = computed(() => {
+    return {
+      [`${name}--start`]: props.left,
+      [`${name}--end`]: props.right,
     }
-  },
+  })
+
+  return {
+    rootClass,
+  }
+})
+
+export const VBannerAvatar = uni2Platform(UniVBannerAvatar, (props, state, { renders }) => {
+  return (
+    <props.tag class={state.rootClass}>
+      { renders.defaultRender?.() }
+    </props.tag>
+  )
 })

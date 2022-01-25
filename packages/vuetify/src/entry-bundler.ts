@@ -10,6 +10,8 @@ export const createVuetify = (options: VuetifyOptions = {}) => {
 
 export const version = __VUETIFY_VERSION__
 
+export * from './components'
+
 export {
   components,
   directives,

@@ -1,31 +1,24 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VLayout.sass'
-
-// Utilities
-import { defineComponent, useRender } from '@/util'
 
 // Composables
 import { createLayout, makeLayoutProps } from '@/composables/layout'
 
-export const VLayout = defineComponent({
-  name: 'VLayout',
-
-  props: makeLayoutProps(),
-
-  setup (props, { slots }) {
-    const { layoutClasses, getLayoutItem, items } = createLayout(props)
-
-    useRender(() => (
-      <div class={ layoutClasses.value }>
-        { slots.default?.() }
-      </div>
-    ))
-
-    return {
-      getLayoutItem,
-      items,
-    }
-  },
+const UniVLayout = uniComponent('v-layout', makeLayoutProps(), (name, props) => {
+  const { layoutClasses: rootClass, getLayoutItem, items } = createLayout(props)
+  return {
+    rootClass,
+    getLayoutItem,
+    items,
+  }
 })
 
-export type VLayout = InstanceType<typeof VLayout>
+export const VLayout = uni2Platform(UniVLayout, (_, state, { renders }) => {
+  return (
+    <div class={ state.rootClass }>
+      { renders.defaultRender?.() }
+    </div>
+  )
+})

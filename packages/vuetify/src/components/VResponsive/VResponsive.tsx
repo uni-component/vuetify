@@ -1,3 +1,6 @@
+import type { InjectionKey, PropType, UniNode } from '@uni-component/core'
+import { classNames, h, provide, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+
 // Styles
 import './VResponsive.sass'
 
@@ -5,8 +8,13 @@ import './VResponsive.sass'
 import { makeDimensionProps, useDimension } from '@/composables/dimensions'
 
 // Utilities
-import { computed } from 'vue'
-import { defineComponent } from '@/util'
+import type { Ref } from '@uni-store/core'
+import { computed, ref } from '@uni-store/core'
+
+import { useDirective } from '@/composables/directive'
+// Directives
+import type { ObserveDirectiveBinding } from '@/directives/intersect'
+import { Intersect } from '@/directives/intersect'
 
 export function useAspectStyles (props: { aspectRatio?: string | number }) {
   return {
@@ -20,28 +28,67 @@ export function useAspectStyles (props: { aspectRatio?: string | number }) {
   }
 }
 
-export const VResponsive = defineComponent({
-  name: 'VResponsive',
+interface ResponsiveProvide {
+  responsiveEl: Ref<HTMLDivElement | undefined>
+}
 
-  props: {
-    aspectRatio: [String, Number],
-    contentClass: String,
+export const VResponsiveSymbol = 'VResponsive' as any as InjectionKey<ResponsiveProvide>
 
-    ...makeDimensionProps(),
-  },
+const UniVResponsive = uniComponent('v-responsive', {
+  aspectRatio: [String, Number],
+  contentClass: String,
 
-  setup (props, { slots }) {
-    const { dimensionStyles } = useDimension(props)
-    const { aspectStyles } = useAspectStyles(props)
+  ...makeDimensionProps(),
 
-    return () => (
-      <div class="v-responsive" style={ dimensionStyles.value }>
-        <div class="v-responsive__sizer" style={ aspectStyles.value } />
-        { slots.additional?.() }
-        { slots.default && (
-          <div class={['v-responsive__content', props.contentClass]}>{ slots.default() }</div>
-        )}
-      </div>
-    )
-  },
+  additionalRender: Function as PropType<() => UniNode | undefined>,
+
+  intersect: Object as PropType<ObserveDirectiveBinding>,
+}, (name, props) => {
+  const { dimensionStyles } = useDimension(props)
+  const { aspectStyles } = useAspectStyles(props)
+  const sizerClass = `${name}__sizer`
+  const contentClass = computed(() => {
+    return classNames([`${name}__content`, props.contentClass])
+  })
+
+  const ele = ref<HTMLDivElement>()
+  const setEleRef = useRef(ele)
+
+  provide(VResponsiveSymbol, {
+    responsiveEl: ele,
+  })
+
+  let _setRef: undefined | typeof setRef
+  const setRef = (ele: HTMLDivElement | undefined) => {
+    setEleRef(ele)
+    _setRef?.(ele)
+  }
+  if (props.intersect) {
+    const { setEleRef } = useDirective(Intersect, computed(() => {
+      return props.intersect as ObserveDirectiveBinding
+    }))
+    _setRef = setEleRef
+  }
+
+  return {
+    setRef,
+    dimensionStyles,
+    aspectStyles,
+    sizerClass,
+    contentClass,
+  }
+})
+
+export const VResponsive = uni2Platform(UniVResponsive, (props, state, { renders }) => {
+  const { setRef, rootClass, dimensionStyles, aspectStyles, sizerClass, contentClass } = state
+  const content = renders.defaultRender?.()
+  return (
+    <div class={ rootClass } style={ dimensionStyles } ref={setRef}>
+      <div class={ sizerClass } style={ aspectStyles } />
+      { props.additionalRender?.() }
+      { content ? (
+        <div class={ contentClass }>{ content }</div>
+      ) : undefined }
+    </div>
+  )
 })

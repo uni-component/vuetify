@@ -6,7 +6,7 @@ import './VSlideGroup.sass'
 
 // Components
 import VIcon from '../VIcon'
-import { VFadeTransition } from '../transitions'
+import { VFadeTransition } from '@/composables/transitions'
 
 // Extensions
 import { BaseItemGroup } from '../VItemGroup/VItemGroup'

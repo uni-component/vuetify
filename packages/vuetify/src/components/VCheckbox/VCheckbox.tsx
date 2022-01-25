@@ -1,3 +1,6 @@
+import type { PropType } from '@uni-component/core'
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VCheckbox.sass'
 
@@ -9,93 +12,88 @@ import { filterControlProps, makeSelectionControlProps, VSelectionControl } from
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utility
-import { computed, defineComponent } from 'vue'
-import { filterInputAttrs, useRender } from '@/util'
+import { computed } from '@uni-store/core'
+// todo attrs
+// import { filterInputAttrs } from '@/util'
 
-export const VCheckbox = defineComponent({
-  name: 'VCheckbox',
-
-  inheritAttrs: false,
-
-  props: {
-    indeterminate: Boolean,
-    indeterminateIcon: {
-      type: String,
-      default: '$checkboxIndeterminate',
-    },
-
-    ...makeVInputProps(),
-    ...makeSelectionControlProps(),
-
-    falseIcon: {
-      type: String,
-      default: '$checkboxOff',
-    },
-    trueIcon: {
-      type: String,
-      default: '$checkboxOn',
-    },
+const UniVCheckbox = uniComponent('v-checkbox', {
+  indeterminate: Boolean,
+  indeterminateIcon: {
+    type: String,
+    default: '$checkboxIndeterminate',
   },
 
-  emits: {
-    'update:indeterminate': (val: boolean) => true,
+  ...makeVInputProps(),
+  ...makeSelectionControlProps(),
+
+  falseIcon: {
+    type: String,
+    default: '$checkboxOff',
   },
+  trueIcon: {
+    type: String,
+    default: '$checkboxOn',
+  },
+  'onUpdate:indeterminate': Function as PropType<(val: boolean) => void>,
+}, (_, props, context) => {
+  const indeterminate = useProxiedModel(props, context, 'indeterminate')
+  const falseIcon = computed(() => {
+    return indeterminate.value
+      ? props.indeterminateIcon
+      : props.falseIcon
+  })
+  const trueIcon = computed(() => {
+    return indeterminate.value
+      ? props.indeterminateIcon
+      : props.trueIcon
+  })
 
-  setup (props, { attrs, slots }) {
-    const indeterminate = useProxiedModel(props, 'indeterminate')
-    const falseIcon = computed(() => {
-      return indeterminate.value
-        ? props.indeterminateIcon
-        : props.falseIcon
-    })
-    const trueIcon = computed(() => {
-      return indeterminate.value
-        ? props.indeterminateIcon
-        : props.trueIcon
-    })
-
-    function onChange () {
-      if (indeterminate.value) {
-        indeterminate.value = false
-      }
+  function onChange (val: any) {
+    props['onUpdate:modelValue']?.(val)
+    if (indeterminate.value) {
+      indeterminate.value = false
     }
+  }
 
-    useRender(() => {
-      const [inputAttrs, controlAttrs] = filterInputAttrs(attrs)
-      const [inputProps, _1] = filterInputProps(props)
-      const [controlProps, _2] = filterControlProps(props)
-
-      return (
-        <VInput
-          class="v-checkbox"
-          { ...inputAttrs }
-          { ...inputProps }
-        >
-          {{
-            ...slots,
-            default: ({
-              isDisabled,
-              isReadonly,
-            }) => (
-              <VSelectionControl
-                { ...controlProps }
-                type="checkbox"
-                onUpdate:modelValue={ onChange }
-                falseIcon={ falseIcon.value }
-                trueIcon={ trueIcon.value }
-                aria-checked={ indeterminate.value ? 'mixed' : undefined }
-                disabled={ isDisabled.value }
-                readonly={ isReadonly.value }
-                { ...controlAttrs }
-              />
-            ),
-          }}
-        </VInput>
-      )
-    })
-
-    return {}
-  },
+  return {
+    indeterminate,
+    falseIcon,
+    trueIcon,
+    onChange,
+  }
 })
 
-export type VCheckbox = InstanceType<typeof VCheckbox>
+export const VCheckbox = uni2Platform(UniVCheckbox, (props, state, { attrs }) => {
+  // const [inputAttrs, controlAttrs] = filterInputAttrs(attrs)
+  const [inputProps, _1] = filterInputProps(props)
+  const [controlProps, _2] = filterControlProps(props)
+  const {
+    rootClass,
+    indeterminate,
+    falseIcon,
+    trueIcon,
+    onChange,
+  } = state
+
+  return (
+    <VInput
+      class={rootClass}
+      // { ...inputAttrs }
+      { ...inputProps }
+
+      defaultRender={({ isDisabled, isReadonly }) => (
+        <VSelectionControl
+          { ...controlProps }
+          type="checkbox"
+          onUpdate:modelValue={ onChange }
+          falseIcon={ falseIcon }
+          trueIcon={ trueIcon }
+          aria-checked={ indeterminate ? 'mixed' : undefined }
+          disabled={ isDisabled.value }
+          readonly={ isReadonly.value }
+          // { ...controlAttrs }
+        />
+      )}
+    />
+  )
+})

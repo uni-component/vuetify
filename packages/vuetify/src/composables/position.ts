@@ -1,9 +1,9 @@
 // Utilities
-import { computed } from 'vue'
+import { computed } from '@uni-store/core'
 import { convertToUnit, getCurrentInstanceName, propsFactory } from '@/util'
 
 // Types
-import type { PropType } from 'vue'
+import type { PropType } from '@uni-component/core'
 
 const positionValues = ['static', 'relative', 'fixed', 'absolute', 'sticky'] as const
 

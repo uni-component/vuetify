@@ -1,9 +1,12 @@
 // Utilities
-import { computed, inject, onBeforeUnmount, provide, ref } from 'vue'
+import { computed, ref } from '@uni-store/core'
+import { inject, onUnmounted, provide } from '@uni-component/core'
 import { convertToUnit, getUid, propsFactory } from '@/util'
 
 // Types
-import type { InjectionKey, Prop, Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { Prop } from '@vue/runtime-core'
+import type { InjectionKey } from '@uni-component/core'
 
 type Position = 'top' | 'left' | 'right' | 'bottom'
 
@@ -25,9 +28,9 @@ interface LayoutProvide {
     elementSize: Ref<number | string>,
     active: Ref<boolean>,
     disableTransitions?: Ref<boolean>
-  ) => Ref<Record<string, unknown>>
+  ) => Ref<{[key: string]: string | undefined}>
   unregister: (id: string) => void
-  mainStyles: Ref<Record<string, unknown>>
+  mainStyles: Ref<{[key: string]: string | undefined}>
   getLayoutItem: (id: string) => LayoutItem | undefined
   items: Ref<LayoutItem[]>
 }
@@ -79,7 +82,7 @@ export function useLayoutItem (
 
   const styles = layout.register(id, priority, position, layoutSize, elementSize, active, disableTransitions)
 
-  onBeforeUnmount(() => layout.unregister(id))
+  onUnmounted(() => layout.unregister(id))
 
   return styles
 }
@@ -229,7 +232,7 @@ export function createLayout (props: { layout?: string[], overlaps?: string[], f
           marginTop: position.value !== 'bottom' ? `${item.top}px` : undefined,
           marginBottom: position.value !== 'top' ? `${item.bottom}px` : undefined,
           width: !isHorizontal ? `calc(100% - ${item.left}px - ${item.right}px)` : `${elementSize.value}px`,
-          zIndex: layers.value.length - index,
+          zIndex: String(layers.value.length - index),
           transform: `translate${isHorizontal ? 'X' : 'Y'}(${(active.value ? 0 : -110) * (isOppositeHorizontal || isOppositeVertical ? -1 : 1)}%)`,
           ...(transitionsEnabled.value ? undefined : { transition: 'none' }),
         }

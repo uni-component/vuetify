@@ -1,3 +1,5 @@
+import { classNames, h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VAlert.sass'
 
@@ -18,191 +20,207 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed } from 'vue'
-import { defineComponent } from '@/util'
+import { computed } from '@uni-store/core'
 
 // Types
-import type { PropType } from 'vue'
+import type { PropType, UniNode } from '@uni-component/core'
 
 const allowedTypes = ['success', 'info', 'warning', 'error'] as const
 
 type ContextualType = typeof allowedTypes[number]
 
-export const VAlert = defineComponent({
-  name: 'VAlert',
+const UniVAlert = uniComponent('v-alert', {
+  border: [Boolean, String] as PropType<boolean | 'top' | 'end' | 'bottom' | 'start'>,
+  borderColor: String,
+  closable: Boolean,
+  // todo
+  closeIcon: {
+    type: String,
+    default: '$close',
+  },
+  // todo
+  closeLabel: {
+    type: String,
+    default: '$vuetify.close',
+  },
+  icon: {
+    type: [Boolean, String] as PropType<false | string>,
+    default: null,
+  },
+  modelValue: {
+    type: Boolean,
+    default: true,
+  },
+  prominent: Boolean,
+  sticky: Boolean,
+  text: String,
+  tip: Boolean,
+  type: {
+    type: String as PropType<ContextualType>,
+    validator: (val: ContextualType) => allowedTypes.includes(val),
+  },
 
-  props: {
-    border: {
-      type: [Boolean, String],
-      validator: (val: boolean | string) => {
-        return typeof val === 'boolean' || [
-          'top',
-          'end',
-          'bottom',
-          'start',
-        ].includes(val)
+  ...makeDensityProps(),
+  ...makeElevationProps(),
+  ...makePositionProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
+  ...makeVariantProps(),
+  'onUpdate:modelValue': Function as PropType<(value: boolean) => void>,
+  closeRender: Function as PropType<(scope: { props: { onClick: (e: MouseEvent) => void } }) => UniNode | undefined>,
+  prependRender: Function as PropType<() => UniNode | undefined>,
+}, (name, props, context) => {
+  const borderProps = computed(() => ({
+    border: props.border === true || props.tip ? 'start' : props.border,
+  }))
+  const isActive = useProxiedModel(props, context, 'modelValue')
+  const icon = computed(() => {
+    if (props.icon === false) return undefined
+    if (!props.type) return props.icon
+
+    return props.icon ?? `$${props.type}`
+  })
+  const variantProps = computed(() => ({
+    color: props.color ?? props.type,
+    textColor: props.textColor,
+    variant: props.variant,
+  }))
+
+  const { themeClasses } = provideTheme(props)
+  const { borderClasses } = useBorder(borderProps.value)
+  const { colorClasses, colorStyles, variantClasses } = useVariant(variantProps)
+  const { densityClasses } = useDensity(props)
+  const { elevationClasses } = useElevation(props)
+  const { positionClasses, positionStyles } = usePosition(props)
+  const { roundedClasses } = useRounded(props)
+  const { textColorClasses, textColorStyles } = useTextColor(computed(() => {
+    return props.borderColor ?? (props.tip ? variantProps.value.color : undefined)
+  }))
+
+  const onCloseClick = (e: MouseEvent) => {
+    isActive.value = false
+  }
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--border-${borderProps.value.border}`]: borderProps.value.border,
+        [`${name}--prominent`]: props.prominent,
+        [`${name}--tip`]: props.tip,
       },
-    },
-    borderColor: String,
-    closable: Boolean,
-    closeIcon: {
-      type: String,
-      default: '$close',
-    },
-    closeLabel: {
-      type: String,
-      default: '$vuetify.close',
-    },
-    icon: {
-      type: [Boolean, String] as PropType<false | string>,
-      default: null,
-    },
-    modelValue: {
-      type: Boolean,
-      default: true,
-    },
-    prominent: Boolean,
-    sticky: Boolean,
-    text: String,
-    tip: Boolean,
-    type: {
-      type: String as PropType<ContextualType>,
-      validator: (val: ContextualType) => allowedTypes.includes(val),
-    },
-
-    ...makeDensityProps(),
-    ...makeElevationProps(),
-    ...makePositionProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
-    ...makeVariantProps(),
-  },
-
-  emits: {
-    'update:modelValue': (value: boolean) => true,
-  },
-
-  setup (props, { slots }) {
-    const borderProps = computed(() => ({
-      border: props.border === true || props.tip ? 'start' : props.border,
-    }))
-    const isActive = useProxiedModel(props, 'modelValue')
-    const icon = computed(() => {
-      if (props.icon === false) return undefined
-      if (!props.type) return props.icon
-
-      return props.icon ?? `$${props.type}`
-    })
-    const variantProps = computed(() => ({
-      color: props.color ?? props.type,
-      textColor: props.textColor,
-      variant: props.variant,
-    }))
-
-    const { themeClasses } = provideTheme(props)
-    const { borderClasses } = useBorder(borderProps.value)
-    const { colorClasses, colorStyles, variantClasses } = useVariant(variantProps)
-    const { densityClasses } = useDensity(props)
-    const { elevationClasses } = useElevation(props)
-    const { positionClasses, positionStyles } = usePosition(props)
-    const { roundedClasses } = useRounded(props)
-    const { textColorClasses, textColorStyles } = useTextColor(computed(() => {
-      return props.borderColor ?? (props.tip ? variantProps.value.color : undefined)
-    }))
-
-    function onCloseClick (e: MouseEvent) {
-      isActive.value = false
+      themeClasses.value,
+      borderClasses.value,
+      !props.tip && colorClasses.value,
+      densityClasses.value,
+      elevationClasses.value,
+      positionClasses.value,
+      roundedClasses.value,
+      variantClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return {
+      ...(!props.tip && colorStyles.value),
+      ...positionStyles.value,
     }
+  })
 
-    return () => {
-      const hasBorder = !!borderProps.value.border
-      const hasClose = !!(slots.close || props.closable)
-      const hasPrepend = !!(slots.prepend || props.icon || props.type)
-      const hasText = !!(slots.default || props.text || hasClose)
+  const borderClass = computed(() => {
+    return classNames([
+      `${name}__border`,
+      textColorClasses.value,
+    ])
+  })
+  const borderStyle = computed(() => {
+    return textColorStyles.value
+  })
 
-      return isActive.value && (
-        <props.tag
-          class={[
-            'v-alert',
-            {
-              [`v-alert--border-${borderProps.value.border}`]: hasBorder,
-              'v-alert--prominent': props.prominent,
-              'v-alert--tip': props.tip,
-            },
-            themeClasses.value,
-            borderClasses.value,
-            !props.tip && colorClasses.value,
-            densityClasses.value,
-            elevationClasses.value,
-            positionClasses.value,
-            roundedClasses.value,
-            variantClasses.value,
-          ]}
-          style={[
-            !props.tip && colorStyles.value,
-            positionStyles.value,
-          ]}
-          role="alert"
-        >
-          { hasBorder && (
-            <div
-              class={[
-                'v-alert__border',
-                textColorClasses.value,
-              ]}
-              style={ textColorStyles.value }
-            />
-          ) }
+  return {
+    isActive,
+    rootClass,
+    rootStyle,
+    borderClass,
+    borderStyle,
+    borderProps,
+    onCloseClick,
+    textColorClasses,
+    textColorStyles,
+    icon,
+  }
+})
 
-          <div class="v-alert__underlay" />
+export const VAlert = uni2Platform(UniVAlert, (props, state, { renders }) => {
+  const {
+    isActive,
+    rootClass,
+    rootStyle,
+    borderClass,
+    borderStyle,
+    borderProps,
+    onCloseClick,
+    textColorClasses,
+    textColorStyles,
+    icon,
+  } = state
+  const hasBorder = !!borderProps.border
+  const hasClose = !!(props.closeRender || props.closable)
+  const hasPrepend = !!(props.prependRender || props.icon || props.type)
+  const hasText = !!(renders.defaultRender || props.text || hasClose)
 
-          <div class="v-alert__content">
-            { hasPrepend && (
-              <div class="v-alert__avatar">
-                { slots.prepend
-                  ? slots.prepend()
+  return isActive && (
+    <props.tag
+      class={rootClass}
+      style={rootStyle}
+      role="alert"
+    >
+      { hasBorder && (
+        <div
+          class={ borderClass }
+          style={ borderStyle }
+        />
+      ) }
+
+      <div class="v-alert__underlay" />
+
+      <div class="v-alert__content">
+        { hasPrepend && (
+          <div class="v-alert__avatar">
+            { props.prependRender
+              ? props.prependRender()
+              : (
+                <VAvatar
+                  class={ props.tip ? textColorClasses : undefined }
+                  style={ props.tip ? textColorStyles : undefined }
+                  density={ props.density }
+                  icon={ icon }
+                />
+              )
+            }
+          </div>
+        ) }
+
+        { hasText && (
+          <div class="v-alert__text">
+            { renders.defaultRender?.() || props.text }
+
+            { hasClose && (
+              <div class="v-alert__close">
+                { props.closeRender
+                  ? props.closeRender({ props: { onClick: onCloseClick } })
                   : (
-                    <VAvatar
-                      class={ props.tip && textColorClasses.value }
-                      style={ props.tip && textColorStyles.value }
+                    <VBtn
                       density={ props.density }
-                      icon={ icon.value }
+                      icon={ props.closeIcon }
+                      variant="text"
+                      onClick={ onCloseClick }
                     />
                   )
                 }
               </div>
             ) }
-
-            { hasText && (
-              <div class="v-alert__text">
-                { slots.default
-                  ? slots.default()
-                  : props.text
-                }
-
-                { hasClose && (
-                  <div class="v-alert__close">
-                    { slots.close
-                      ? slots.close({ props: { onClick: onCloseClick } })
-                      : (
-                        <VBtn
-                          density={ props.density }
-                          icon={ props.closeIcon }
-                          variant="text"
-                          onClick={ onCloseClick }
-                        />
-                      )
-                    }
-                  </div>
-                ) }
-              </div>
-            ) }
           </div>
-        </props.tag>
-      )
-    }
-  },
+        ) }
+      </div>
+    </props.tag>
+  )
 })
-
-export type VAlert = InstanceType<typeof VAlert>

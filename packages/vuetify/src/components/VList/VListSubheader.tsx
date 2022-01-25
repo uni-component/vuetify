@@ -1,41 +1,49 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { makeTagProps } from '@/composables/tag'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { toRef } from 'vue'
-import { defineComponent } from '@/util'
+import { computed, toRef } from '@uni-store/core'
 
-export const VListSubheader = defineComponent({
-  name: 'VListSubheader',
+const UniVListSubheader = uniComponent('v-list-subheader', {
+  color: String,
+  inset: Boolean,
 
-  props: {
-    color: String,
-    inset: Boolean,
+  ...makeTagProps(),
+}, (name, props) => {
+  const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
 
-    ...makeTagProps(),
-  },
+  const rootClass = computed(() => {
+    return [
+      props.inset && `${name}--inset`,
+      textColorClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return textColorStyles.value
+  })
 
-  setup (props, { slots }) {
-    const { textColorClasses, textColorStyles } = useTextColor(toRef(props, 'color'))
+  return {
+    rootClass,
+    rootStyle,
+  }
+})
 
-    return () => (
-      <props.tag
-        class={[
-          'v-list-subheader',
-          {
-            'v-list-subheader--inset': props.inset,
-          },
-          textColorClasses.value,
-        ]}
-        style={{ textColorStyles }}
-      >
-        { slots.default && (
-          <div class="v-list-subheader__text">
-            { slots.default() }
-          </div>
-        ) }
-      </props.tag>
-    )
-  },
+export const VListSubheader = uni2Platform(UniVListSubheader, (props, state, { renders }) => {
+  const text = renders.defaultRender?.()
+  return (
+    <props.tag
+      id={state.rootId}
+      class={state.rootClass}
+      style={state.rootStyle}
+    >
+      { text && (
+        <div class="v-list-subheader__text">
+          { text }
+        </div>
+      ) }
+    </props.tag>
+  )
 })

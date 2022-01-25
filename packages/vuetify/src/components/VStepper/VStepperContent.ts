@@ -1,11 +1,10 @@
 // @ts-nocheck
 /* eslint-disable */
 
-// Components
 import {
   VTabTransition,
   VTabReverseTransition,
-} from '../transitions'
+} from '@/composables/transitions'
 
 // Mixins
 import { inject as RegistrableInject } from '../../mixins/registrable'

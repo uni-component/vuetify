@@ -1,3 +1,4 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VApp.sass'
 
@@ -6,44 +7,43 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { createLayout, makeLayoutProps } from '@/composables/layout'
 
 // Utilities
-import { defineComponent, useRender } from '@/util'
 import { useRtl } from '@/composables/rtl'
+import { computed } from '@uni-store/core'
 
-export const VApp = defineComponent({
-  name: 'VApp',
+const UniVApp = uniComponent('v-app', {
+  ...makeLayoutProps({ fullHeight: true }),
+  ...makeThemeProps(),
+}, (_, props) => {
+  const theme = provideTheme(props)
+  const { layoutClasses, getLayoutItem, items } = createLayout(props)
+  const { rtlClasses } = useRtl()
 
-  props: {
-    ...makeLayoutProps({ fullHeight: true }),
-    ...makeThemeProps(),
-  },
+  const rootClass = computed(() => {
+    return [
+      theme.themeClasses.value,
+      layoutClasses.value,
+      rtlClasses.value,
+    ]
+  })
 
-  setup (props, { slots }) {
-    const theme = provideTheme(props)
-    const { layoutClasses, getLayoutItem, items } = createLayout(props)
-    const { rtlClasses } = useRtl()
-
-    useRender(() => (
-      <div
-        class={[
-          'v-application',
-          theme.themeClasses.value,
-          layoutClasses.value,
-          rtlClasses.value,
-        ]}
-        data-app="true"
-      >
-        <div class="v-application__wrap">
-          { slots.default?.() }
-        </div>
-      </div>
-    ))
-
-    return {
-      getLayoutItem,
-      items,
-      theme,
-    }
-  },
+  return {
+    rootClass,
+    getLayoutItem,
+    items,
+    theme,
+  }
 })
 
-export type VApp = InstanceType<typeof VApp>
+export const VApp = uni2Platform(UniVApp, (_, state, { renders }) => {
+  const { rootClass } = state
+  return (
+    <div
+      class={rootClass}
+      data-app="true"
+    >
+      <div class="v-application__wrap">
+        { renders.defaultRender?.() }
+      </div>
+    </div>
+  )
+})

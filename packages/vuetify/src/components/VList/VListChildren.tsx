@@ -1,50 +1,40 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Components
 import { VListGroup } from './VListGroup'
 import { VListItem } from './VListItem'
 
-// Utilities
-import { genericComponent } from '@/util'
-
 // Types
-import type { Prop } from 'vue'
-import type { MakeSlots } from '@/util'
+import type { Prop, PropType, UniNode } from '@uni-component/core'
 import type { ListGroupHeaderSlot } from './VListGroup'
 import type { ListItem } from './VList'
 
-export const VListChildren = genericComponent<new <T extends ListItem>() => {
-  $props: {
-    items?: T[]
-  }
-  $slots: MakeSlots<{
-    default: []
-    externalHeader: [ListGroupHeaderSlot]
-    item: [T]
-  }>
-}>()({
-  name: 'VListChildren',
+const UniVListChildren = uniComponent('v-list-children', {
+  items: Array as Prop<ListItem[]>,
 
-  props: {
-    items: Array as Prop<ListItem[]>,
-  },
+  externalHeaderRender: Function as PropType<(scope: ListGroupHeaderSlot) => UniNode | undefined>,
+  itemRender: Function as PropType<(scope: ListItem) => UniNode | undefined>,
+}, () => {
+  return {}
+})
 
-  setup (props, { slots }) {
-    return () => slots.default?.() ?? props.items?.map(({ children, ...item }) => {
-      const { value, ...rest } = item
-      return children ? (
-        <VListGroup
-          value={value}
-          items={children}
-        >
-          {{
-            ...slots,
-            header: headerProps => slots.externalHeader
-              ? slots.externalHeader({ ...rest, ...headerProps })
-              : <VListItem {...rest} {...headerProps} />,
-          }}
-        </VListGroup>
-      ) : (
-        slots.item ? slots.item(item) : <VListItem {...item} v-slots={slots} />
-      )
-    })
-  },
+export const VListChildren = uni2Platform(UniVListChildren, (props, _, { renders }) => {
+  const slotContent = renders.defaultRender?.()
+  return slotContent ?? props.items?.map(({ children, ...item }) => {
+    const { value } = item
+    return children ? (
+      <VListGroup
+        value={value}
+        items={children}
+        {...renders}
+        headerRender={headerProps => {
+          return props.externalHeaderRender
+            ? props.externalHeaderRender({ ...item, ...headerProps })
+            : <VListItem {...item} {...headerProps} />
+        }}
+      />
+    ) : (
+      props.itemRender ? props.itemRender(item) : <VListItem {...item} {...renders} />
+    )
+  })
 })

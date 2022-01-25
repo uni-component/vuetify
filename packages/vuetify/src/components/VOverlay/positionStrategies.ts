@@ -1,11 +1,12 @@
 // Utilities
-import { computed, effectScope, nextTick, onScopeDispose, ref, watch, watchEffect } from 'vue'
+import { computed, effectScope, nextTick, onScopeDispose, ref, watch, watchEffect } from '@uni-store/core'
 import { convertToUnit, getScrollParent, IN_BROWSER, isFixedPosition, nullifyTransforms, propsFactory } from '@/util'
 import { oppositeAnchor, parseAnchor, physicalAnchor } from './util/anchor'
 import { anchorToPoint, getOffset } from './util/point'
 
 // Types
-import type { EffectScope, PropType, Ref } from 'vue'
+import type { EffectScope, Ref } from '@uni-store/core'
+import type { PropType } from '@uni-component/core'
 import type { Anchor } from './util/anchor'
 import { Box } from '@/util/box'
 

@@ -1,19 +1,27 @@
+import type {
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Composables
 import { makeValidationProps, useValidation } from '@/composables/validation'
+import type { UnwrapNestedRefs } from '@uni-store/core'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVValidation = uniComponent('v-validation', {
+  ...makeValidationProps(),
+  defaultRender: Function as PropType<(validation: UnwrapNestedRefs<ReturnType<typeof useValidation>>) => UniNode | undefined>,
+}, (_, props) => {
+  const validation = useValidation(props, 'validation')
 
-export const VValidation = defineComponent({
-  name: 'VValidation',
+  return {
+    validation,
+  }
+})
 
-  props: {
-    ...makeValidationProps(),
-  },
-
-  setup (props, { slots }) {
-    const validation = useValidation(props, 'validation')
-
-    return () => slots.default?.(validation)
-  },
+export const VValidation = uni2Platform(UniVValidation, (_, state, { renders }) => {
+  return renders.defaultRender?.(state.validation)
 })

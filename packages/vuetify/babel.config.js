@@ -9,10 +9,22 @@ module.exports = {
     ['@babel/preset-env', {
       modules: false,
     }],
-    '@babel/preset-typescript',
+    ['@babel/preset-typescript', {
+      jsxPragma: 'h',
+      jsxPragmaFrag: 'Fragment',
+      allowNamespaces: true
+    }],
   ],
   plugins: [
-    ['@vue/babel-plugin-jsx', { optimize: true, enableObjectSlots: false }],
+    [
+      '@babel/plugin-transform-react-jsx',
+      {
+        'throwIfNamespace': false,
+        'runtime': 'classic',
+        'pragma': 'h',
+        'pragmaFrag': 'Fragment'
+      }
+    ],
     ['transform-define', {
       __VUETIFY_VERSION__: vuetifyPackage.version,
       __REQUIRED_VUE__: vuetifyPackage.peerDependencies.vue,

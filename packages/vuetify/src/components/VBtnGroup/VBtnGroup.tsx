@@ -1,3 +1,4 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VBtnGroup.sass'
 
@@ -12,57 +13,56 @@ import { makeVariantProps } from '@/composables/variant'
 import { provideDefaults } from '@/composables/defaults'
 
 // Utility
-import { defineComponent, useRender } from '@/util'
-import { toRef } from 'vue'
+import { computed, toRef } from '@uni-store/core'
 
-export const VBtnGroup = defineComponent({
-  name: 'VBtnGroup',
+const UniVBtnGroup = uniComponent('v-btn-group', {
+  divided: Boolean,
 
-  props: {
-    divided: Boolean,
+  ...makeBorderProps(),
+  ...makeDensityProps(),
+  ...makeElevationProps(),
+  ...makeRoundedProps(),
+  ...makeTagProps(),
+  ...makeThemeProps(),
+  ...makeVariantProps(),
+}, (name, props) => {
+  const { themeClasses } = provideTheme(props)
+  const { densityClasses } = useDensity(props)
+  const { borderClasses } = useBorder(props)
+  const { elevationClasses } = useElevation(props)
+  const { roundedClasses } = useRounded(props)
 
-    ...makeBorderProps(),
-    ...makeDensityProps(),
-    ...makeElevationProps(),
-    ...makeRoundedProps(),
-    ...makeTagProps(),
-    ...makeThemeProps(),
-    ...makeVariantProps(),
-  },
-
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { densityClasses } = useDensity(props)
-    const { borderClasses } = useBorder(props)
-    const { elevationClasses } = useElevation(props)
-    const { roundedClasses } = useRounded(props)
-
-    provideDefaults({
-      VBtn: {
-        height: 'auto',
-        color: toRef(props, 'color'),
-        flat: true,
-        variant: toRef(props, 'variant'),
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--divided`]: props.divided,
       },
-    })
+      themeClasses.value,
+      borderClasses.value,
+      densityClasses.value,
+      elevationClasses.value,
+      roundedClasses.value,
+    ]
+  })
 
-    useRender(() => {
-      return (
-        <props.tag
-          class={[
-            'v-btn-group',
-            {
-              'v-btn-group--divided': props.divided,
-            },
-            themeClasses.value,
-            borderClasses.value,
-            densityClasses.value,
-            elevationClasses.value,
-            roundedClasses.value,
-          ]}
-          v-slots={ slots }
-        />
-      )
-    })
-  },
+  provideDefaults({
+    VBtn: {
+      height: 'auto',
+      color: toRef(props, 'color'),
+      flat: true,
+      variant: toRef(props, 'variant'),
+    },
+  })
+
+  return {
+    rootClass,
+  }
+})
+
+export const VBtnGroup = uni2Platform(UniVBtnGroup, (props, state, { renders }) => {
+  return (
+    <props.tag class={state.rootClass}>
+      {renders.defaultRender?.()}
+    </props.tag>
+  )
 })

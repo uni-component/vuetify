@@ -1,3 +1,6 @@
+import type { Context, ExtractPropTypes, PropType, UniNode } from '@uni-component/core'
+import { h, inject, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+
 // Styles
 import './VSelectionControl.sass'
 
@@ -14,23 +17,21 @@ import { useTextColor } from '@/composables/color'
 
 // Directives
 import { Ripple } from '@/directives/ripple'
+import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from '@uni-store/core'
 import {
   deepEqual,
-  genericComponent,
   getUid,
   pick,
   propsFactory,
   SUPPORTS_FOCUS_VISIBLE,
-  useRender,
   wrapInArray,
 } from '@/util'
 
 // Types
-import type { ComputedRef, ExtractPropTypes, PropType, Ref, WritableComputedRef } from 'vue'
-import type { MakeSlots } from '@/util'
+import type { ComputedRef, Ref, WritableComputedRef } from '@uni-store/core'
 
 export type SelectionControlSlot = {
   model: WritableComputedRef<any>
@@ -63,11 +64,19 @@ export const makeSelectionControlProps = propsFactory({
   },
   name: String,
   readonly: Boolean,
-  trueValue: null,
-  falseValue: null,
-  modelValue: null,
+  trueValue: {
+    type: null,
+  },
+  falseValue: {
+    type: null,
+  },
+  modelValue: {
+    type: null,
+  },
   type: String,
-  value: null,
+  value: {
+    type: null,
+  },
   valueComparator: {
     type: Function as PropType<typeof deepEqual>,
     default: deepEqual,
@@ -75,16 +84,26 @@ export const makeSelectionControlProps = propsFactory({
 
   ...makeThemeProps(),
   ...makeDensityProps(),
+  labelRender: Function as PropType<(
+    scope: { label?: string, props: { for: string } }
+  ) => UniNode | undefined>,
+  inputRender: Function as PropType<(
+    scope: {
+      model: boolean
+      textColorClasses: string
+      props: { onFocus: (e: FocusEvent) => void, onBlur: () => void, id: string}
+    }
+  ) => UniNode | undefined>,
+  'onUpdate:modelValue': Function as PropType<(val: any) => void>,
 })
 
 export function useSelectionControl (
-  props: ExtractPropTypes<ReturnType<typeof makeSelectionControlProps>> & {
-    'onUpdate:modelValue': ((val: any) => void) | undefined
-  }
+  props: ExtractPropTypes<ReturnType<typeof makeSelectionControlProps>>,
+  context: Context
 ) {
   const group = inject(VSelectionControlGroupSymbol, undefined)
   const { densityClasses } = useDensity(props)
-  const modelValue = useProxiedModel(props, 'modelValue')
+  const modelValue = useProxiedModel(props, context, 'modelValue')
   const trueValue = computed(() => (
     props.trueValue !== undefined ? props.trueValue
     : props.value !== undefined ? props.value
@@ -147,147 +166,175 @@ export function useSelectionControl (
   }
 }
 
-export const VSelectionControl = genericComponent<new <T>() => {
-  $props: {
-    modelValue?: T
-    'onUpdate:modelValue'?: (val: T) => any
+const UniVSelectionControl = uniComponent('v-selection-control', makeSelectionControlProps(), (name, props, context) => {
+  const {
+    densityClasses,
+    group,
+    icon,
+    model,
+    textColorClasses,
+    textColorStyles,
+    trueValue,
+  } = useSelectionControl(props, context)
+  const uid = getUid()
+  const id = computed(() => props.id || `input-${uid}`)
+  const isFocused = ref(false)
+  const isFocusVisible = ref(false)
+  const input = ref<HTMLInputElement>()
+  const setInputEle = useRef(input)
+
+  function onFocus (e: FocusEvent) {
+    isFocused.value = true
+    if (
+      !SUPPORTS_FOCUS_VISIBLE ||
+      (SUPPORTS_FOCUS_VISIBLE && (e.target as HTMLElement).matches(':focus-visible'))
+    ) {
+      isFocusVisible.value = true
+    }
   }
-  $slots: MakeSlots<{
-    default: []
-    input: [SelectionControlSlot]
-  }>
-}>()({
-  name: 'VSelectionControl',
 
-  directives: { Ripple },
+  function onBlur () {
+    isFocused.value = false
+    isFocusVisible.value = false
+  }
 
-  inheritAttrs: false,
-
-  props: makeSelectionControlProps(),
-
-  emits: {
-    'update:modelValue': (val: any) => true,
-  },
-
-  setup (props, { attrs, slots }) {
-    const {
-      densityClasses,
-      group,
-      icon,
-      model,
-      textColorClasses,
-      textColorStyles,
-      trueValue,
-    } = useSelectionControl(props)
-    const uid = getUid()
-    const id = computed(() => props.id || `input-${uid}`)
-    const isFocused = ref(false)
-    const isFocusVisible = ref(false)
-    const input = ref<HTMLInputElement>()
-
-    function onFocus (e: FocusEvent) {
-      isFocused.value = true
-      if (
-        !SUPPORTS_FOCUS_VISIBLE ||
-        (SUPPORTS_FOCUS_VISIBLE && (e.target as HTMLElement).matches(':focus-visible'))
-      ) {
-        isFocusVisible.value = true
-      }
+  const type = computed(() => group?.type.value ?? props.type)
+  function onChange (e: Event) {
+    const ele = e.target as HTMLInputElement
+    const _type = type.value
+    if (_type === 'checkbox' || _type === 'radio') {
+      model.value = ele.checked
+    } else {
+      model.value = !!ele.value
     }
+  }
 
-    function onBlur () {
-      isFocused.value = false
-      isFocusVisible.value = false
-    }
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--dirty`]: model.value,
+        [`${name}--disabled`]: props.disabled,
+        [`${name}--error`]: props.error,
+        [`${name}--focused`]: isFocused.value,
+        [`${name}--focus-visible`]: isFocusVisible.value,
+        [`${name}--inline`]: group?.inline.value || props.inline,
+      },
+      densityClasses.value,
+      textColorClasses.value,
+    ]
+  })
 
-    useRender(() => {
-      const label = slots.label
-        ? slots.label({
-          label: props.label,
-          props: { for: id.value },
-        })
-        : props.label
-      const type = group?.type.value ?? props.type
-
-      return (
-        <div
-          class={[
-            'v-selection-control',
-            {
-              'v-selection-control--dirty': model.value,
-              'v-selection-control--disabled': props.disabled,
-              'v-selection-control--error': props.error,
-              'v-selection-control--focused': isFocused.value,
-              'v-selection-control--focus-visible': isFocusVisible.value,
-              'v-selection-control--inline': group?.inline.value || props.inline,
-            },
-            densityClasses.value,
-            textColorClasses.value,
-          ]}
-        >
-          <div class="v-selection-control__wrapper">
-            { slots.default?.() }
-
-            <div
-              class={[
-                'v-selection-control__input',
-              ]}
-              style={ textColorStyles.value }
-              v-ripple={ props.ripple && [
-                !props.disabled && !props.readonly,
-                null,
-                ['center', 'circle'],
-              ]}
-            >
-              { icon.value && <VIcon icon={ icon.value } /> }
-
-              <input
-                v-model={ model.value }
-                ref={ input }
-                disabled={ props.disabled }
-                id={ id.value }
-                onBlur={ onBlur }
-                onFocus={ onFocus }
-                readonly={ props.readonly }
-                type={ type }
-                value={ trueValue.value }
-                name={ group?.name.value ?? props.name }
-                aria-checked={ type === 'checkbox' ? model.value : undefined }
-                { ...attrs }
-              />
-
-              { slots.input?.({
-                model,
-                textColorClasses,
-                props: {
-                  onFocus,
-                  onBlur,
-                  id: id.value,
-                },
-              }) }
-            </div>
-          </div>
-
-          <VLabel
-            disabled={ props.disabled }
-            error={ props.error }
-            for={ id.value }
-          >
-            { label }
-          </VLabel>
-        </div>
-      )
-    })
-
+  const rippleDirective = useDirective(Ripple, computed(() => {
     return {
-      isFocused,
-      input,
+      value: !props.disabled && !props.readonly && props.ripple,
+      modifiers: {
+        center: true,
+        circle: true,
+      },
     }
-  },
+  }))
+
+  return {
+    type,
+    rootClass,
+    input,
+    setInputEle,
+    id,
+    group,
+    icon,
+    model,
+    textColorStyles,
+    textColorClasses,
+    trueValue,
+    rippleDirective,
+    onFocus,
+    onBlur,
+    onChange,
+  }
 })
 
-export type VSelectionControl = InstanceType<typeof VSelectionControl>
+export const VSelectionControl = uni2Platform(UniVSelectionControl, (props, state, { renders }) => {
+  const {
+    type,
+    rootClass,
+    setInputEle,
+    id,
+    group,
+    icon,
+    model,
+    textColorStyles,
+    textColorClasses,
+    trueValue,
+    rippleDirective,
+    onFocus,
+    onBlur,
+    onChange,
+  } = state
+  const label = props.labelRender
+    ? props.labelRender({
+      label: props.label,
+      props: { for: id },
+    })
+    : props.label
+
+  const modelAttrs: any = {
+    onInput: onChange,
+    onChange,
+  }
+
+  if (type === 'checkbox' || type === 'radio') {
+    modelAttrs.checked = model
+  }
+
+  return (
+    <div class={rootClass}>
+      <div class="v-selection-control__wrapper">
+        { renders.defaultRender?.() }
+        <div
+          class="v-selection-control__input"
+          style={ textColorStyles }
+          ref={rippleDirective ? rippleDirective.setEleRef : undefined}
+        >
+          { icon && <VIcon icon={ icon } /> }
+
+          <input
+            ref={ setInputEle }
+            disabled={ props.disabled }
+            id={ id }
+            onBlur={ onBlur }
+            onFocus={ onFocus }
+            readonly={ props.readonly }
+            type={ type }
+            value={ trueValue.value }
+            name={ group?.name ?? props.name }
+            aria-checked={ type === 'checkbox' ? model : undefined }
+            { ...modelAttrs }
+            // { ...attrs }
+          />
+
+          { props.inputRender?.({
+            model,
+            textColorClasses,
+            props: {
+              onFocus,
+              onBlur,
+              id,
+            },
+          }) }
+        </div>
+      </div>
+
+      <VLabel
+        disabled={ props.disabled }
+        error={ props.error }
+        for={ id }
+      >
+        { label }
+      </VLabel>
+    </div>
+  )
+})
 
 export function filterControlProps (props: ExtractPropTypes<ReturnType<typeof makeSelectionControlProps>>) {
-  return pick(props, Object.keys(VSelectionControl.props) as any)
+  return pick(props, Object.keys(UniVSelectionControl.rawProps!) as any)
 }

@@ -1,12 +1,14 @@
-// Utilities
-import { getCurrentInstance, IN_BROWSER } from '@/util'
-import { onMounted } from 'vue'
+import { IN_BROWSER } from '@/util'
+import { onMounted } from '@uni-component/core'
 
 export function useHydration (callback: () => void) {
   if (!IN_BROWSER) return
 
-  const vm = getCurrentInstance('useHydration')
-  const rootEl = vm?.root?.appContext?.app?._container
+  // const vm = getCurrentInstance('useHydration')
 
-  return rootEl?.__vue_app__ ? callback() : onMounted(callback)
+  // todo
+  // const rootEl = vm?.root?.appContext?.app?._container
+  // return rootEl?.__vue_app__ ? callback() : onMounted(callback)
+
+  return onMounted(callback)
 }

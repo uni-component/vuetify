@@ -1,24 +1,19 @@
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Components
 import { VBtn } from '@/components/VBtn'
 
-// Utilities
-import { defineComponent } from '@/util'
-
-export const VAppBarNavIcon = defineComponent({
-  name: 'VAppBarNavIcon',
-
-  props: {
-    icon: {
-      type: String,
-      default: '$menu',
-    },
+const UniVAppBarNavIcon = uniComponent('v-app-bar-nav-icon', {
+  icon: {
+    type: String,
+    default: '$menu',
   },
+}, () => ({}))
 
-  setup (props, { slots }) {
-    return () => (
-      <VBtn class="v-app-bar-nav-icon" icon={ props.icon }>
-        { slots.default?.() }
-      </VBtn>
-    )
-  },
+export const VAppBarNavIcon = uni2Platform(UniVAppBarNavIcon, (props, state, { renders }) => {
+  return (
+    <VBtn class={state.rootClass} icon={ props.icon }>
+      { renders.defaultRender?.() }
+    </VBtn>
+  )
 })

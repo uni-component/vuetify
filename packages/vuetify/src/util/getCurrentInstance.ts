@@ -1,5 +1,5 @@
 // Utilities
-import { getCurrentInstance as _getCurrentInstance } from 'vue'
+import { getCurrentInstance as _getCurrentInstance } from '@uni-component/core'
 import { toKebabCase } from '@/util'
 
 export function getCurrentInstance (name: string, message?: string) {
@@ -13,5 +13,5 @@ export function getCurrentInstance (name: string, message?: string) {
 }
 
 export function getCurrentInstanceName (name = 'composables') {
-  return toKebabCase(getCurrentInstance(name).type?.name)
+  return toKebabCase((getCurrentInstance(name) as any).type?.name)
 }

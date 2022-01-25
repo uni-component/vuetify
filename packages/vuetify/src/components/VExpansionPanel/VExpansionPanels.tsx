@@ -1,3 +1,13 @@
+import type {
+  InjectionKey,
+  PropType,
+} from '@uni-component/core'
+import {
+  h,
+  uni2Platform,
+  uniComponent,
+} from '@uni-component/core'
+
 // Styles
 import './VExpansionPanel.sass'
 
@@ -7,11 +17,9 @@ import { makeGroupProps, useGroup } from '@/composables/group'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Utilities
-import { computed } from 'vue'
-import { defineComponent } from '@/util'
+import { computed } from '@uni-store/core'
 
 // Types
-import type { InjectionKey, PropType } from 'vue'
 import type { GroupItemProvide } from '@/composables/group'
 
 export const VExpansionPanelSymbol: InjectionKey<GroupItemProvide> = Symbol.for('vuetify:v-expansion-panel')
@@ -19,43 +27,42 @@ export const VExpansionPanelSymbol: InjectionKey<GroupItemProvide> = Symbol.for(
 const allowedVariants = ['default', 'accordion', 'inset', 'popout'] as const
 type Variant = typeof allowedVariants[number]
 
-export const VExpansionPanels = defineComponent({
-  name: 'VExpansionPanels',
-
-  props: {
-    variant: {
-      type: String as PropType<Variant>,
-      default: 'default',
-      validator: (v: any) => allowedVariants.includes(v),
-    },
-
-    ...makeTagProps(),
-    ...makeGroupProps(),
-    ...makeThemeProps(),
+const UniVExpansionPanels = uniComponent('v-expansion-panels', {
+  variant: {
+    type: String as PropType<Variant>,
+    default: 'default',
+    validator: (v: any) => allowedVariants.includes(v),
   },
 
-  emits: {
-    'update:modelValue': (val: unknown) => true,
-  },
+  ...makeTagProps(),
+  ...makeGroupProps(),
+  ...makeThemeProps(),
 
-  setup (props, { slots }) {
-    useGroup(props, VExpansionPanelSymbol)
-    const { themeClasses } = provideTheme(props)
+  // 'onUpdate:modelValue': Function as PropType<(val: unknown) => void>,
+}, (_, props, context) => {
+  useGroup(props, VExpansionPanelSymbol, context)
+  const { themeClasses } = provideTheme(props)
 
-    const variantClass = computed(() => props.variant && `v-expansion-panels--variant-${props.variant}`)
+  const variantClass = computed(() => props.variant && `v-expansion-panels--variant-${props.variant}`)
 
-    return () => (
-      <props.tag
-        class={[
-          'v-expansion-panels',
-          themeClasses.value,
-          variantClass.value,
-        ]}
-      >
-        { slots.default?.() }
-      </props.tag>
-    )
-  },
+  const rootClass = computed(() => {
+    return [
+      themeClasses.value,
+      variantClass.value,
+    ]
+  })
+
+  return {
+    rootClass,
+  }
 })
 
-export type VExpansionPanels = InstanceType<typeof VExpansionPanels>
+export const VExpansionPanels = uni2Platform(UniVExpansionPanels, (props, state, { renders }) => {
+  return (
+    <props.tag
+      class={state.rootClass}
+    >
+      { renders.defaultRender?.() }
+    </props.tag>
+  )
+})

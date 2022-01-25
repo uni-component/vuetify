@@ -1,3 +1,6 @@
+import type { PropType } from '@uni-component/core'
+import { h, uni2Platform, uniComponent } from '@uni-component/core'
+
 // Styles
 import './VBottomNavigation.sass'
 
@@ -13,105 +16,102 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Utilities
-import { computed } from 'vue'
-import { convertToUnit, defineComponent } from '@/util'
+import { computed } from '@uni-store/core'
+import { convertToUnit } from '@/util'
 
-export const VBottomNavigation = defineComponent({
-  name: 'VBottomNavigation',
-
-  props: {
-    bgColor: String,
-    color: String,
-    grow: Boolean,
-    modelValue: {
-      type: Boolean,
-      default: true,
-    },
-    mode: {
-      type: String,
-      validator: (v: any) => !v || ['horizontal', 'shift'].includes(v),
-    },
-    height: {
-      type: [Number, String],
-      default: 56,
-    },
-    ...makeBorderProps(),
-    ...makeDensityProps(),
-    ...makeElevationProps(),
-    ...makeRoundedProps(),
-    ...makeLayoutItemProps({
-      name: 'bottom-navigation',
-    }),
-    ...makeTagProps({ tag: 'header' }),
-    ...makeThemeProps(),
+const UniVBottomNavigation = uniComponent('VBottomNavigation', {
+  bgColor: String,
+  color: String,
+  grow: Boolean,
+  modelValue: {
+    type: Boolean,
+    default: true,
   },
-
-  emits: {
-    'update:modelValue': (value: boolean) => true,
+  mode: String as PropType<'horizontal' | 'shift'>,
+  height: {
+    type: [Number, String],
+    default: 56,
   },
+  ...makeBorderProps(),
+  ...makeDensityProps(),
+  ...makeElevationProps(),
+  ...makeRoundedProps(),
+  ...makeLayoutItemProps({
+    name: 'bottom-navigation',
+  }),
+  ...makeTagProps({ tag: 'header' }),
+  ...makeThemeProps(),
+  'onUpdate:modelValue': Function as PropType<(value: boolean) => void>,
+}, (name, props, context) => {
+  const { themeClasses } = provideTheme(props)
+  const { borderClasses } = useBorder(props)
+  const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(computed(() => props.bgColor))
+  const { textColorClasses, textColorStyles } = useTextColor(computed(() => props.color))
+  const { densityClasses } = useDensity(props)
+  const { elevationClasses } = useElevation(props)
+  const { roundedClasses } = useRounded(props)
+  const height = computed(() => (
+    Number(props.height) -
+    (props.density === 'comfortable' ? 8 : 0) -
+    (props.density === 'compact' ? 16 : 0)
+  ))
+  const isActive = useProxiedModel(props, context, 'modelValue', props.modelValue)
+  const layoutStyles = useLayoutItem(
+    props.name,
+    computed(() => parseInt(props.priority, 10)),
+    computed(() => 'bottom'),
+    computed(() => isActive.value ? height.value : 0),
+    height,
+    isActive
+  )
 
-  setup (props, { slots }) {
-    const { themeClasses } = provideTheme(props)
-    const { borderClasses } = useBorder(props)
-    const { backgroundColorClasses, backgroundColorStyles } = useBackgroundColor(computed(() => props.bgColor))
-    const { textColorClasses, textColorStyles } = useTextColor(computed(() => props.color))
-    const { densityClasses } = useDensity(props)
-    const { elevationClasses } = useElevation(props)
-    const { roundedClasses } = useRounded(props)
-    const height = computed(() => (
-      Number(props.height) -
-      (props.density === 'comfortable' ? 8 : 0) -
-      (props.density === 'compact' ? 16 : 0)
-    ))
-    const isActive = useProxiedModel(props, 'modelValue', props.modelValue)
-    const layoutStyles = useLayoutItem(
-      props.name,
-      computed(() => parseInt(props.priority, 10)),
-      computed(() => 'bottom'),
-      computed(() => isActive.value ? height.value : 0),
-      height,
-      isActive
-    )
-
-    return () => {
-      return (
-        <props.tag
-          class={[
-            'v-bottom-navigation',
-            {
-              'v-bottom-navigation--grow': props.grow,
-              'v-bottom-navigation--horizontal': props.mode === 'horizontal',
-              'v-bottom-navigation--is-active': isActive.value,
-              'v-bottom-navigation--shift': props.mode === 'shift',
-              'v-bottom-navigation--absolute': props.absolute,
-            },
-            themeClasses.value,
-            backgroundColorClasses.value,
-            borderClasses.value,
-            densityClasses.value,
-            elevationClasses.value,
-            roundedClasses.value,
-            textColorClasses.value,
-          ]}
-          style={[
-            backgroundColorStyles.value,
-            layoutStyles.value,
-            textColorStyles.value,
-            {
-              height: convertToUnit(height.value),
-              transform: `translateY(${convertToUnit(!isActive.value ? 100 : 0, '%')})`,
-            },
-          ]}
-        >
-          { slots.default && (
-            <div class="v-bottom-navigation__content">
-              { slots.default() }
-            </div>
-          ) }
-        </props.tag>
-      )
+  const rootClass = computed(() => {
+    return [
+      {
+        [`${name}--grow`]: props.grow,
+        [`${name}--horizontal`]: props.mode === 'horizontal',
+        [`${name}--is-active`]: isActive.value,
+        [`${name}--shift`]: props.mode === 'shift',
+        [`${name}--absolute`]: props.absolute,
+      },
+      themeClasses.value,
+      backgroundColorClasses.value,
+      borderClasses.value,
+      densityClasses.value,
+      elevationClasses.value,
+      roundedClasses.value,
+      textColorClasses.value,
+    ]
+  })
+  const rootStyle = computed(() => {
+    return {
+      ...backgroundColorStyles.value,
+      ...layoutStyles.value,
+      ...textColorStyles.value,
+      height: convertToUnit(height.value),
+      transform: `translateY(${convertToUnit(!isActive.value ? 100 : 0, '%')})`,
     }
-  },
+  })
+
+  return {
+    rootClass,
+    rootStyle,
+  }
 })
 
-export type VBottomNavigation = InstanceType<typeof VBottomNavigation>
+export const VBottomNavigation = uni2Platform(UniVBottomNavigation, (props, state, { renders }) => {
+  const { rootClass, rootStyle } = state
+  const content = renders.defaultRender?.()
+  return (
+    <props.tag
+      class={rootClass}
+      style={rootStyle}
+    >
+      { content && (
+        <div class="v-bottom-navigation__content">
+          { content }
+        </div>
+      ) }
+    </props.tag>
+  )
+})

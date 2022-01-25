@@ -1,37 +1,48 @@
+import type { PropType, UniNode } from '@uni-component/core'
+import { uni2Platform, uniComponent } from '@uni-component/core'
+
 // Composables
 import { makeDelayProps, useDelay } from '@/composables/delay'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
-// Utilities
-import { defineComponent } from '@/util'
+const UniVHover = uniComponent('v-hover', {
+  disabled: Boolean,
+  modelValue: {
+    type: Boolean,
+    default: undefined,
+  },
 
-export const VHover = defineComponent({
-  name: 'VHover',
+  ...makeDelayProps(),
+  defaultRender: Function as PropType<(scope: {
+    hover: boolean | undefined
+    props: {
+      onMouseEnter: () => Promise<boolean>
+      onMouseLeave: () => Promise<boolean>
+    }
+  }) => UniNode | undefined>,
+  'onUpdate:modelValue': Function as PropType<(val: boolean) => void>,
+}, (_, props, context) => {
+  const hover = useProxiedModel(props, context, 'modelValue')
+  const { runOpenDelay, runCloseDelay } = useDelay(props, value => !props.disabled && (hover.value = value))
 
-  props: {
-    disabled: Boolean,
-    modelValue: {
-      type: Boolean,
-      default: undefined,
+  return {
+    hover,
+    runOpenDelay,
+    runCloseDelay,
+  }
+})
+
+export const VHover = uni2Platform(UniVHover, (props, state, { renders }) => {
+  const {
+    hover,
+    runOpenDelay,
+    runCloseDelay,
+  } = state
+  return (props.defaultRender || renders.defaultRender)?.({
+    hover,
+    props: {
+      onMouseEnter: runOpenDelay,
+      onMouseLeave: runCloseDelay,
     },
-
-    ...makeDelayProps(),
-  },
-
-  emits: {
-    'update:modelValue': (value: boolean) => true,
-  },
-
-  setup (props, { slots }) {
-    const hover = useProxiedModel(props, 'modelValue')
-    const { runOpenDelay, runCloseDelay } = useDelay(props, value => !props.disabled && (hover.value = value))
-
-    return () => slots.default?.({
-      hover: hover.value,
-      props: {
-        onMouseenter: runOpenDelay,
-        onMouseleave: runCloseDelay,
-      },
-    })
-  },
+  })
 })

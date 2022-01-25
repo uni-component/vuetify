@@ -1,34 +1,39 @@
+import type {
+  InjectionKey,
+  PropType,
+  UniNode,
+} from '@uni-component/core'
+import {
+  capture,
+  classNames,
+  h,
+  onMounted,
+  provide,
+  uni2Platform,
+  uniComponent,
+  useRef,
+} from '@uni-component/core'
+
 import './VImg.sass'
 
 // Components
-import { VResponsive } from '@/components/VResponsive'
-
-// Directives
-import intersect from '@/directives/intersect'
+import { VResponsive, VResponsiveSymbol } from '@/components/VResponsive'
 
 // Composables
-import { makeTransitionProps, MaybeTransition } from '@/composables/transition'
+import { makeTransitionProps, nextFrame, useTransition } from '@/composables/transition'
 
 // Utilities
+import type { Ref } from '@uni-store/core'
 import {
   computed,
-  h,
   nextTick,
-  onBeforeMount,
   ref,
-  vShow,
   watch,
-  withDirectives,
-} from 'vue'
+} from '@uni-store/core'
 import {
   convertToUnit,
-  defineComponent,
   SUPPORTS_INTERSECTION,
-  useRender,
 } from '@/util'
-
-// Types
-import type { PropType } from 'vue'
 
 // not intended for public use, this is passed in by vuetify-loader
 export interface srcObject {
@@ -38,261 +43,309 @@ export interface srcObject {
   aspect: number
 }
 
-export const VImg = defineComponent({
-  name: 'VImg',
+interface ImgProvide {
+  imageEl: Ref<HTMLImageElement | undefined>
+  responsiveEl: Ref<HTMLElement | undefined>
+}
 
-  directives: { intersect },
+export const VImgSymbol = 'VImg' as any as InjectionKey<ImgProvide>
 
-  props: {
-    aspectRatio: [String, Number],
-    alt: String,
-    cover: Boolean,
-    eager: Boolean,
-    gradient: String,
-    lazySrc: String,
-    options: {
-      type: Object as PropType<IntersectionObserverInit>,
-      // For more information on types, navigate to:
-      // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-      default: () => ({
-        root: undefined,
-        rootMargin: undefined,
-        threshold: undefined,
-      }),
-    },
-    sizes: String,
-    src: {
-      type: [String, Object] as PropType<string | srcObject>,
-      default: '',
-    },
-    srcset: String,
-    width: [String, Number],
-
-    ...makeTransitionProps(),
+const UniVImg = uniComponent('v-img', {
+  aspectRatio: [String, Number],
+  alt: String,
+  cover: Boolean,
+  eager: Boolean,
+  gradient: String,
+  lazySrc: String,
+  options: {
+    type: Object as PropType<IntersectionObserverInit>,
+    // For more information on types, navigate to:
+    // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+    default: () => ({
+      root: undefined,
+      rootMargin: undefined,
+      threshold: undefined,
+    }),
   },
+  sizes: String,
+  src: {
+    type: [String, Object] as PropType<string | srcObject>,
+    default: '',
+  },
+  srcset: String,
+  width: [String, Number],
 
-  emits: ['loadstart', 'load', 'error'],
+  ...makeTransitionProps(),
 
-  setup (props, { emit, slots }) {
-    const currentSrc = ref('') // Set from srcset
-    const image = ref<HTMLImageElement>()
-    const state = ref<'idle' | 'loading' | 'loaded' | 'error'>(props.eager ? 'loading' : 'idle')
-    const naturalWidth = ref<number>()
-    const naturalHeight = ref<number>()
+  onLoadStart: Function as PropType<(src?: string) => void>,
+  onLoad: Function as PropType<(src?: string) => void>,
+  onError: Function as PropType<(src?: string) => void>,
+  sourcesRender: Function as PropType<() => UniNode | undefined>,
+  placeholderRender: Function as PropType<() => UniNode | undefined>,
+  errorRender: Function as PropType<() => UniNode | undefined>,
+}, (name, props) => {
+  const currentSrc = ref('') // Set from srcset
+  const image = ref<HTMLImageElement>()
+  const setImageRef = useRef(image)
 
-    const normalisedSrc = computed<srcObject>(() => {
-      return props.src && typeof props.src === 'object'
-        ? {
-          src: props.src.src,
-          srcset: props.srcset || props.src.srcset,
-          lazySrc: props.lazySrc || props.src.lazySrc,
-          aspect: Number(props.aspectRatio || props.src.aspect),
-        } : {
-          src: props.src,
-          srcset: props.srcset,
-          lazySrc: props.lazySrc,
-          aspect: Number(props.aspectRatio || 0),
+  const responsiveProvide = capture(VResponsiveSymbol)
+  provide(VImgSymbol, {
+    imageEl: image,
+    responsiveEl: computed(() => responsiveProvide.value?.responsiveEl),
+  })
+
+  const state = ref<'idle' | 'loading' | 'loaded' | 'error'>(props.eager ? 'loading' : 'idle')
+  const naturalWidth = ref<number>()
+  const naturalHeight = ref<number>()
+
+  const normalisedSrc = computed<srcObject>(() => {
+    return props.src && typeof props.src === 'object'
+      ? {
+        src: props.src.src,
+        srcset: props.srcset || props.src.srcset,
+        lazySrc: props.lazySrc || props.src.lazySrc,
+        aspect: Number(props.aspectRatio || props.src.aspect),
+      } : {
+        src: props.src,
+        srcset: props.srcset,
+        lazySrc: props.lazySrc,
+        aspect: Number(props.aspectRatio || 0),
+      }
+  })
+  const aspectRatio = computed(() => {
+    return normalisedSrc.value.aspect || naturalWidth.value! / naturalHeight.value! || 0
+  })
+
+  watch(() => props.src, () => {
+    init(state.value !== 'idle')
+  })
+  // TODO: getSrc when window width changes
+
+  // onBeforeMount(() => init())
+  onMounted(() => init())
+
+  function init (isIntersecting?: boolean) {
+    if (props.eager && isIntersecting) return
+    if (
+      SUPPORTS_INTERSECTION &&
+      !isIntersecting &&
+      !props.eager
+    ) return
+
+    state.value = 'loading'
+    nextTick(() => {
+      props.onLoadStart?.(image.value?.currentSrc || normalisedSrc.value.src)
+
+      if (image.value?.complete) {
+        if (!image.value.naturalWidth) {
+          onError()
         }
+
+        if (state.value === 'error') return
+
+        if (!aspectRatio.value) pollForSize(image.value, null)
+        onLoad()
+      } else {
+        if (!aspectRatio.value) pollForSize(image.value!)
+        getSrc()
+      }
     })
-    const aspectRatio = computed(() => {
-      return normalisedSrc.value.aspect || naturalWidth.value! / naturalHeight.value! || 0
-    })
 
-    watch(() => props.src, () => {
-      init(state.value !== 'idle')
-    })
-    // TODO: getSrc when window width changes
+    if (normalisedSrc.value.lazySrc) {
+      const lazyImg = new Image()
+      lazyImg.src = normalisedSrc.value.lazySrc
+      pollForSize(lazyImg, null)
+    }
+  }
 
-    onBeforeMount(() => init())
+  function onLoad () {
+    getSrc()
+    state.value = 'loaded'
+    props.onLoad?.(image.value?.currentSrc || normalisedSrc.value.src)
+  }
 
-    function init (isIntersecting?: boolean) {
-      if (props.eager && isIntersecting) return
-      if (
-        SUPPORTS_INTERSECTION &&
-        !isIntersecting &&
-        !props.eager
-      ) return
+  function onError () {
+    state.value = 'error'
+    props.onError?.(image.value?.currentSrc || normalisedSrc.value.src)
+  }
 
-      state.value = 'loading'
-      nextTick(() => {
-        emit('loadstart', image.value?.currentSrc || normalisedSrc.value.src)
+  function getSrc () {
+    const img = image.value
+    if (img) currentSrc.value = img.currentSrc || img.src
+  }
 
-        if (image.value?.complete) {
-          if (!image.value.naturalWidth) {
-            onError()
-          }
+  function pollForSize (img: HTMLImageElement, timeout: number | null = 100) {
+    const poll = () => {
+      const { naturalHeight: imgHeight, naturalWidth: imgWidth } = img
 
-          if (state.value === 'error') return
-
-          if (!aspectRatio.value) pollForSize(image.value, null)
-          onLoad()
-        } else {
-          if (!aspectRatio.value) pollForSize(image.value!)
-          getSrc()
-        }
-      })
-
-      if (normalisedSrc.value.lazySrc) {
-        const lazyImg = new Image()
-        lazyImg.src = normalisedSrc.value.lazySrc
-        pollForSize(lazyImg, null)
+      if (imgHeight || imgWidth) {
+        naturalWidth.value = imgWidth
+        naturalHeight.value = imgHeight
+      } else if (!img.complete && state.value === 'loading' && timeout != null) {
+        setTimeout(poll, timeout)
+      } else if (img.currentSrc.endsWith('.svg') || img.currentSrc.startsWith('data:image/svg+xml')) {
+        naturalWidth.value = 1
+        naturalHeight.value = 1
       }
     }
 
-    function onLoad () {
-      getSrc()
-      state.value = 'loaded'
-      emit('load', image.value?.currentSrc || normalisedSrc.value.src)
-    }
+    poll()
+  }
 
-    function onError () {
-      state.value = 'error'
-      emit('error', image.value?.currentSrc || normalisedSrc.value.src)
-    }
+  const containClasses = computed(() => ({
+    [`${name}__img--cover`]: props.cover,
+    [`${name}__img--contain`]: !props.cover,
+  }))
 
-    function getSrc () {
-      const img = image.value
-      if (img) currentSrc.value = img.currentSrc || img.src
-    }
+  const imgShow = computed(() => state.value === 'loaded')
+  const imgTransition = useTransition(imgShow, props.transition as string, true)
+  const __image = computed(() => {
+    if (!normalisedSrc.value.src || state.value === 'idle') return
 
-    function pollForSize (img: HTMLImageElement, timeout: number | null = 100) {
-      const poll = () => {
-        const { naturalHeight: imgHeight, naturalWidth: imgWidth } = img
+    const sources = props.sourcesRender?.()
 
-        if (imgHeight || imgWidth) {
-          naturalWidth.value = imgWidth
-          naturalHeight.value = imgHeight
-        } else if (!img.complete && state.value === 'loading' && timeout != null) {
-          setTimeout(poll, timeout)
-        } else if (img.currentSrc.endsWith('.svg') || img.currentSrc.startsWith('data:image/svg+xml')) {
-          naturalWidth.value = 1
-          naturalHeight.value = 1
-        }
-      }
-
-      poll()
-    }
-
-    const containClasses = computed(() => ({
-      'v-img__img--cover': props.cover,
-      'v-img__img--contain': !props.cover,
-    }))
-
-    const __image = computed(() => {
-      if (!normalisedSrc.value.src || state.value === 'idle') return
-
-      const img = h('img', {
-        class: ['v-img__img', containClasses.value],
-        src: normalisedSrc.value.src,
-        srcset: normalisedSrc.value.srcset,
-        sizes: props.sizes,
-        ref: image,
-        onLoad,
-        onError,
-      })
-
-      const sources = slots.sources?.()
-
-      return (
-        <MaybeTransition transition={ props.transition } appear>
-          {
-            withDirectives(
-              sources
-                ? <picture class="v-img__picture">{ sources }{ img }</picture>
-                : img,
-              [[vShow, state.value === 'loaded']]
-            )
-          }
-        </MaybeTransition>
-      )
-    })
-
-    const __preloadImage = computed(() => (
-      <MaybeTransition transition={ props.transition }>
-        { normalisedSrc.value.lazySrc && state.value !== 'loaded' && (
-          <img
-            class={['v-img__img', 'v-img__img--preload', containClasses.value]}
-            src={ normalisedSrc.value.lazySrc }
-            alt=""
-          />
-        )}
-      </MaybeTransition>
-    ))
-
-    const __placeholder = computed(() => {
-      if (!slots.placeholder) return
-
-      return (
-        <MaybeTransition transition={ props.transition } appear>
-          { (state.value === 'loading' || (state.value === 'error' && !slots.error)) &&
-          <div class="v-img__placeholder">{ slots.placeholder() }</div>
-          }
-        </MaybeTransition>
-      )
-    })
-
-    const __error = computed(() => {
-      if (!slots.error) return
-
-      return (
-        <MaybeTransition transition={ props.transition } appear>
-          { state.value === 'error' &&
-            <div class="v-img__error">{ slots.error() }</div>
-          }
-        </MaybeTransition>
-      )
-    })
-
-    const __gradient = computed(() => {
-      if (!props.gradient) return
-
-      return <div class="v-img__gradient" style={{ backgroundImage: `linear-gradient(${props.gradient})` }} />
-    })
-
-    const isBooted = ref(false)
-    {
-      const stop = watch(aspectRatio, val => {
-        if (val) {
-          // Doesn't work with nextTick, idk why
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              isBooted.value = true
-            })
-          })
-          stop()
-        }
-      })
-    }
-
-    useRender(() => (
-      <VResponsive
-        class={[
-          'v-img',
-          { 'v-img--booting': !isBooted.value },
-        ]}
-        style={{ width: convertToUnit(props.width === 'auto' ? naturalWidth.value : props.width) }}
-        aspectRatio={ aspectRatio.value }
-        aria-label={ props.alt }
-        role={ props.alt ? 'img' : undefined }
-        v-intersect={[{
-          handler: init,
-          options: props.options,
-        }, null, ['once']]}
-        v-slots={{
-          additional: () => [__image.value, __preloadImage.value, __gradient.value, __placeholder.value, __error.value],
-          default: slots.default,
-        }}
+    const img = (
+      <img
+        ref={setImageRef}
+        class={classNames([`${name}__img`, containClasses.value, !sources && imgTransition.transtionClass.value])}
+        src={normalisedSrc.value.src}
+        srcset={normalisedSrc.value.srcset}
+        sizes={props.sizes}
+        onLoad={onLoad}
+        onError={onError}
+        style={sources ? undefined : imgTransition.style.value}
+        onTransitionEnd={sources ? undefined : imgTransition.onTransitionEnd}
       />
-    ))
+    )
 
-    return {
-      currentSrc,
-      image,
-      state,
-      naturalWidth,
-      naturalHeight,
+    return sources ? (
+      <picture
+        class={classNames([`${name}__picture`, imgTransition.transtionClass.value])}
+        style={imgTransition.style.value}
+        onTransitionEnd={imgTransition.onTransitionEnd}
+      >{ sources }{ img }</picture>
+    ) : img
+  })
+
+  const __preloadImage = computed(() => {
+    return normalisedSrc.value.lazySrc && state.value !== 'loaded' && (
+      <img
+        class={classNames([`${name}__img`, `${name}__img--preload`, containClasses.value, imgTransition.transtionClass.value])}
+        src={ normalisedSrc.value.lazySrc }
+        style={imgTransition.style.value}
+        alt=""
+        onTransitionEnd={imgTransition.onTransitionEnd}
+      />
+    )
+  })
+
+  const isShowPlaceholder = computed(() => state.value === 'loading' || (state.value === 'error' && !props.errorRender))
+  const placeholderTransition = useTransition(isShowPlaceholder, props.transition as string, true)
+  const __placeholder = computed(() => {
+    if (!props.placeholderRender) {
+      return
     }
-  },
+
+    return isShowPlaceholder.value && (
+      <div
+        class={classNames([`${name}__placeholder`], placeholderTransition.transtionClass.value)}
+        style={placeholderTransition.style.value}
+        onTransitionEnd={placeholderTransition.onTransitionEnd}
+      >
+        { props.placeholderRender!() }
+      </div>
+    )
+  })
+
+  const isError = computed(() => state.value === 'error')
+  const errorTransition = useTransition(isError, props.transition as string, true)
+  const __error = computed(() => {
+    if (!props.errorRender) return
+
+    return isError.value && (
+      <div
+        class={classNames([`${name}__error`, errorTransition.transtionClass.value])}
+        style={errorTransition.style.value}
+        onTransitionEnd={errorTransition.onTransitionEnd}
+      >{ props.errorRender!() }</div>
+    )
+  })
+
+  const __gradient = computed(() => {
+    if (!props.gradient) return
+
+    return <div class={`${name}__gradient`} style={{ backgroundImage: `linear-gradient(${props.gradient})` }} />
+  })
+
+  const isBooted = ref(false)
+  const stop = watch(() => aspectRatio.value, val => {
+    if (val) {
+      // Doesn't work with nextTick, idk why
+      nextFrame(() => {
+        isBooted.value = true
+      })
+      stop()
+    }
+  })
+  const rootClass = computed(() => {
+    return { [`${name}--booting`]: !isBooted.value }
+  })
+  const rootWidth = computed(() => {
+    return convertToUnit(props.width === 'auto' ? naturalWidth.value : props.width)
+  })
+
+  const intersect = computed(() => {
+    return {
+      value: {
+        handler: init,
+        options: props.options,
+      },
+      modifiers: {
+        once: true,
+      },
+    }
+  })
+
+  const additionalRender = () => {
+    return [__image.value, __preloadImage.value, __gradient.value, __placeholder.value, __error.value]
+  }
+
+  return {
+    rootClass,
+    rootWidth,
+    aspectRatio,
+    intersect,
+    additionalRender,
+
+    currentSrc,
+    image,
+    state,
+    naturalWidth,
+    naturalHeight,
+  }
 })
 
-export type VImg = InstanceType<typeof VImg>
+export const VImg = uni2Platform(UniVImg, (props, state, { renders }) => {
+  const { alt } = props
+  const {
+    rootClass,
+    rootWidth,
+    aspectRatio,
+    intersect,
+    additionalRender,
+  } = state
+  return (
+    <VResponsive
+      class={rootClass}
+      width={rootWidth}
+      aspectRatio={ aspectRatio }
+      aria-label={ alt }
+      // @ts-expect-error
+      role={ alt ? 'img' : undefined }
+      intersect={intersect}
+      additionalRender={additionalRender}
+    >
+      { renders.defaultRender?.() }
+    </VResponsive>
+  )
+})

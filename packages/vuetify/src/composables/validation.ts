@@ -2,11 +2,12 @@
 import { useForm } from '@/composables/form'
 
 // Utilities
-import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
-import { getCurrentInstance, getCurrentInstanceName, getUid, propsFactory } from '@/util'
+import { computed, ref } from '@uni-store/core'
+import { onUnmounted } from '@uni-component/core'
+import { getCurrentInstanceName, getUid, propsFactory } from '@/util'
 
 // Types
-import type { PropType } from 'vue'
+import type { PropType } from '@uni-component/core'
 
 export type ValidationResult = string | true
 export type ValidationRule =
@@ -24,6 +25,7 @@ export interface ValidationProps {
   readonly?: boolean
   rules: ValidationRule[]
   modelValue?: any
+  'onUpdate:modelValue'?: (value: any) => void
 }
 
 export const makeValidationProps = propsFactory({
@@ -43,7 +45,10 @@ export const makeValidationProps = propsFactory({
     type: Array as PropType<ValidationRule[]>,
     default: () => ([]),
   },
-  modelValue: null,
+  modelValue: {
+    type: null,
+  },
+  'onUpdate:modelValue': Function as PropType<ValidationProps['onUpdate:modelValue']>,
 })
 
 export function useValidation (
@@ -73,21 +78,18 @@ export function useValidation (
     }
   })
 
-  const vm = getCurrentInstance('useValidation')
   const uid = computed(() => props.name ?? getUid())
 
-  onBeforeMount(() => {
-    form?.register(uid.value, validate, reset, resetValidation)
-  })
+  form?.register(uid.value, validate, reset, resetValidation)
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     form?.unregister(uid.value)
   })
 
   function reset () {
     resetValidation()
 
-    vm?.emit('update:modelValue', null)
+    props['onUpdate:modelValue']?.(null)
   }
 
   function resetValidation () {

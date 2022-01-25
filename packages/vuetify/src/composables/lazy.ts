@@ -1,8 +1,8 @@
 // Utilities
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch } from '@uni-store/core'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
 import { propsFactory } from '@/util'
 
 export const makeLazyProps = propsFactory({

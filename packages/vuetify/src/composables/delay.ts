@@ -1,4 +1,3 @@
-// Utilities
 import { IN_BROWSER, propsFactory } from '@/util'
 
 // Types

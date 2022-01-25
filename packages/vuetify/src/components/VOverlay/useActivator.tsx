@@ -1,5 +1,5 @@
 // Utilities
-import { getCurrentInstance, IN_BROWSER, propsFactory, SUPPORTS_FOCUS_VISIBLE } from '@/util'
+import { IN_BROWSER, propsFactory, SUPPORTS_FOCUS_VISIBLE } from '@/util'
 import { makeDelayProps, useDelay } from '@/composables/delay'
 import {
   computed,
@@ -8,24 +8,26 @@ import {
   onScopeDispose,
   ref,
   watch,
-} from 'vue'
+} from '@uni-store/core'
 
 // Types
 import type { DelayProps } from '@/composables/delay'
 import type {
-  ComponentPublicInstance,
   EffectScope,
-  PropType,
   Ref,
-} from 'vue'
+} from '@uni-store/core'
+import type {
+  PropType,
+} from '@uni-component/core'
 
 interface ActivatorProps extends DelayProps {
-  activator?: 'parent' | string | Element | ComponentPublicInstance
+  // activator?: 'parent' | string | Element | ComponentPublicInstance
+  activator?: string | Element
   activatorProps: Record<string, any>
 
-  openOnClick: boolean | undefined
+  openOnClick?: boolean
   openOnHover: boolean
-  openOnFocus: boolean | undefined
+  openOnFocus?: boolean
 }
 
 export const makeActivatorProps = propsFactory({
@@ -184,18 +186,25 @@ function _useActivator (props: ActivatorProps, { activatorEl, activatorEvents }:
     })
   }
 
-  const vm = getCurrentInstance('useActivator')
+  // const vm = getCurrentInstance('useActivator')
   function getActivator (selector = props.activator): HTMLElement | undefined {
     let activator
     if (selector) {
-      if (selector === 'parent') {
-        activator = vm?.proxy?.$el?.parentNode
-      } else if (typeof selector === 'string') {
+      // if (selector === 'parent') {
+      //   activator = vm?.proxy?.$el?.parentNode
+      // } else if (typeof selector === 'string') {
+      //   // Selector
+      //   activator = document.querySelector(selector)
+      // } else if ('$el' in selector) {
+      //   // Component (ref)
+      //   activator = selector.$el
+      // } else {
+      //   // HTMLElement | Element
+      //   activator = selector
+      // }
+      if (typeof selector === 'string') {
         // Selector
         activator = document.querySelector(selector)
-      } else if ('$el' in selector) {
-        // Component (ref)
-        activator = selector.$el
       } else {
         // HTMLElement | Element
         activator = selector
@@ -203,7 +212,7 @@ function _useActivator (props: ActivatorProps, { activatorEl, activatorEvents }:
     }
 
     // The activator should only be a valid element (Ignore comments and text nodes)
-    activatorEl.value = activator?.nodeType === Node.ELEMENT_NODE ? activator : null
+    activatorEl.value = activator?.nodeType === Node.ELEMENT_NODE ? activator as HTMLElement : undefined
 
     return activatorEl.value
   }

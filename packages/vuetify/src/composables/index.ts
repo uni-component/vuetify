@@ -14,3 +14,5 @@ export type { IconAliases, IconProps, IconSet, IconOptions } from './icons'
 export type { LocaleAdapter } from './locale'
 export type { RtlInstance } from './rtl'
 export type { ThemeDefinition, ThemeInstance } from './theme'
+
+export * from './transitions'

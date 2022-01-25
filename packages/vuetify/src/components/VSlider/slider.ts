@@ -1,3 +1,6 @@
+import type { ExtractPropTypes, InjectionKey, PropType } from '@uni-component/core'
+import { provide, useRef } from '@uni-component/core'
+
 /* eslint-disable max-statements */
 // Composables
 import { useRtl } from '@/composables/rtl'
@@ -5,14 +8,12 @@ import { makeRoundedProps } from '@/composables/rounded'
 import { makeElevationProps } from '@/composables/elevation'
 
 // Utilities
-import { computed, provide, ref, toRef } from 'vue'
+import { computed, ref, toRef } from '@uni-store/core'
 import { clamp, createRange, propsFactory } from '@/util'
 
-// Types
-import type { ExtractPropTypes, InjectionKey, PropType, Ref } from 'vue'
-import type { VSliderTrack } from './VSliderTrack'
+import type { Ref } from '@uni-store/core'
 
-type Tick = {
+export type Tick = {
   value: number
   position: number
   label?: string
@@ -29,8 +30,8 @@ type SliderProvide = {
   max: Ref<number>
   mousePressed: Ref<boolean>
   numTicks: Ref<number>
-  onSliderMousedown: (e: MouseEvent) => void
-  onSliderTouchstart: (e: TouchEvent) => void
+  onSliderMouseDown: (e: MouseEvent) => void
+  onSliderTouchStart: (e: TouchEvent) => void
   parseMouseMove: (e: MouseEvent | TouchEvent) => number
   position: (val: number) => number
   readonly: Ref<boolean | undefined>
@@ -47,7 +48,7 @@ type SliderProvide = {
   trackSize: Ref<number>
   ticks: Ref<number[] | Record<string, string> | undefined>
   tickSize: Ref<number>
-  trackContainerRef: Ref<VSliderTrack | undefined>
+  setTrackContainerEle: (ele: HTMLElement | undefined) => void
   vertical: Ref<boolean>
   showTickLabels: Ref<boolean | undefined>
   parsedTicks: Ref<Tick[]>
@@ -146,7 +147,7 @@ export const useSlider = ({
   props: SliderProps
   handleSliderMouseUp: (v: number) => void
   handleMouseMove: (v: number) => void
-  getActiveThumb: (e: MouseEvent | TouchEvent) => HTMLElement
+  getActiveThumb: (e: MouseEvent | TouchEvent) => HTMLElement | undefined
 }) => {
   const { isRtl } = useRtl()
   const isReversed = computed(() => isRtl.value !== props.reverse)
@@ -183,7 +184,8 @@ export const useSlider = ({
   const mousePressed = ref(false)
 
   const startOffset = ref(0)
-  const trackContainerRef = ref<VSliderTrack | undefined>()
+  const trackContainerEle = ref<HTMLElement | undefined>()
+  const setTrackContainerEle = useRef(trackContainerEle)
 
   function roundValue (value: number) {
     if (step.value <= 0) return value
@@ -204,7 +206,7 @@ export const useSlider = ({
     const {
       [start]: trackStart,
       [length]: trackLength,
-    } = trackContainerRef.value?.$el.getBoundingClientRect()
+    } = trackContainerEle.value!.getBoundingClientRect()
     const clickOffset = getPosition(e, position)
 
     // It is possible for left to be NaN, force to number
@@ -272,14 +274,14 @@ export const useSlider = ({
     window.removeEventListener('touchend', onSliderTouchend)
   }
 
-  function onSliderTouchstart (e: TouchEvent) {
+  function onSliderTouchStart (e: TouchEvent) {
     handleStart(e)
 
     window.addEventListener('touchmove', onMouseMove, moveListenerOptions)
     window.addEventListener('touchend', onSliderTouchend, { passive: false })
   }
 
-  function onSliderMousedown (e: MouseEvent) {
+  function onSliderMouseDown (e: MouseEvent) {
     e.preventDefault()
 
     handleStart(e)
@@ -327,8 +329,8 @@ export const useSlider = ({
     max,
     mousePressed,
     numTicks,
-    onSliderMousedown,
-    onSliderTouchstart,
+    onSliderMouseDown,
+    onSliderTouchStart,
     parsedTicks,
     parseMouseMove,
     position,
@@ -345,7 +347,7 @@ export const useSlider = ({
     ticks: toRef(props, 'ticks'),
     tickSize,
     trackColor,
-    trackContainerRef,
+    setTrackContainerEle,
     trackFillColor,
     trackSize,
     vertical,

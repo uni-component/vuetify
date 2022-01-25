@@ -1,10 +1,13 @@
-import { getCurrentInstance, propsFactory } from '@/util'
+import { propsFactory } from '@/util'
+
 // Utilities
-import { computed, inject, provide, ref } from 'vue'
+import { computed, ref } from '@uni-store/core'
+import { inject, provide } from '@uni-component/core'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Types
-import type { ComputedRef, InjectionKey, PropType, Ref } from 'vue'
+import type { ComputedRef, Ref, UnwrapRef } from '@uni-store/core'
+import type { Context, InjectionKey, PropType, UniNode } from '@uni-component/core'
 
 export interface FormProvide {
   register: (
@@ -40,7 +43,10 @@ export interface FormProps {
   lazyValidation: boolean
   readonly: boolean
   modelValue: boolean | null
-  'onUpdate:modelValue': ((val: boolean | null) => void) | undefined
+  'onUpdate:modelValue'?: ((val: boolean | null) => void)
+  onSubmit?: (e: Event) => void
+  onReset?: (e: Event) => void
+  onResetValidation?: () => void
 }
 
 export const makeFormProps = propsFactory({
@@ -52,11 +58,17 @@ export const makeFormProps = propsFactory({
     type: Boolean as PropType<boolean | null>,
     default: null,
   },
+  'onUpdate:modelValue': Function as PropType<(val: boolean | null) => void>,
+  onSubmit: Function as PropType<(e: Event) => void>,
+  onReset: Function as PropType<(e: Event) => void>,
+  onResetValidation: Function as PropType<() => void>,
+  defaultRender: Function as PropType<(form: UnwrapRef<Form>) => UniNode | undefined>,
 })
 
-export function createForm (props: FormProps) {
-  const vm = getCurrentInstance('createForm')
-  const model = useProxiedModel(props, 'modelValue')
+export type Form = ReturnType<typeof createForm>
+
+export function createForm (props: FormProps, context: Context) {
+  const model = useProxiedModel(props, context, 'modelValue')
 
   const isDisabled = computed(() => props.disabled)
   const isReadonly = computed(() => props.readonly)
@@ -93,7 +105,7 @@ export function createForm (props: FormProps) {
     model.value = valid
     isValidating.value = false
 
-    vm?.emit('submit', e)
+    props.onSubmit?.(e)
   }
 
   async function reset (e: Event) {
@@ -102,7 +114,7 @@ export function createForm (props: FormProps) {
     items.value.forEach(item => item.reset())
     model.value = null
 
-    vm?.emit('reset', e)
+    props.onReset?.(e)
   }
 
   async function resetValidation () {
@@ -110,7 +122,7 @@ export function createForm (props: FormProps) {
     errorMessages.value = []
     model.value = null
 
-    vm?.emit('resetValidation')
+    props.onResetValidation?.()
   }
 
   provide(FormKey, {

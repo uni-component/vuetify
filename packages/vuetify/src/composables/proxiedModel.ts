@@ -1,28 +1,27 @@
 // Utilities
-import { computed, ref } from 'vue'
-import { getCurrentInstance, toKebabCase } from '@/util'
+import { computed, ref } from '@uni-store/core'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref } from '@uni-store/core'
+import type { Context } from '@uni-component/core'
 
 // Composables
 export function useProxiedModel<
-  Props extends object & { [key in Prop as `onUpdate:${Prop}`]: ((val: any) => void) | undefined },
+  Props extends object & { [key in Prop as `onUpdate:${Prop}`]?: ((val: any) => void) | undefined },
   Prop extends Extract<keyof Props, string>,
   Inner = Props[Prop],
 > (
   props: Props,
+  context: Context,
   prop: Prop,
   defaultValue?: Props[Prop],
   transformIn: (value?: Props[Prop]) => Inner = (v: any) => v,
   transformOut: (value: Inner) => Props[Prop] = (v: any) => v,
 ) {
-  const vm = getCurrentInstance('useProxiedModel')
-
   const propIsDefined = computed(() => {
     return !!(
       typeof props[prop] !== 'undefined' &&
-      (vm?.vnode.props?.hasOwnProperty(prop) || vm?.vnode.props?.hasOwnProperty(toKebabCase(prop)))
+      context.nodeProps?.hasOwnProperty(prop)
     )
   })
 
@@ -35,7 +34,8 @@ export function useProxiedModel<
     },
     set (newValue) {
       internal.value = newValue
-      vm?.emit(`update:${prop}`, transformOut(newValue))
+      const cb = `onUpdate:${prop}` as `onUpdate:${Prop}`
+      props[cb] && (props[cb] as any)(transformOut(newValue))
     },
   })
 }

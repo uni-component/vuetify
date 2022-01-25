@@ -1,6 +1,6 @@
-// Utilities
-import { onBeforeUnmount, readonly, ref, watch } from 'vue'
-import type { DeepReadonly, Ref } from 'vue'
+import { readonly, ref, watch } from '@uni-store/core'
+import { onUnmounted } from '@uni-component/core'
+import type { DeepReadonly, Ref } from '@uni-store/core'
 
 interface ResizeState {
   resizeRef: Ref<Element | undefined>
@@ -25,7 +25,7 @@ export function useResizeObserver (callback?: ResizeObserverCallback): ResizeSta
     borderBoxSize.value = entries[0].borderBoxSize[0]
   })
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     observer.disconnect()
   })
 
