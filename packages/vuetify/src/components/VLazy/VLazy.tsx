@@ -74,7 +74,7 @@ export const VLazy = uni2Platform(UniVLazy, (props, state, { renders }) => {
       ref={intersectDirective.setEleRef}
       style={ dimensionStyles }
     >
-      <div class={lazyTransition.transtionClass} style={lazyTransition.style} onTransitionEnd={lazyTransition.onTransitionEnd}>
+      <div ref={lazyTransition.setEleRef}>
         { renders.defaultRender?.() }
       </div>
     </props.tag>

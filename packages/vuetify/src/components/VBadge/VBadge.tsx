@@ -116,16 +116,15 @@ const UniVBadge = uniComponent('v-badge', {
       backgroundColorClasses.value,
       roundedClasses.value,
       textColorClasses.value,
-      badgeTransition.transtionClass.value,
     ])
     const badgeStyle = {
       ...backgroundColorStyles.value,
       ...locationStyles.value,
       ...textColorStyles.value,
-      ...badgeTransition.style.value,
     }
     return (
       <span
+        ref={badgeTransition.setEleRef}
         class={badgeCls}
         style={badgeStyle}
         aria-atomic="true"
@@ -133,7 +132,6 @@ const UniVBadge = uniComponent('v-badge', {
         aria-live="polite"
         role="status"
         // { ...badgeAttrs }
-        onTransitionEnd={badgeTransition.onTransitionEnd}
       >
         {
           props.dot ? undefined

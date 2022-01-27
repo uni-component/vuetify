@@ -49,16 +49,21 @@ const UniVIcon = uniComponent('v-icon', {
     } : {}
     return {
       ...sizeStyle,
-      ...textColorStyles,
+      ...textColorStyles.value,
     }
   })
 
   let slotIcon: ComputedRef<string | undefined> | undefined
   if (renders.defaultRender) {
     slotIcon = computed(() => {
-      const slot = renders.defaultRender?.()
-      if (!slot || !slot.length) return
-      return slot[0].children as string
+      let slot = renders.defaultRender?.()
+      if (Array.isArray(slot)) {
+        slot = slot[0]
+      }
+      if (!slot) {
+        return
+      }
+      return slot.children ? slot.children : slot as string
     })
   }
 
@@ -68,8 +73,6 @@ const UniVIcon = uniComponent('v-icon', {
     rootClass,
     rootStyle,
     iconData,
-    sizeClasses,
-    textColorStyles,
   }
 })
 

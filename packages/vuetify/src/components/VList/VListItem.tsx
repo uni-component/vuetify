@@ -198,7 +198,7 @@ export const VListItem = uni2Platform(UniVListItem, (props, state, { renders }) 
       style={rootStyle}
       // href={ link.href.value }
       tabIndex={ isClickable ? 0 : undefined }
-      onClick={ isClickable && onClick }
+      onClick={ isClickable ? onClick : undefined }
       ref={rippleDirective.setEleRef}
     >
       { genOverlays(isClickable || isActive, UniName) }

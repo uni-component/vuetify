@@ -108,9 +108,8 @@ export const VBreadcrumbs = uni2Platform(UniVBreadcrumbs, (props, state, { rende
       ) }
 
       { items.map((item, index) => (
-        <>
+        <Fragment key={ String(index) }>
           <VBreadcrumbsItem
-            key={ String(index) }
             { ...item.props }
           >
             { props.itemRender?.({ ...item, index }) }
@@ -121,7 +120,7 @@ export const VBreadcrumbs = uni2Platform(UniVBreadcrumbs, (props, state, { rende
               { props.dividerRender ? props.dividerRender({ ...item, index }) : props.divider }
             </VBreadcrumbsDivider>
           ) }
-        </>
+        </Fragment>
       )) }
 
       { renders.defaultRender?.() }

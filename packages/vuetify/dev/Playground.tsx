@@ -471,7 +471,7 @@ export default uni2Platform(uniComponent('pg-demo', () => {
         </div>
         <div class='section-counter'>
           <VBtn onClick={toggleCounter}>Toggle counter</VBtn>
-          <VCounter active={counterActive}></VCounter>
+          <VCounter active={counterActive} style={{position: 'absolute'}}></VCounter>
         </div>
         <div class='section-default-provider'>
           <VCard title='Title' subtitle='Subtitle' class='ma-10'></VCard>
@@ -770,13 +770,13 @@ export default uni2Platform(uniComponent('pg-demo', () => {
           </VTable>
         </div>
         <div class='section-textarea'>
-            <VTextarea
-              name='input-7-1'
-              label='Default style'
-              modelValue={textarea}
-              onUpdate:modelValue={updateTextarea}
-              hint='Hint text'
-            ></VTextarea>
+          <VTextarea
+            name='input-7-1'
+            label='Default style'
+            modelValue={textarea}
+            onUpdate:modelValue={updateTextarea}
+            hint='Hint text'
+          ></VTextarea>
         </div>
         <div class='section-text-field'>
           <VTextField
@@ -879,7 +879,7 @@ export default uni2Platform(uniComponent('pg-demo', () => {
             </VCardText>
           </VCard>
         </div>
-        <div class='section-tooltip' style='position: relative;'>
+        <div class='section-tooltip' style={{position: 'relative'}}>
           <VTooltip activatorRender={({ props }) => (
             <VBtn
               color='primary'

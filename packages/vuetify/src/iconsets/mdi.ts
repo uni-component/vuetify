@@ -1,5 +1,5 @@
 // Utilities
-import { h } from '@uni-component/core'
+import { classNames, h } from '@uni-component/core'
 
 // Components
 import { VClassIcon } from '@/composables/icons'
@@ -45,8 +45,9 @@ const aliases: IconAliases = {
 }
 
 const mdi: IconSet = {
-  // Not using mergeProps here, functional components merge props by default (?)
-  component: (props: any) => h(VClassIcon, { ...props, class: 'mdi' }),
+  component: (props: any) => {
+    return h(VClassIcon, { ...props, class: classNames('mdi', props.class) })
+  },
 }
 
 export { aliases, mdi }

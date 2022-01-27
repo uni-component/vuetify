@@ -146,7 +146,7 @@ export const VSlider = uni2Platform(UniVSlider, (props, state, { renders }) => {
             id={ id.value }
             name={ props.name || id.value }
             disabled={ props.disabled }
-            readonly={ props.readonly }
+            readonly
             tabindex="-1"
             value={ model }
           />

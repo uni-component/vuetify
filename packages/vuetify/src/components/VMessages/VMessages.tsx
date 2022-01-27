@@ -35,12 +35,7 @@ const UniVMessages = uniComponent('v-messages', {
     model: showMessages,
   }) : useTransition(showMessages, props.transition)) as Transition
 
-  const rootClass = computed(() => {
-    return transition.transtionClass.value
-  })
-
   return {
-    rootClass,
     messages,
     showMessages,
     transition,
@@ -58,8 +53,6 @@ export const VMessages = uni2Platform(UniVMessages, (props, state, { renders }) 
     <div
       class={rootClass}
       ref={transition.setEleRef}
-      style={transition.style}
-      onTransitionEnd={transition.onTransitionEnd}
     >
       { showMessages && (
         messages.map((message, i) => (

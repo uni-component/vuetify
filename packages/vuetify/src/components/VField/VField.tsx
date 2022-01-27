@@ -3,7 +3,6 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
-  classNames,
   Fragment,
   h,
   inject,
@@ -391,9 +390,8 @@ export const VField = uni2Platform(UniVField, (props, state, { attrs, $attrs, re
 
       { hasClear && (
         <div
-          class={classNames('v-field__clearable', clearableTransition.transtionClass)}
-          style={clearableTransition.style}
-          onTransitionEnd={clearableTransition.onTransitionEnd}
+          ref={clearableTransition.setEleRef}
+          class="v-field__clearable"
           onClick={ props['onClick:clear'] }
         >
           { props.clearRender
@@ -445,5 +443,5 @@ export const VField = uni2Platform(UniVField, (props, state, { attrs, $attrs, re
 
 // TODO: this is kinda slow, might be better to implicitly inherit props instead
 export function filterFieldProps (attrs: Record<string, unknown>) {
-  return pick(attrs, Object.keys(VField.props))
+  return pick(attrs, Object.keys(UniVField.rawProps!))
 }

@@ -215,6 +215,7 @@ const VRatingItem = uni2Platform(uniComponent('v-rating-item', {
         onClick={ events.onClick }
         onFocus={ events.onFocus }
         onBlur={ events.onBlur }
+        onChange={() => {}}
         ref={ setFirstRef }
         readonly={ ratingProps.readonly }
         disabled={ ratingProps.disabled }
@@ -347,7 +348,7 @@ export const VRating = uni2Platform(UniVRating, (props, state, { $attrs }) => {
       <VRatingItem value={ 0 } index={ -1 } showStar={ false } />
 
       { range.map((value, i) => (
-        <div class="v-rating__wrapper">
+        <div class="v-rating__wrapper" key={String(i)}>
           {
             !hasLabels ? undefined
             : props.itemLabelRender ? props.itemLabelRender({ value, index: i, label: props.itemLabels?.[i] })

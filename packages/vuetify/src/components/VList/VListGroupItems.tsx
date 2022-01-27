@@ -19,16 +19,11 @@ const UniVListGroupItems = uniComponent('v-list-group-items', {
   })
 
   const rootClass = computed(() => {
-    return ['v-list-group__items', transition.transtionClass.value]
-  })
-
-  const rootStyle = computed(() => {
-    return transition.style.value
+    return ['v-list-group__items']
   })
 
   return {
     rootClass,
-    rootStyle,
     transition,
   }
 })
@@ -40,7 +35,6 @@ export const VListGroupItems = uni2Platform(UniVListGroupItems, (props, state, {
       id={state.rootId}
       style={state.rootStyle}
       ref={state.transition.setEleRef}
-      onTransitionEnd={state.transition.onTransitionEnd}
     >
       <VListChildren items={props.items} {...renders} />
     </div>

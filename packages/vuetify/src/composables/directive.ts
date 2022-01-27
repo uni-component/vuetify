@@ -33,16 +33,13 @@ export const useDirective = <
   }
 
   let isMounted = false
-
-  watch(() => ele.value, () => {
-    if (isMounted) {
-      callHook('mounted')
-    }
-  })
-
+  let stopEleWatcher: WatchStopHandle
   onMounted(() => {
     isMounted = true
     callHook('mounted')
+    stopEleWatcher = watch(() => ele.value, () => {
+      callHook('mounted')
+    })
   })
   let stopWatcher: WatchStopHandle
   if (dir.updated) {
@@ -53,6 +50,7 @@ export const useDirective = <
     })
   }
   onUnmounted(() => {
+    stopEleWatcher?.()
     stopWatcher?.()
     callHook('unmounted')
     isMounted = false

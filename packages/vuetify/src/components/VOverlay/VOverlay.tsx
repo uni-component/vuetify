@@ -66,16 +66,14 @@ const OverlayScrim = uni2Platform(uniComponent('v-overlay-scrim', {
 }), (props, state) => {
   return (
     <div
+      ref={state.transition.setEleRef}
       class={classNames([
         'v-overlay__scrim',
         props.color!.backgroundColorClasses.value,
-        state.transition.transtionClass,
       ])}
       style={{
         ...props.color!.backgroundColorStyles.value,
-        ...state.transition.style,
       }}
-      onTransitionEnd={state.transition.onTransitionEnd}
     />
   )
 })
@@ -274,13 +272,14 @@ const UniVOverlay = uniComponent('v-overlay', {
   watch(() => props.transition, newName => {
     // ignore other case
     !isObject(newName) && contentTransition.setName(newName as string)
+  }, {
+    // flush: 'sync'
   })
 
   const contentStyle = computed(() => {
     return {
       ...dimensionStyles.value,
       ...contentStyles.value,
-      ...contentTransition.style.value,
     }
   })
   const clickOutsideDirective = useDirective(ClickOutside, computed(() => {
@@ -309,11 +308,9 @@ const UniVOverlay = uniComponent('v-overlay', {
         <OverlayScrim color={scrimColor} modelValue={isActive.value && !!props.scrim}></OverlayScrim>
         <div
           ref={ setContentEleRef }
-          onTransitionEnd={contentTransition.onTransitionEnd}
           class={classNames([
             'v-overlay__content',
             props.contentClass,
-            contentTransition.transtionClass.value,
           ])}
           style={contentStyle.value}
         >

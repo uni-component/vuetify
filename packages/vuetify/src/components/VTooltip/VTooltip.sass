@@ -13,14 +13,15 @@
     padding: $tooltip-padding
     text-transform: initial
     width: auto
-    opacity: 1
     pointer-events: none
-    transition-property: opacity, transform
 
     &[class*="enter-active"]
+      transition-property: opacity, transform
       transition-timing-function: settings.$decelerated-easing
       transition-duration: $tooltip-transition-enter-duration
 
     &[class*="leave-active"]
+      transition-property: opacity, transform
       transition-timing-function: settings.$accelerated-easing
       transition-duration: $tooltip-transition-leave-duration
+

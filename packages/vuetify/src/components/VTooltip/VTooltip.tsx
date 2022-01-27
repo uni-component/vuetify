@@ -83,7 +83,7 @@ const UniVTooltip = uniComponent('v-tooltip', {
   }
 })
 
-export const VTooltip = uni2Platform(UniVTooltip, (props, state, { $attrs }) => {
+export const VTooltip = uni2Platform(UniVTooltip, (props, state, { $attrs, renders }) => {
   const {
     rootClass,
     rootStyle,
@@ -122,7 +122,7 @@ export const VTooltip = uni2Platform(UniVTooltip, (props, state, { $attrs }) => 
       { ...$attrs }
       activatorRender={props.activatorRender}
       defaultRender={scope => {
-        return props.defaultRender?.(scope) ?? props.text
+        return (props.defaultRender || renders.defaultRender)?.(scope) ?? props.text
       }}
     />
   )

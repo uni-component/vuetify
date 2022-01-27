@@ -12,8 +12,6 @@ import { VExpansionPanelSymbol } from './VExpansionPanels'
 import { makeLazyProps, useLazy } from '@/composables/lazy'
 import { VExpandTransition } from '@/composables/transitions'
 
-import { computed } from '@uni-store/core'
-
 const UniVExpansionPanelText = uniComponent('v-expansion-panel-text', {
   ...makeLazyProps(),
 }, (name, props) => {
@@ -29,12 +27,7 @@ const UniVExpansionPanelText = uniComponent('v-expansion-panel-text', {
     afterLeave: onAfterLeave,
   })
 
-  const rootClass = computed(() => {
-    return transition.transtionClass.value
-  })
-
   return {
-    rootClass,
     hasContent,
     transition,
   }
@@ -53,8 +46,6 @@ export const VExpansionPanelText = uni2Platform(UniVExpansionPanelText, (props, 
     <div
       ref={transition.setEleRef}
       class={rootClass}
-      style={transition.style}
-      onTransitionEnd={transition.onTransitionEnd}
     >
       { content && hasContent && (
         <div class="v-expansion-panel-text__wrapper">

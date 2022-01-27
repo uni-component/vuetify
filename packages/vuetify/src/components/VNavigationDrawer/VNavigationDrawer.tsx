@@ -3,7 +3,6 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
-  classNames,
   Fragment,
   h,
   mergeStyle,
@@ -227,12 +226,11 @@ export const VNavigationDrawer = uni2Platform(UniVNavigationDrawer, (props, stat
       </props.tag>
       <div
         ref={transition.setEleRef}
-        onTransitionEnd={transition.onTransitionEnd}
-        style={mergeStyle(isDragging ? {
-          opacity: dragProgress * 0.2,
+        style={isDragging ? {
+          opacity: String(dragProgress * 0.2),
           transition: 'none',
-        } : {}, transition.style)}
-        class={classNames('v-navigation-drawer__scrim', transition.transtionClass)}
+        } : {}}
+        class="v-navigation-drawer__scrim"
         onClick={ () => setIsActive(false) }
       />
     </>

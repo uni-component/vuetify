@@ -246,7 +246,7 @@ export const VRangeSlider = uni2Platform(UniVRangeSlider, (props, state, { rende
             id={ `${id.value}_start` }
             name={ props.name || id.value }
             disabled={ props.disabled }
-            readonly={ props.readonly }
+            readonly
             tabindex="-1"
             value={ model[0] }
           />
@@ -255,7 +255,7 @@ export const VRangeSlider = uni2Platform(UniVRangeSlider, (props, state, { rende
             id={ `${id.value}_stop` }
             name={ props.name || id.value }
             disabled={ props.disabled }
-            readonly={ props.readonly }
+            readonly
             tabindex="-1"
             value={ model[1] }
           />

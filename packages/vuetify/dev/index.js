@@ -1,9 +1,9 @@
 import '@uni-component/vue'
 
 import '@mdi/font/css/materialdesignicons.css'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas } from '@fortawesome/free-solid-svg-icons'
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// import { library } from '@fortawesome/fontawesome-svg-core'
+// import { fas } from '@fortawesome/free-solid-svg-icons'
 
 import viteSSR from 'vite-ssr/vue'
 import { createHead } from '@vueuse/head'
@@ -13,7 +13,7 @@ import { routes } from './router'
 
 import { getRootInstance } from '@uni-component/core'
 
-library.add(fas)
+// library.add(fas)
 
 export default viteSSR(App, { routes }, ({ app }) => {
   const head = createHead()
@@ -33,7 +33,7 @@ export default viteSSR(App, { routes }, ({ app }) => {
 
   app.use(head)
   // app.use(vuetify)
-  app.component('FontAwesomeIcon', FontAwesomeIcon)
+  // app.component('FontAwesomeIcon', FontAwesomeIcon)
 
   return { head }
 })

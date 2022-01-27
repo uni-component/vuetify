@@ -158,25 +158,21 @@ const UniVProgressLinear = uniComponent('v-progress-linear', {
     return classNames([
       `${name}__determinate`,
       barColorClasses.value,
-      determinateTransition.transtionClass.value,
     ])
   })
   const determinateStyle = computed(() => {
     return {
       ...barColorStyles.value,
       width: convertToUnit(normalizedValue.value, '%'),
-      ...determinateTransition.style.value,
     }
   })
   const indeterminateClass = computed(() => {
     return classNames([
       `${name}__indeterminate`,
-      indeterminateTransition.transtionClass.value,
     ])
   })
   const indeterminateStyle = computed(() => {
     return {
-      ...indeterminateTransition.style.value,
     }
   })
 
@@ -233,7 +229,7 @@ export const VProgressLinear = uni2Platform(UniVProgressLinear, (props, state) =
       aria-valuemin="0"
       aria-valuemax={ props.max }
       aria-valuenow={ props.indeterminate ? undefined : normalizedValue }
-      onClick={ props.clickable && onClick }
+      onClick={ props.clickable ? onClick : undefined }
     >
       { props.stream && (
         <div
@@ -248,14 +244,14 @@ export const VProgressLinear = uni2Platform(UniVProgressLinear, (props, state) =
       />
 
       <div
+        ref={determinateTransition.setEleRef}
         class={determinateClass}
         style={determinateStyle}
-        onTransitionEnd={determinateTransition.onTransitionEnd}
       />
       <div
+        ref={indeterminateTransition.setEleRef}
         class={indeterminateClass}
         style={indeterminateStyle}
-        onTransitionEnd={indeterminateTransition.onTransitionEnd}
       >
         { ['long', 'short'].map(bar => (
           <div

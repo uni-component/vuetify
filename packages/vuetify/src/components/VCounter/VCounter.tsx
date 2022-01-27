@@ -41,13 +41,8 @@ const UniVCounter = uniComponent('v-counter', {
     model: isActive,
   }) : useTransition(isActive, props.transition)
 
-  const rootClass = computed(() => {
-    return transition.transtionClass.value
-  })
-
   return {
     counter,
-    rootClass,
     transition,
   }
 })
@@ -55,15 +50,17 @@ const UniVCounter = uniComponent('v-counter', {
 export const VCounter = uni2Platform(UniVCounter, (props, state) => {
   const {
     counter,
+    rootId,
     rootClass,
+    rootStyle,
     transition,
   } = state
   return (
     <div
+      id={rootId}
       class={rootClass}
+      style={rootStyle}
       ref={transition.setEleRef}
-      style={transition.style}
-      onTransitionEnd={transition.onTransitionEnd}
     >
       { props.defaultRender
         ? props.defaultRender({

@@ -111,9 +111,9 @@ const UniVSliderThumb = uniComponent('v-slider-thumb', {
   })
   const rootStyle = computed(() => {
     const positionPercentage = convertToUnit(vertical.value ? 100 - props.position : props.position, '%')
-    const inset = vertical.value ? 'block' : 'inline'
+    const inset = vertical.value ? 'Block' : 'Inline'
     return {
-      [`inset-${inset}-start`]: `calc(${positionPercentage} - var(--v-slider-thumb-size) / 2)`,
+      [`inset${inset}Start`]: `calc(${positionPercentage} - var(--v-slider-thumb-size) / 2)`,
       '--v-slider-thumb-size': convertToUnit(thumbSize.value),
       direction: !vertical.value ? horizontalDirection.value : undefined,
     }
@@ -203,8 +203,7 @@ export const VSliderThumb = uni2Platform(UniVSliderThumb, (props, state, { rende
       />
       <div
         ref={transition.setEleRef}
-        class={classNames('v-slider-thumb__label-container', transition.transtionClass)}
-        style={transition.style}
+        class="v-slider-thumb__label-container"
       >
         <div
           class="v-slider-thumb__label"

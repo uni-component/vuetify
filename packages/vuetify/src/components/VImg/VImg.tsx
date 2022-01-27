@@ -6,6 +6,7 @@ import type {
 import {
   capture,
   classNames,
+  Fragment,
   h,
   onMounted,
   provide,
@@ -199,6 +200,17 @@ const UniVImg = uniComponent('v-img', {
 
   const imgShow = computed(() => state.value === 'loaded')
   const imgTransition = useTransition(imgShow, props.transition as string, true)
+  const setRef = (ele?: HTMLImageElement | HTMLPictureElement) => {
+    if (ele) {
+      imgTransition.setEleRef(ele)
+      if (ele.tagName.toLocaleLowerCase() === 'img') {
+        setImageRef(ele as HTMLImageElement)
+      }
+    } else {
+      imgTransition.setEleRef(ele)
+      setImageRef(ele)
+    }
+  }
   const __image = computed(() => {
     if (!normalisedSrc.value.src || state.value === 'idle') return
 
@@ -206,35 +218,33 @@ const UniVImg = uniComponent('v-img', {
 
     const img = (
       <img
-        ref={setImageRef}
-        class={classNames([`${name}__img`, containClasses.value, !sources && imgTransition.transtionClass.value])}
+        ref={sources ? undefined : setRef}
+        class={classNames([`${name}__img`, containClasses.value])}
         src={normalisedSrc.value.src}
         srcset={normalisedSrc.value.srcset}
         sizes={props.sizes}
         onLoad={onLoad}
         onError={onError}
-        style={sources ? undefined : imgTransition.style.value}
-        onTransitionEnd={sources ? undefined : imgTransition.onTransitionEnd}
       />
     )
 
     return sources ? (
       <picture
-        class={classNames([`${name}__picture`, imgTransition.transtionClass.value])}
-        style={imgTransition.style.value}
-        onTransitionEnd={imgTransition.onTransitionEnd}
+        ref={setRef}
+        class={classNames([`${name}__picture`])}
       >{ sources }{ img }</picture>
     ) : img
   })
 
+  const isShowPreImg = computed(() => normalisedSrc.value.lazySrc && state.value !== 'loaded')
+  const preImgTransition = useTransition(isShowPreImg, props.transition as string, true)
   const __preloadImage = computed(() => {
-    return normalisedSrc.value.lazySrc && state.value !== 'loaded' && (
+    return isShowPreImg.value && (
       <img
-        class={classNames([`${name}__img`, `${name}__img--preload`, containClasses.value, imgTransition.transtionClass.value])}
+        ref={preImgTransition.setEleRef}
+        class={classNames([`${name}__img`, `${name}__img--preload`, containClasses.value])}
         src={ normalisedSrc.value.lazySrc }
-        style={imgTransition.style.value}
         alt=""
-        onTransitionEnd={imgTransition.onTransitionEnd}
       />
     )
   })
@@ -248,9 +258,8 @@ const UniVImg = uniComponent('v-img', {
 
     return isShowPlaceholder.value && (
       <div
-        class={classNames([`${name}__placeholder`], placeholderTransition.transtionClass.value)}
-        style={placeholderTransition.style.value}
-        onTransitionEnd={placeholderTransition.onTransitionEnd}
+        ref={placeholderTransition.setEleRef}
+        class={classNames([`${name}__placeholder`])}
       >
         { props.placeholderRender!() }
       </div>
@@ -264,9 +273,8 @@ const UniVImg = uniComponent('v-img', {
 
     return isError.value && (
       <div
-        class={classNames([`${name}__error`, errorTransition.transtionClass.value])}
-        style={errorTransition.style.value}
-        onTransitionEnd={errorTransition.onTransitionEnd}
+        ref={errorTransition.setEleRef}
+        class={classNames([`${name}__error`])}
       >{ props.errorRender!() }</div>
     )
   })
@@ -307,7 +315,15 @@ const UniVImg = uniComponent('v-img', {
   })
 
   const additionalRender = () => {
-    return [__image.value, __preloadImage.value, __gradient.value, __placeholder.value, __error.value]
+    return (
+      <>
+        {__image.value}
+        {__preloadImage.value}
+        {__gradient.value}
+        {__placeholder.value}
+        {__error.value}
+      </>
+    )
   }
 
   return {

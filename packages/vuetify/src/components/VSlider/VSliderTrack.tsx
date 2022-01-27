@@ -60,7 +60,7 @@ const UniVSliderTrack = uniComponent('v-slider-track', {
     backgroundColorStyles: trackColorStyles,
   } = useBackgroundColor(trackColor)
 
-  const startDir = computed(() => `inset-${vertical.value ? 'block-end' : 'inline-start'}`)
+  const startDir = computed(() => `inset${vertical.value ? 'BlockEnd' : 'InlineStart'}`)
   const endDir = computed(() => vertical.value ? 'height' : 'width')
 
   const backgroundStyles = computed(() => {
@@ -83,7 +83,7 @@ const UniVSliderTrack = uniComponent('v-slider-track', {
     const ticks = vertical.value ? parsedTicks.value.slice().reverse() : parsedTicks.value
 
     return ticks.map((tick, index) => {
-      const directionProperty = vertical.value ? 'inset-block-end' : 'margin-inline-start'
+      const directionProperty = vertical.value ? 'insetBlockEnd' : 'marginInlineStart'
       return (
         <div
           key={ tick.value }
