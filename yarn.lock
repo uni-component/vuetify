@@ -3374,22 +3374,22 @@
     "@typescript-eslint/types" "5.3.1"
     eslint-visitor-keys "^3.0.0"
 
-"@uni-component/core@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@uni-component/core/-/core-0.5.0.tgz#33672424b83bb396ecfc4ad39009b0efc84edd79"
-  integrity sha512-bg8L6Km4ZpZo+mCl5EWnTJiGh8RcFOlvG5H+A2UyL1f3nrr2fM0eGclgtSoIJWDoa3iWLVTDoM38V4zj3jwcwA==
+"@uni-component/core@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@uni-component/core/-/core-0.5.1.tgz#9424f1285a853e5c3b00888c1fcc2bdd39564ac6"
+  integrity sha512-i+OCmkZjsQNoQSm7M3YwtUE7CquTBeF+uwdgHi1bA3V48NKEPPdLjpi0nXbbkNRTr2bJDbO63QGjqh2qhOXp9w==
   dependencies:
     classnames "^2.3.1"
 
-"@uni-component/react@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@uni-component/react/-/react-0.5.0.tgz#b2a213c1be22f5d0a0aefcd1cc8eaa673bab71f3"
-  integrity sha512-rjN6YNO7KxYle2V02k6rBOA6lU68R34KLpIVHuX6WEhkfwwn16mUKnrE7dcEuHVONTRXn/5JKboB6jcrQGJX8A==
+"@uni-component/react@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@uni-component/react/-/react-0.5.1.tgz#efe2cab6eeb5074254a1b8409a2431540945f36f"
+  integrity sha512-INiCmjtSV6slGL3ZK+M2iaLUvNyQM25tYEX2q7+7l6OePo+ikV8YtAqSYh6S2jUwGWidOWc+XmpzPge76Uul4Q==
 
-"@uni-component/vue@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@uni-component/vue/-/vue-0.5.0.tgz#42552f516f2eaf5019ac3c30f445646b8854fd10"
-  integrity sha512-RmD01uigxvxhyfLrNdpcVrIwBHM8iSJqgQ7/1O2x49e4gmqxXqULmV+gnYc0d8vwmSt3SZ/5PrS78BVNu5qACg==
+"@uni-component/vue@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@uni-component/vue/-/vue-0.5.1.tgz#14cd7cf2edf10cbbd6562e6b12fcb967b0ceed51"
+  integrity sha512-TDs6/JrxVcQdd5QRAMYz82csWfjFSKrEMvAFpqZ2dXXiy/TyHxQ7eTUOLShxe1LEAxAdduYWxVuk/ako49r03A==
 
 "@uni-store/core@^0.3.3":
   version "0.3.3"
