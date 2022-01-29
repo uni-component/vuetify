@@ -323,6 +323,8 @@ const UniVOverlay = uniComponent('v-overlay', {
   return {
     renderActivator,
     renderContent,
+    contentEl,
+    activatorEl,
   }
 })
 

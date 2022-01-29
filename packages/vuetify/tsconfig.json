@@ -6,6 +6,7 @@
   ],
   "exclude": ["types-temp"],
   "compilerOptions": {
+    "allowJs": true,
     "baseUrl": ".",
     "outDir": "./types-temp",
     "paths": {

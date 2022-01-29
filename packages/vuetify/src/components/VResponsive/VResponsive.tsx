@@ -76,6 +76,7 @@ const UniVResponsive = uniComponent('v-responsive', {
     aspectStyles,
     sizerClass,
     contentClass,
+    responsiveEl: ele,
   }
 })
 

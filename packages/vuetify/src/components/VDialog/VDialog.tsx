@@ -1,16 +1,15 @@
-import type { PropType } from '@uni-component/core'
 import {
-  capture,
   h,
   uni2Platform,
   uniComponent,
+  useRef,
 } from '@uni-component/core'
 
 // Styles
 import './VDialog.sass'
 
 // Components
-import { VOverlay, VOverlaySymbol } from '@/components/VOverlay'
+import { VOverlay } from '@/components/VOverlay'
 
 // Composables
 import { makeDimensionProps, useDimension } from '@/composables/dimensions'
@@ -19,10 +18,12 @@ import { VDialogTransition } from '@/composables/transitions'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utilities
-import { computed, nextTick, watch } from '@uni-store/core'
+import { computed, nextTick, ref, watch } from '@uni-store/core'
 import { IN_BROWSER } from '@/util'
 
 import { overlayRenders } from '@/components/VOverlay/VOverlay'
+
+import type { PropType } from '@uni-component/core'
 
 const UniVDialog = uniComponent('v-dialog', {
   fullscreen: Boolean,
@@ -52,8 +53,11 @@ const UniVDialog = uniComponent('v-dialog', {
     isActive.value = val
   }
 
-  // capture overlay provide value
-  const overlay = capture(VOverlaySymbol)
+  const overlay = ref<{
+    contentEl: HTMLElement | undefined
+    activatorEl: HTMLElement | undefined
+  }>()
+  const setOverlay = useRef(overlay)
 
   function onFocusin (e: FocusEvent) {
     const before = e.relatedTarget as HTMLElement | null
@@ -123,6 +127,7 @@ const UniVDialog = uniComponent('v-dialog', {
     rootStyle,
     isActive,
     onUpdate,
+    setOverlay,
   }
 })
 
@@ -133,6 +138,7 @@ export const VDialog = uni2Platform(UniVDialog, (props, state, { attrs, renders,
     rootId,
     isActive,
     onUpdate,
+    setOverlay,
   } = state
   return (
     <VOverlay
@@ -151,6 +157,7 @@ export const VDialog = uni2Platform(UniVDialog, (props, state, { attrs, renders,
       {...$attrs}
       defaultRender={renders.defaultRender}
       activatorRender={props.activatorRender}
+      ref={setOverlay}
     />
   )
 })

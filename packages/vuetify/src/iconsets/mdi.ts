@@ -45,6 +45,7 @@ const aliases: IconAliases = {
 }
 
 const mdi: IconSet = {
+  // todo
   component: (props: any) => {
     return h(VClassIcon, { ...props, class: classNames('mdi', props.class) })
   },

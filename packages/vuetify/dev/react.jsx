@@ -1,3 +1,4 @@
+///// <reference types="@uni-component/react/platform" />
 import { h, getRootInstance } from '@uni-component/core'
 import '@uni-component/react'
 import ReactDOM from 'react-dom'

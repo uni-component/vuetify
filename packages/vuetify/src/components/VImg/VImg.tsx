@@ -4,7 +4,6 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
-  capture,
   classNames,
   Fragment,
   h,
@@ -18,7 +17,7 @@ import {
 import './VImg.sass'
 
 // Components
-import { VResponsive, VResponsiveSymbol } from '@/components/VResponsive'
+import { VResponsive } from '@/components/VResponsive'
 
 // Composables
 import { makeTransitionProps, nextFrame, useTransition } from '@/composables/transition'
@@ -89,10 +88,14 @@ const UniVImg = uniComponent('v-img', {
   const image = ref<HTMLImageElement>()
   const setImageRef = useRef(image)
 
-  const responsiveProvide = capture(VResponsiveSymbol)
+  const responsiveRef = ref<{
+    responsiveEl: HTMLElement | undefined
+  }>()
+  const setResponsiveRef = useRef(responsiveRef)
+
   provide(VImgSymbol, {
     imageEl: image,
-    responsiveEl: computed(() => responsiveProvide.value?.responsiveEl),
+    responsiveEl: computed(() => responsiveRef.value?.responsiveEl),
   })
 
   const state = ref<'idle' | 'loading' | 'loaded' | 'error'>(props.eager ? 'loading' : 'idle')
@@ -338,6 +341,10 @@ const UniVImg = uniComponent('v-img', {
     state,
     naturalWidth,
     naturalHeight,
+
+    setResponsiveRef,
+    imageEl: image,
+    responsiveEl: computed(() => responsiveRef.value?.responsiveEl),
   }
 })
 
@@ -349,6 +356,7 @@ export const VImg = uni2Platform(UniVImg, (props, state, { renders }) => {
     aspectRatio,
     intersect,
     additionalRender,
+    setResponsiveRef,
   } = state
   return (
     <VResponsive
@@ -360,6 +368,7 @@ export const VImg = uni2Platform(UniVImg, (props, state, { renders }) => {
       role={ alt ? 'img' : undefined }
       intersect={intersect}
       additionalRender={additionalRender}
+      ref={setResponsiveRef}
     >
       { renders.defaultRender?.() }
     </VResponsive>

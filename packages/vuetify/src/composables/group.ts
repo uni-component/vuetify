@@ -11,13 +11,13 @@ import type { Ref, UnwrapRef } from '@uni-store/core'
 import type { Context, InjectionKey, PropType } from '@uni-component/core'
 import type { ExtractPropTypes } from '@vue/runtime-core'
 
-interface GroupItem {
+export interface GroupItem {
   id: number
   value: Ref<unknown>
   disabled: Ref<boolean | undefined>
 }
 
-interface GroupProps {
+export interface GroupProps {
   disabled?: boolean
   multiple?: boolean
   modelValue?: unknown

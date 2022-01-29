@@ -1,3 +1,4 @@
+/// <reference types="@uni-component/vue/platform" />
 import '@uni-component/vue'
 
 import '@mdi/font/css/materialdesignicons.css'
