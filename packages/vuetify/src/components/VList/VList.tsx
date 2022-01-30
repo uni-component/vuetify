@@ -23,7 +23,7 @@ import { genericComponent, useRender } from '@/util'
 // Types
 import type { Prop } from 'vue'
 import type { MakeSlots } from '@/util'
-import type { ListGroupHeaderSlot } from './VListGroup'
+import type { ListGroupActivatorSlot } from './VListGroup'
 
 export type ListItem = {
   [key: string]: any
@@ -58,7 +58,7 @@ export const VList = genericComponent<new <T>() => {
   }
   $slots: MakeSlots<{
     subheader: []
-    header: [ListGroupHeaderSlot]
+    header: [ListGroupActivatorSlot]
     item: [T]
   }>
 }>()({
@@ -133,7 +133,9 @@ export const VList = genericComponent<new <T>() => {
             {{
               default: slots.default,
               item: slots.item,
-              externalHeader: slots.header,
+              title: slots.title,
+              subtitle: slots.subtitle,
+              header: slots.header,
             }}
           </VListChildren>
         </props.tag>
