@@ -40,7 +40,13 @@
 
 Refactor Vuetify@next with <a href="https://github.com/dolymood/uni-component">uni-component</a>.
 
-Target: Uni Vuetify can be used with react and vue.
+Target: Uni Vuetify can be used with React and Vue 3.
+
+Dev steps:
+
+1. `yarn`
+2. `cd packages/vuetify`
+3. `yarn dev`
 
 <h2 align="center">Supporting Vuetify</h2>
 
