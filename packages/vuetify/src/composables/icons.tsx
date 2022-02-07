@@ -7,7 +7,7 @@ import { propsFactory } from '@/util'
 import type { Ref } from '@uni-store/core'
 import type { InjectionKey, PlatformComponent, PropType } from '@uni-component/core'
 
-export type IconValue = string | PlatformComponent<any>
+export type IconValue = string | PlatformComponent<any, any>
 
 export interface IconAliases {
   [name: string]: IconValue
@@ -52,7 +52,7 @@ export interface IconProps {
   disabled?: Boolean
 }
 
-type IconComponent = PlatformComponent<IconProps>
+type IconComponent = PlatformComponent<IconProps, ReturnType<typeof makeIconProps>>
 
 export interface IconSet {
   component: IconComponent
