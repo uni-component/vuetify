@@ -217,7 +217,7 @@ const VRatingItem = uni2Platform(uniComponent('v-rating-item', {
         onBlur={ events.onBlur }
         onChange={() => {}}
         ref={ setFirstRef }
-        readonly={ ratingProps.readonly }
+        readOnly={ ratingProps.readonly }
         disabled={ ratingProps.disabled }
       />
     </>

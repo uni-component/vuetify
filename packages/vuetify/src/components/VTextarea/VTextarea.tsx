@@ -279,8 +279,8 @@ export const VTextarea = uni2Platform(UniVTextarea, (props, state, { renders, $a
                   class={ fieldClass as string }
                   style={{ opacity: showPlaceholder ? undefined : '0' }} // can't this just be a class?
                   value={ model }
-                  autofocus={ props.autofocus }
-                  readonly={ isReadonly.value }
+                  autoFocus={ props.autofocus }
+                  readOnly={ isReadonly.value }
                   disabled={ isDisabled.value }
                   placeholder={ props.placeholder }
                   rows={ props.rows !== undefined ? Number(props.rows) : undefined }
@@ -306,7 +306,7 @@ export const VTextarea = uni2Platform(UniVTextarea, (props, state, { renders, $a
                       'v-textarea__sizer',
                     ])}
                     value={ model }
-                    readonly
+                    readOnly
                     aria-hidden="true"
                   />
                 )}

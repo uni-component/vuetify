@@ -15,7 +15,7 @@ export const VForm = uni2Platform(UniVForm, (props, state, { renders }) => {
       id={state.rootId}
       class={state.rootClass}
       style={state.rootStyle}
-      novalidate
+      noValidate
       onReset={ state.reset }
       onSubmit={ state.submit }
     >
