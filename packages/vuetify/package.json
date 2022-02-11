@@ -83,6 +83,7 @@
   "scripts": {
     "watch": "yarn build:lib --watch",
     "dev": "cross-env NODE_ENV=development vite --force --host",
+    "build:playground": "cross-env NODE_ENV=development vite build",
     "dev:ssr": "cross-env NODE_ENV=development vite-ssr",
     "build": "rimraf lib dist && concurrently \"yarn build:dist\" \"yarn build:lib\" -n \"dist,lib\" --kill-others-on-fail -r && yarn build:json && yarn build:types",
     "build:dist": "rollup --config build/rollup.config.js",

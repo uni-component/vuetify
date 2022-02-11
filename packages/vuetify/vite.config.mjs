@@ -21,6 +21,9 @@ export default defineConfig(({ mode }) => {
       port: process.env.PORT,
       strictPort: !!process.env.PORT,
     },
+    build: {
+      minify: false,
+    },
     resolve: {
       dedupe: ['vue', '@vue/reactivity', '@vue/runtime-core', '@vue/shared', 'react', 'react-dom'],
       alias: [
