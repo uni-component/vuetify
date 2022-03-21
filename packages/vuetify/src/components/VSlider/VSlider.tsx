@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import { computed, h, ref, uni2Platform, uniComponent, useRef, watchEffect } from '@uni-component/core'
 
 // Styles
 import './VSlider.sass'
@@ -15,7 +15,6 @@ import { useFocus } from '@/composables/focus'
 import { makeSliderProps, useSlider } from './slider'
 
 // Types
-import { computed, ref, watchEffect } from '@uni-store/core'
 import { filterInputProps, makeVInputProps } from '@/components/VInput/VInput'
 
 import type { Tick } from './slider'

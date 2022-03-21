@@ -1,4 +1,4 @@
-import { h, inject, provide, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, inject, provide, ref, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VList.sass'
@@ -18,12 +18,8 @@ import { useBackgroundColor } from '@/composables/color'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { makeNestedProps, useNested } from '@/composables/nested/nested'
 
-// Utilities
-import { computed, ref, toRef } from '@uni-store/core'
-
 // Types
-import type { Ref } from '@uni-store/core'
-import type { InjectionKey, Prop, PropType, UniNode } from '@uni-component/core'
+import type { InjectionKey, Prop, PropType, Ref, UniNode } from '@uni-component/core'
 import type { ListGroupHeaderSlot } from './VListGroup'
 
 export type ListItem = {

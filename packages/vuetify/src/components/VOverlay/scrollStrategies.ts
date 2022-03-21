@@ -1,11 +1,10 @@
 // Utilities
 import { convertToUnit, getScrollParents, hasScrollbar, IN_BROWSER, propsFactory } from '@/util'
-import { effectScope, nextTick, onScopeDispose, watchEffect } from '@uni-store/core'
+import { effectScope, nextTick, onScopeDispose, watchEffect } from '@uni-component/core'
 import { requestNewFrame } from './requestNewFrame'
 
 // Types
-import type { EffectScope, Ref } from '@uni-store/core'
-import type { PropType } from '@uni-component/core'
+import type { EffectScope, PropType, Ref } from '@uni-component/core'
 
 export interface ScrollStrategyData {
   root: Ref<HTMLElement | undefined>

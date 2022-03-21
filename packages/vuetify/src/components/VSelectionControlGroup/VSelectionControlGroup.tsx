@@ -1,4 +1,4 @@
-import { h, provide, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, provide, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VSelectionControlGroup.sass'
@@ -6,12 +6,10 @@ import './VSelectionControlGroup.sass'
 // Composables
 import { useProxiedModel } from '@/composables/proxiedModel'
 
-import { computed, toRef } from '@uni-store/core'
 import { getUid } from '@/util'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { InjectionKey, PropType } from '@uni-component/core'
+import type { InjectionKey, PropType, Ref } from '@uni-component/core'
 
 export interface VSelectionGroupContext {
   disabled: Ref<boolean>

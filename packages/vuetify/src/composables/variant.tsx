@@ -1,10 +1,9 @@
-import { Fragment, h } from '@uni-component/core'
+import { computed, Fragment, h, unref } from '@uni-component/core'
 
 // Composables
 import { useColor } from '@/composables/color'
 
 // Utilities
-import { computed, unref } from '@uni-store/core'
 import { getCurrentInstanceName, propsFactory } from '@/util'
 
 // Types

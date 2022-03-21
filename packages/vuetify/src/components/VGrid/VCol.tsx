@@ -1,14 +1,11 @@
 import type { PropType } from '@uni-component/core'
-import { capitalize, h, uni2Platform, uniComponent } from '@uni-component/core'
+import { capitalize, computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VGrid.sass'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
-
-// Utilities
-import { computed } from '@uni-store/core'
 
 // Types
 import type { Prop } from '@vue/runtime-core'

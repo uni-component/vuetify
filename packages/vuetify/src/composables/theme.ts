@@ -1,6 +1,5 @@
 // Utilities
-import { computed, ref, watch } from '@uni-store/core'
-import { inject, provide } from '@uni-component/core'
+import { computed, inject, provide, ref, watch } from '@uni-component/core'
 import {
   colorToInt,
   colorToRGB,
@@ -17,8 +16,7 @@ import {
 import { APCAcontrast } from '@/util/color/APCA'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { getRootInstance, InjectionKey } from '@uni-component/core'
+import type { getRootInstance, InjectionKey, Ref } from '@uni-component/core'
 // import type { HeadClient } from '@vueuse/head'
 
 type App = ReturnType<typeof getRootInstance>

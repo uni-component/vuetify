@@ -4,9 +4,11 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
   provide,
+  toRef,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -23,8 +25,6 @@ import { makeRoundedProps, useRounded } from '@/composables/rounded'
 import { useBackgroundColor } from '@/composables/color'
 import { makeTagProps } from '@/composables/tag'
 import { makeLazyProps } from '@/composables/lazy'
-
-import { computed, toRef } from '@uni-store/core'
 
 const UniVExpansionPanel = uniComponent('v-expansion-panel', {
   title: String,

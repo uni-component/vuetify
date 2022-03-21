@@ -1,10 +1,7 @@
-import { uni2Platform, uniComponent } from '@uni-component/core'
+import { toRefs, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 import { provideDefaults } from '@/composables/defaults'
-
-// Utilities
-import { toRefs } from '@uni-store/core'
 
 // Types
 import type { PropType } from '@uni-component/core'

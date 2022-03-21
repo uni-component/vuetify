@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VMenu.sass'
@@ -13,7 +13,6 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { VDialogTransition } from '@/composables/transitions'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { getUid } from '@/util'
 
 import { overlayRenders } from '@/components/VOverlay/VOverlay'

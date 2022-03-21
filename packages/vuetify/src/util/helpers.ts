@@ -1,11 +1,10 @@
 // Utilities
-import { isRef, ref } from '@uni-store/core'
-import { camelize } from '@uni-component/core'
+import { camelize, isRef, ref } from '@uni-component/core'
 
 // Types
 // todo
 import type { ComponentInternalInstance, ComponentPublicInstance, Slots, VNodeChild } from 'vue'
-import type { Ref } from '@uni-store/core'
+import type { Ref } from '@uni-component/core'
 
 export function getNestedValue (obj: any, path: (string | number)[], fallback?: any): any {
   const last = path.length - 1

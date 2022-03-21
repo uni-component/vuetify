@@ -1,17 +1,21 @@
 import type {
   InjectionKey,
   PropType,
+  Ref,
   UniNode,
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
   mergeStyle,
   provide,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 // Styles
@@ -44,15 +48,9 @@ import {
   isObject,
   standardEasing,
 } from '@/util'
-import {
-  computed,
-  ref,
-  watch,
-} from '@uni-store/core'
 import { capitalize } from '@vue/shared'
 
 // Types
-import type { Ref } from '@uni-store/core'
 import type { BackgroundColorData } from '@/composables/color'
 
 const OverlayScrim = uni2Platform(uniComponent('v-overlay-scrim', {

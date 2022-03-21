@@ -1,13 +1,17 @@
 import type { PropType } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
+  nextTick,
   onMounted,
   onUnmounted,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 // Styles
@@ -27,7 +31,6 @@ import Intersect from '@/directives/intersect'
 import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, nextTick, ref, watch } from '@uni-store/core'
 import { convertToUnit, filterInputAttrs } from '@/util'
 
 const UniVTextarea = uniComponent('v-textarea', {

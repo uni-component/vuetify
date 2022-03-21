@@ -2,13 +2,11 @@
 import { useProxiedModel } from './proxiedModel'
 
 // Utilities
-import { computed, reactive, toRef } from '@uni-store/core'
-import { inject, onMounted, onUnmounted, provide } from '@uni-component/core'
+import { computed, inject, onMounted, onUnmounted, provide, reactive, toRef } from '@uni-component/core'
 import { consoleWarn, deepEqual, getCurrentInstance, getUid, propsFactory, wrapInArray } from '@/util'
 
 // Types
-import type { Ref, UnwrapRef } from '@uni-store/core'
-import type { Context, InjectionKey, PropType } from '@uni-component/core'
+import type { Context, InjectionKey, PropType, Ref, UnwrapRef } from '@uni-component/core'
 import type { ExtractPropTypes } from '@vue/runtime-core'
 
 export interface GroupItem {

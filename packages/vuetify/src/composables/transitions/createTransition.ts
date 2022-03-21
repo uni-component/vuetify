@@ -1,5 +1,5 @@
-import type { Ref } from '@uni-store/core'
-import { computed } from '@uni-store/core'
+import type { Ref } from '@uni-component/core'
+import { computed } from '@uni-component/core'
 import type { TransitionHooks } from '../transition'
 import { useTransition } from '../transition'
 

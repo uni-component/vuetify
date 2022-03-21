@@ -1,8 +1,10 @@
 import type { PropType } from '@uni-component/core'
 import {
+  computed,
   h,
   uni2Platform,
   uniComponent,
+  watch,
 } from '@uni-component/core'
 
 // Styles
@@ -16,7 +18,6 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { makeTransitionProps } from '@/composables/transition'
 
 // Utilities
-import { computed, watch } from '@uni-store/core'
 import { getUid } from '@/util'
 
 import { overlayRenders } from '@/components/VOverlay/VOverlay'

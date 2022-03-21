@@ -1,5 +1,5 @@
-import type { ExtractPropTypes, InjectionKey, PropType } from '@uni-component/core'
-import { provide, useRef } from '@uni-component/core'
+import type { ExtractPropTypes, InjectionKey, PropType, Ref } from '@uni-component/core'
+import { computed, provide, ref, toRef, useRef } from '@uni-component/core'
 
 /* eslint-disable max-statements */
 // Composables
@@ -8,10 +8,7 @@ import { makeRoundedProps } from '@/composables/rounded'
 import { makeElevationProps } from '@/composables/elevation'
 
 // Utilities
-import { computed, ref, toRef } from '@uni-store/core'
 import { clamp, createRange, propsFactory } from '@/util'
-
-import type { Ref } from '@uni-store/core'
 
 export type Tick = {
   value: number

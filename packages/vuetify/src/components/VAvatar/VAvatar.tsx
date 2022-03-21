@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VAvatar.sass'
 
@@ -13,9 +13,6 @@ import { makeRoundedProps, useRounded } from '@/composables/rounded'
 import { makeSizeProps, useSize } from '@/composables/size'
 import { makeTagProps } from '@/composables/tag'
 import { useBackgroundColor } from '@/composables/color'
-
-// Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVAvatar = uniComponent('v-avatar', {
   // todo

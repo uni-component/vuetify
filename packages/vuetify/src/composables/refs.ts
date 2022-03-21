@@ -1,6 +1,6 @@
 // Imports
-import { ref } from '@uni-store/core'
-import type { Ref } from '@uni-store/core'
+import { ref } from '@uni-component/core'
+import type { Ref } from '@uni-component/core'
 
 export function useRefs <T extends {}> () {
   const refs = ref<(T | undefined)[]>([]) as Ref<(T | undefined)[]>

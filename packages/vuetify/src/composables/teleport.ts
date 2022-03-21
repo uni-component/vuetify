@@ -1,9 +1,9 @@
 // Utilities
-import { computed } from '@uni-store/core'
+import { computed } from '@uni-component/core'
 import { IN_BROWSER } from '@/util'
 
 // Types
-import type { Ref } from '@uni-store/core'
+import type { Ref } from '@uni-component/core'
 
 export function useTeleport (target: Ref<boolean | string | Element>) {
   const teleportTarget = computed(() => {

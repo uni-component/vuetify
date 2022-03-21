@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { classNames, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { classNames, computed, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VSliderTrack.sass'
@@ -12,7 +12,6 @@ import { useBackgroundColor } from '@/composables/color'
 import { useRounded } from '@/composables/rounded'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 import type { Tick } from './slider'

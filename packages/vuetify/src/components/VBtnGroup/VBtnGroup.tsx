@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VBtnGroup.sass'
 
@@ -11,9 +11,6 @@ import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { makeVariantProps } from '@/composables/variant'
 import { provideDefaults } from '@/composables/defaults'
-
-// Utility
-import { computed, toRef } from '@uni-store/core'
 
 const UniVBtnGroup = uniComponent('v-btn-group', {
   divided: Boolean,

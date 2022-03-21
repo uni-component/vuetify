@@ -3,6 +3,7 @@ import type {
   PropType,
 } from '@uni-component/core'
 import {
+  computed,
   h,
   uni2Platform,
   uniComponent,
@@ -15,9 +16,6 @@ import './VExpansionPanel.sass'
 import { makeTagProps } from '@/composables/tag'
 import { makeGroupProps, useGroup } from '@/composables/group'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
-
-// Utilities
-import { computed } from '@uni-store/core'
 
 // Types
 import type { GroupItemProvide } from '@/composables/group'

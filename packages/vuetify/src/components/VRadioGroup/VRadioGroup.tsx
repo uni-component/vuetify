@@ -3,6 +3,7 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
+  computed,
   Fragment,
   h,
   uni2Platform,
@@ -19,7 +20,6 @@ import { VSelectionControlGroup } from '@/components/VSelectionControlGroup'
 import { filterControlProps, makeSelectionControlProps } from '@/components/VSelectionControl/VSelectionControl'
 
 // Utility
-import { computed } from '@uni-store/core'
 import { filterInputAttrs, getUid } from '@/util'
 
 const UniVRadioGroup = uniComponent('v-radio-group', {

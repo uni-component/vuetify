@@ -153,7 +153,7 @@
   },
   "peerDependencies": {
     "@formatjs/intl": "^1.0.0",
-    "vue": "^3.2.19",
+    "vue": "^3.2.31",
     "vue-i18n": "^9.0.0"
   },
   "peerDependenciesMeta": {

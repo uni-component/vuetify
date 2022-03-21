@@ -3,11 +3,10 @@
 
 // Utilities
 import { getPropertyFromItem, propsFactory, wrapInArray, wrapInRef } from '@/util'
-import { computed } from '@uni-store/core'
+import { computed } from '@uni-component/core'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { PropType } from '@uni-component/core'
+import type { PropType, Ref } from '@uni-component/core'
 
 export type FilterFunction = (value: string, query: string, item?: any) => FilterMatch
 export type FilterKeyFunctions = Record<string, FilterFunction>

@@ -1,4 +1,4 @@
-import { h, provide, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, provide, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VInput.sass'
@@ -12,12 +12,10 @@ import { makeDensityProps, useDensity } from '@/composables/density'
 import { makeValidationProps, useValidation } from '@/composables/validation'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 import { getUid, pick, propsFactory } from '@/util'
 
 // Types
-import type { ComputedRef, Ref } from '@uni-store/core'
-import type { ExtractPropTypes, InjectionKey, PropType, UniNode } from '@uni-component/core'
+import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, Ref, UniNode } from '@uni-component/core'
 
 export interface VInputSlot {
   id: ComputedRef<string>

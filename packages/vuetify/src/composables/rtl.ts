@@ -1,10 +1,8 @@
-import { computed, ref } from '@uni-store/core'
-import { inject, provide } from '@uni-component/core'
+import { computed, inject, provide, ref } from '@uni-component/core'
 import { rtl } from '@/locale'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { InjectionKey } from '@uni-component/core'
+import type { InjectionKey, Ref } from '@uni-component/core'
 import type { LocaleInstance } from './locale'
 
 export interface RtlOptions {

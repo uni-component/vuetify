@@ -1,4 +1,5 @@
 import {
+  computed,
   h,
   mergeStyle,
   uni2Platform,
@@ -16,7 +17,6 @@ import { makePositionProps, usePosition } from '@/composables/position'
 import { makeRoundedProps, useRounded } from '@/composables/rounded'
 import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
-import { computed } from '@uni-store/core'
 
 const UniVSystemBar = uniComponent('v-system-bar', {
   lightsOut: Boolean,

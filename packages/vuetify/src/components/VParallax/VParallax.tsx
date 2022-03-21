@@ -1,4 +1,4 @@
-import { h, onUnmounted, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import { computed, h, onUnmounted, ref, uni2Platform, uniComponent, useRef, watch, watchEffect } from '@uni-component/core'
 
 // Styles
 import './VParallax.sass'
@@ -10,7 +10,6 @@ import { VImg } from '@/components/VImg'
 import { useIntersectionObserver } from '@/composables/intersectionObserver'
 
 // Utilities
-import { computed, ref, watch, watchEffect } from '@uni-store/core'
 import { getScrollParent } from '@/util'
 
 function floor (val: number) {

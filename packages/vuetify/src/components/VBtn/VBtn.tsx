@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VBtn.sass'
 
@@ -25,9 +25,6 @@ import { useDirective } from '@/composables/directive'
 
 // Directives
 import { Ripple } from '@/directives/ripple'
-
-// Utilities
-import { computed } from '@uni-store/core'
 
 const UniVBtn = uniComponent('v-btn', {
   flat: Boolean,

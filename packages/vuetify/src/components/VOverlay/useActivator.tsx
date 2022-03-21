@@ -8,16 +8,14 @@ import {
   onScopeDispose,
   ref,
   watch,
-} from '@uni-store/core'
+} from '@uni-component/core'
 
 // Types
 import type { DelayProps } from '@/composables/delay'
 import type {
   EffectScope,
-  Ref,
-} from '@uni-store/core'
-import type {
   PropType,
+  Ref,
 } from '@uni-component/core'
 
 interface ActivatorProps extends DelayProps {

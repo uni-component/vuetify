@@ -4,6 +4,7 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   h,
   uni2Platform,
   uniComponent,
@@ -23,7 +24,6 @@ import { LoaderSlot, makeLoaderProps, useLoader } from '@/composables/loader'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utility
-import { computed } from '@uni-store/core'
 import { filterInputAttrs } from '@/util'
 
 const UniVSwitch = uniComponent('v-switch', {

@@ -3,6 +3,7 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
+  computed,
   h,
   uni2Platform,
   uniComponent,
@@ -18,7 +19,6 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 // Utilities
 import { convertToUnit } from '@/util'
 import { makeDensityProps, useDensity } from '@/composables/density'
-import { computed } from '@uni-store/core'
 
 const UniVTable = uniComponent('v-table', {
   fixedHeader: Boolean,

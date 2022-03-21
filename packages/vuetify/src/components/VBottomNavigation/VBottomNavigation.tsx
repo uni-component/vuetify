@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VBottomNavigation.sass'
@@ -16,7 +16,6 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 const UniVBottomNavigation = uniComponent('VBottomNavigation', {

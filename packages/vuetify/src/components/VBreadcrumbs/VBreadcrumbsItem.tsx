@@ -1,4 +1,4 @@
-import { h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 // import { makeRouterProps, useLink } from '@/composables/router'
@@ -6,7 +6,6 @@ import { makeTagProps } from '@/composables/tag'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { VBreadcrumbsSymbol } from './shared'
 
 const UniVBreadcrumbsItem = uniComponent('v-breadcrumbs-item', {

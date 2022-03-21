@@ -1,5 +1,4 @@
-import type { Ref } from '@uni-store/core'
-import type { InjectionKey } from '@uni-component/core'
+import type { InjectionKey, Ref } from '@uni-component/core'
 
 interface BreadcrumbsContext {
   color: Ref<string | undefined>

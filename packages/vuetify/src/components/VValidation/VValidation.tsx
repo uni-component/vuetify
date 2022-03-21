@@ -1,6 +1,7 @@
 import type {
   PropType,
   UniNode,
+  UnwrapNestedRefs,
 } from '@uni-component/core'
 import {
   uni2Platform,
@@ -9,7 +10,6 @@ import {
 
 // Composables
 import { makeValidationProps, useValidation } from '@/composables/validation'
-import type { UnwrapNestedRefs } from '@uni-store/core'
 
 const UniVValidation = uniComponent('v-validation', {
   ...makeValidationProps(),

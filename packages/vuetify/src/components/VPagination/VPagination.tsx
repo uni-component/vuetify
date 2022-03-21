@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { classNames, h, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import { classNames, computed, h, nextTick, ref, uni2Platform, uniComponent, useRef } from '@uni-component/core'
 
 import './VPagination.sass'
 
@@ -23,7 +23,6 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 import { provideDefaults } from '@/composables/defaults'
 
 // Utilities
-import { computed, nextTick, ref } from '@uni-store/core'
 import { createRange, keyValues } from '@/util'
 
 const UniVPagination = uniComponent('v-pagination', {

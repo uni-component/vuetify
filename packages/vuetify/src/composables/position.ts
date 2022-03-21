@@ -1,5 +1,5 @@
 // Utilities
-import { computed } from '@uni-store/core'
+import { computed } from '@uni-component/core'
 import { convertToUnit, getCurrentInstanceName, propsFactory } from '@/util'
 
 // Types

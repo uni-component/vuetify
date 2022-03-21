@@ -7,12 +7,11 @@ import { createRtl, RtlSymbol } from '@/composables/rtl'
 import { aliases, mdi } from '@/iconsets/mdi'
 
 // Utilities
-import { computed, reactive } from '@uni-store/core'
 import { mergeDeep } from '@/util'
 
 // Types
 import type { InjectionKey } from '@uni-component/core'
-import { beforeUniSetup, getRootInstance } from '@uni-component/core'
+import { beforeUniSetup, computed, getRootInstance, reactive } from '@uni-component/core'
 import type { DisplayOptions } from '@/composables/display'
 import type { ThemeOptions } from '@/composables/theme'
 import type { IconOptions } from '@/composables/icons'

@@ -1,14 +1,11 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VLayoutItem.sass'
 
 // Composables
 import { makeLayoutItemProps, useLayoutItem } from '@/composables/layout'
-
-// Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVLayoutItem = uniComponent('VLayoutItem', {
   position: {

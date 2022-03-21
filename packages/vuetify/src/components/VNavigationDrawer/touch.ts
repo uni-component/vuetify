@@ -1,7 +1,6 @@
 import { useVelocity } from '@/composables/touch'
-import { computed, ref } from '@uni-store/core'
-import { onMounted, onUnmounted } from '@uni-component/core'
-import type { Ref } from '@uni-store/core'
+import { computed, onMounted, onUnmounted, ref } from '@uni-component/core'
+import type { Ref } from '@uni-component/core'
 
 export function useTouch ({ isActive, isTemporary, width, touchless, position }: {
   isActive: Ref<boolean>

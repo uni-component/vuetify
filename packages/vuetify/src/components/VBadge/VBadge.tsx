@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { classNames, h, uni2Platform, uniComponent } from '@uni-component/core'
+import { classNames, computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VBadge.sass'
 
@@ -13,7 +13,6 @@ import { makeTransitionProps, useTransition } from '@/composables/transition'
 import { useBackgroundColor, useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 const UniVBadge = uniComponent('v-badge', {

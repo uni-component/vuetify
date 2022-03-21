@@ -1,5 +1,5 @@
-import type { Context, ExtractPropTypes, PropType, UniNode } from '@uni-component/core'
-import { h, inject, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import type { ComputedRef, Context, ExtractPropTypes, PropType, Ref, UniNode, WritableComputedRef } from '@uni-component/core'
+import { computed, h, inject, ref, uni2Platform, uniComponent, useRef } from '@uni-component/core'
 
 // Styles
 import './VSelectionControl.sass'
@@ -20,7 +20,6 @@ import { Ripple } from '@/directives/ripple'
 import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, ref } from '@uni-store/core'
 import {
   deepEqual,
   getUid,
@@ -31,7 +30,6 @@ import {
 } from '@/util'
 
 // Types
-import type { ComputedRef, Ref, WritableComputedRef } from '@uni-store/core'
 
 export type SelectionControlSlot = {
   model: WritableComputedRef<any>

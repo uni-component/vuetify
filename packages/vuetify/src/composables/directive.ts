@@ -1,6 +1,5 @@
-import type { ComputedRef, WatchStopHandle } from '@uni-store/core'
-import { nextTick, ref, watch } from '@uni-store/core'
-import { onMounted, onUnmounted, useRef } from '@uni-component/core'
+import type { ComputedRef, WatchStopHandle } from '@uni-component/core'
+import { nextTick, onMounted, onUnmounted, ref, useRef, watch } from '@uni-component/core'
 
 // todo to uni component core
 

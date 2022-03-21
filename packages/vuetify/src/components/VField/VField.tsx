@@ -3,13 +3,19 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
+  computed,
   Fragment,
   h,
   inject,
+  nextTick,
   onMounted,
+  ref,
+  toRef,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
+  watchEffect,
 } from '@uni-component/core'
 
 // Styles
@@ -28,7 +34,6 @@ import { useFocus } from '@/composables/focus'
 import { VExpandXTransition } from '@/composables/transitions'
 
 // Utilities
-import { computed, nextTick, ref, toRef, watch, watchEffect } from '@uni-store/core'
 import {
   convertToUnit,
   getUid,

@@ -1,5 +1,5 @@
-import type { InjectionKey, PropType, UniNode } from '@uni-component/core'
-import { classNames, h, provide, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import type { InjectionKey, PropType, Ref, UniNode } from '@uni-component/core'
+import { classNames, computed, h, provide, ref, uni2Platform, uniComponent, useRef } from '@uni-component/core'
 
 // Styles
 import './VResponsive.sass'
@@ -8,8 +8,6 @@ import './VResponsive.sass'
 import { makeDimensionProps, useDimension } from '@/composables/dimensions'
 
 // Utilities
-import type { Ref } from '@uni-store/core'
-import { computed, ref } from '@uni-store/core'
 
 import { useDirective } from '@/composables/directive'
 // Directives

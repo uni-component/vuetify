@@ -1,17 +1,22 @@
 import type {
   InjectionKey,
   PropType,
+  Ref,
   UniNode,
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
+  nextTick,
   onMounted,
   provide,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 import './VImg.sass'
@@ -23,13 +28,6 @@ import { VResponsive } from '@/components/VResponsive'
 import { makeTransitionProps, nextFrame, useTransition } from '@/composables/transition'
 
 // Utilities
-import type { Ref } from '@uni-store/core'
-import {
-  computed,
-  nextTick,
-  ref,
-  watch,
-} from '@uni-store/core'
 import {
   convertToUnit,
   SUPPORTS_INTERSECTION,

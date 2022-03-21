@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { capitalize, h, uni2Platform, uniComponent } from '@uni-component/core'
+import { capitalize, computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VGrid.sass'
@@ -8,7 +8,6 @@ import './VGrid.sass'
 import { makeTagProps } from '@/composables/tag'
 
 // Utilities
-import { computed } from '@uni-store/core'
 
 // Types
 // todo

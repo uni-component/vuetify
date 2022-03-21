@@ -1,9 +1,8 @@
 // Utilities
-import { computed, ref } from '@uni-store/core'
+import { computed, ref } from '@uni-component/core'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { Context } from '@uni-component/core'
+import type { Context, Ref } from '@uni-component/core'
 
 // Composables
 export function useProxiedModel<

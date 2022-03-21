@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VApp.sass'
 
@@ -8,7 +8,6 @@ import { createLayout, makeLayoutProps } from '@/composables/layout'
 
 // Utilities
 import { useRtl } from '@/composables/rtl'
-import { computed } from '@uni-store/core'
 
 const UniVApp = uniComponent('v-app', {
   ...makeLayoutProps({ fullHeight: true }),

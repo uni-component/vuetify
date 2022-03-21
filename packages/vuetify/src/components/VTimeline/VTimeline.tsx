@@ -1,7 +1,9 @@
 import type { PropType } from '@uni-component/core'
 import {
+  computed,
   h,
   provide,
+  toRef,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -18,7 +20,6 @@ import { makeDensityProps, useDensity } from '@/composables/density'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Helpers
-import { computed, toRef } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 import { VTimelineSymbol } from './shared'
 

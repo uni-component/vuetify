@@ -1,9 +1,8 @@
-import { computed, effectScope, onScopeDispose, ref, toRaw, watch } from '@uni-store/core'
+import { computed, effectScope, onScopeDispose, ref, toRaw, watch } from '@uni-component/core'
 import { getCurrentInstance } from '@/util'
 
 // Types
-import type { EffectScope, Ref } from '@uni-store/core'
-import type { Instance, RootInstance } from '@uni-component/core'
+import type { EffectScope, Instance, Ref, RootInstance } from '@uni-component/core'
 
 const stack = ref<(Instance<any, any, any> | RootInstance)[]>([])
 

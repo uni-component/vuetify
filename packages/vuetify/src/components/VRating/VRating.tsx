@@ -1,16 +1,21 @@
 import type {
+  ComputedRef,
   ExtractPropTypes,
   InjectionKey,
   Prop,
   PropType,
+  Ref,
   UniNode,
+  WritableComputedRef,
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
   inject,
   provide,
+  ref,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -31,8 +36,6 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { useLocale } from '@/composables/locale'
 
 // Utilities
-import type { ComputedRef, Ref, WritableComputedRef } from '@uni-store/core'
-import { computed, ref } from '@uni-store/core'
 import { createRange, getUid } from '@/util'
 
 // Types

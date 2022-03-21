@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, onMounted, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, onMounted, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VListItem.sass'
@@ -27,7 +27,6 @@ import { Ripple } from '@/directives/ripple'
 import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { useNestedItem } from '@/composables/nested/nested'
 import { useList } from './VList'
 

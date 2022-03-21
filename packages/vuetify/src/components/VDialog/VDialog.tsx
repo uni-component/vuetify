@@ -1,8 +1,12 @@
 import {
+  computed,
   h,
+  nextTick,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 // Styles
@@ -18,7 +22,6 @@ import { VDialogTransition } from '@/composables/transitions'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utilities
-import { computed, nextTick, ref, watch } from '@uni-store/core'
 import { IN_BROWSER } from '@/util'
 
 import { overlayRenders } from '@/components/VOverlay/VOverlay'

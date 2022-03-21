@@ -4,8 +4,10 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   h,
   inject,
+  toRef,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -21,7 +23,6 @@ import { makeSizeProps, useSize } from '@/composables/size'
 import { makeRoundedProps, useRounded } from '@/composables/rounded'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVTimelineDivider = uniComponent('v-timeline-divider', {
   hideDot: Boolean,

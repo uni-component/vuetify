@@ -1,11 +1,10 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VGrid.sass'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
-import { computed } from '@uni-store/core'
 
 const UniVContainer = uniComponent('v-container', {
   fluid: {

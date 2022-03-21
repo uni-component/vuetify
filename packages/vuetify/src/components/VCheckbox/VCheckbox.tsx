@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VCheckbox.sass'
@@ -12,7 +12,6 @@ import { filterControlProps, makeSelectionControlProps, VSelectionControl } from
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utility
-import { computed } from '@uni-store/core'
 // todo attrs
 // import { filterInputAttrs } from '@/util'
 

@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VChip.sass'
@@ -24,7 +24,6 @@ import { useDirective } from '@/composables/directive'
 
 // Directives
 import { Ripple } from '@/directives/ripple'
-import { computed } from '@uni-store/core'
 
 const UniVChip = uniComponent('v-chip', {
   activeClass: String,

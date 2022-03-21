@@ -1,11 +1,10 @@
 import type { UniNode } from '@uni-component/core'
-import { h } from '@uni-component/core'
+import { computed, h } from '@uni-component/core'
 
 // Components
 import { VProgressLinear } from '@/components/VProgressLinear'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { getCurrentInstanceName, propsFactory } from '@/util'
 
 export interface LoaderSlotProps {

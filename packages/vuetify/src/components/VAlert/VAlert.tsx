@@ -1,4 +1,4 @@
-import { classNames, h, uni2Platform, uniComponent } from '@uni-component/core'
+import { classNames, computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VAlert.sass'
@@ -18,9 +18,6 @@ import { makeVariantProps, useVariant } from '@/composables/variant'
 import { useBorder } from '@/composables/border'
 import { useProxiedModel } from '@/composables/proxiedModel'
 import { useTextColor } from '@/composables/color'
-
-// Utilities
-import { computed } from '@uni-store/core'
 
 // Types
 import type { PropType, UniNode } from '@uni-component/core'

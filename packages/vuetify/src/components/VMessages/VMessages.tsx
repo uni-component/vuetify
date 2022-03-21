@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VMessages.sass'
 
@@ -11,7 +11,6 @@ import { makeTransitionProps, useTransition } from '@/composables/transition'
 
 // Utilities
 import { isObject, wrapInArray } from '@/util'
-import { computed } from '@uni-store/core'
 
 const UniVMessages = uniComponent('v-messages', {
   active: Boolean,

@@ -3,11 +3,14 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
+  computed,
   h,
   inject,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 // Components
@@ -21,7 +24,6 @@ import { makeElevationProps } from '@/composables/elevation'
 import { makeRoundedProps } from '@/composables/rounded'
 
 // Utilities
-import { computed, ref, watch } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 import { makeDimensionProps, useDimension } from '@/composables/dimensions'
 

@@ -1,9 +1,7 @@
-import { uni2Platform, uniComponent } from '@uni-component/core'
+import { ref, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 import { useHydration } from '@/composables/hydration'
-
-import { ref } from '@uni-store/core'
 
 export const VNoSsr = uni2Platform(uniComponent('v-no-ssr', () => {
   const show = ref(false)

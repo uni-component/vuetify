@@ -1,12 +1,10 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 import './VLocaleProvider.sass'
 
 // Composables
 import { provideLocale } from '@/composables/locale'
 import { provideRtl } from '@/composables/rtl'
-
-import { computed } from '@uni-store/core'
 
 const UniVLocaleProvider = uniComponent('v-locale-provider', {
   locale: String,

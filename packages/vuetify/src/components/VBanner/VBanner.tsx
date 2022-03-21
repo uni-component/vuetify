@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VBanner.sass'
@@ -22,9 +22,6 @@ import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { useDisplay } from '@/composables/display'
 import { useTextColor } from '@/composables/color'
-
-// Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVBanner = uniComponent('v-banner', {
   avatar: String,

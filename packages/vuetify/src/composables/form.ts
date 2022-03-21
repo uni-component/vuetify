@@ -1,13 +1,11 @@
 import { propsFactory } from '@/util'
 
 // Utilities
-import { computed, ref } from '@uni-store/core'
-import { inject, provide } from '@uni-component/core'
+import { computed, inject, provide, ref } from '@uni-component/core'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Types
-import type { ComputedRef, Ref, UnwrapRef } from '@uni-store/core'
-import type { Context, InjectionKey, PropType, UniNode } from '@uni-component/core'
+import type { ComputedRef, Context, InjectionKey, PropType, Ref, UniNode, UnwrapRef } from '@uni-component/core'
 
 export interface FormProvide {
   register: (

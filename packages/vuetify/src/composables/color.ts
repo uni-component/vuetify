@@ -1,10 +1,9 @@
 // Utilities
-import { computed, isRef } from '@uni-store/core'
+import { classNames, computed, isRef } from '@uni-component/core'
 import { isCssColor } from '@/util'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import { classNames } from '@uni-component/core'
+import type { Ref } from '@uni-component/core'
 
 type CSSProperties = {
   [key: string]: string | undefined

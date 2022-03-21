@@ -1,11 +1,9 @@
 // Utilities
-import { computed, ref, unref } from '@uni-store/core'
-import { inject, provide } from '@uni-component/core'
+import { computed, inject, provide, ref, unref } from '@uni-component/core'
 import { mergeDeep } from '@/util'
 
 // Types
-import type { ComputedRef, Ref } from '@uni-store/core'
-import type { InjectionKey } from '@uni-component/core'
+import type { ComputedRef, InjectionKey, Ref } from '@uni-component/core'
 import type { MaybeRef } from '@/util'
 
 export interface DefaultsInstance {

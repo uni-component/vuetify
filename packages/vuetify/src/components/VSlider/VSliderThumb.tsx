@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { classNames, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { classNames, computed, h, inject, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VSliderThumb.sass'
@@ -13,7 +13,6 @@ import { useDirective } from '@/composables/directive'
 import { useTextColor } from '@/composables/color'
 import { VScaleTransition } from '@/composables/transitions'
 
-import { computed } from '@uni-store/core'
 import { convertToUnit, keyValues } from '@/util'
 
 const UniVSliderThumb = uniComponent('v-slider-thumb', {

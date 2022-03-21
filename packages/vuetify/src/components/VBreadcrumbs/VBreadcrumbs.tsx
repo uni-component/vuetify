@@ -1,5 +1,5 @@
-import type { PropType, UniNode } from '@uni-component/core'
-import { Fragment, h, provide, uni2Platform, uniComponent } from '@uni-component/core'
+import type { ComputedRef, PropType, UniNode } from '@uni-component/core'
+import { computed, Fragment, h, provide, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VBreadcrumbs.sass'
@@ -16,8 +16,6 @@ import { makeTagProps } from '@/composables/tag'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import type { ComputedRef } from '@uni-store/core'
-import { computed, toRef } from '@uni-store/core'
 import { VBreadcrumbsSymbol } from './shared'
 
 // Types

@@ -1,5 +1,7 @@
 import {
+  computed,
   h,
+  toRef,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -18,7 +20,6 @@ import { useBackgroundColor } from '@/composables/color'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVSheet = uniComponent('v-sheet', {
   color: {

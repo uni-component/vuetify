@@ -3,13 +3,17 @@ import type {
   UniNode,
 } from '@uni-component/core'
 import {
+  computed,
   Fragment,
   h,
   mergeStyle,
   onMounted,
+  ref,
+  toRef,
   uni2Platform,
   uniComponent,
   useRef,
+  watch,
 } from '@uni-component/core'
 
 // Styles
@@ -28,7 +32,6 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { useBackgroundColor } from '@/composables/color'
 
 // Utilities
-import { computed, ref, toRef, watch } from '@uni-store/core'
 import { useTransition } from '@/composables/transition'
 
 const UniVNavigationDrawer = uniComponent('v-navigation-drawer', {

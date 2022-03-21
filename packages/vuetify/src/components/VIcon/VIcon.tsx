@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VIcon.sass'
 
@@ -9,13 +9,11 @@ import { useIcon } from '@/composables/icons'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 // Types
 import type { IconValue } from '@/composables/icons'
-import type { ComputedRef } from '@uni-store/core'
-import type { PropType } from '@uni-component/core'
+import type { ComputedRef, PropType } from '@uni-component/core'
 
 const UniVIcon = uniComponent('v-icon', {
   color: String,

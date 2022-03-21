@@ -1,7 +1,7 @@
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
-// @ts-ignore
-import { createVuetify, components, directives } from 'vuetify'
+// @ts-expect-error
+import { components, createVuetify, directives } from 'vuetify'
 
 import type { VuetifyPlugin } from '@/types'
 

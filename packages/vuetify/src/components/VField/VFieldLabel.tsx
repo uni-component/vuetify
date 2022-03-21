@@ -1,4 +1,5 @@
 import {
+  computed,
   h,
   uni2Platform,
   uniComponent,
@@ -6,7 +7,6 @@ import {
 
 // Components
 import { VLabel } from '@/components/VLabel'
-import { computed } from '@uni-store/core'
 
 const UniVFieldLabel = uniComponent('v-field-label', {
   floating: Boolean,

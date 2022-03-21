@@ -1,11 +1,10 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
 import { useTextColor } from '@/composables/color'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 
 const UniVListSubheader = uniComponent('v-list-subheader', {
   color: String,

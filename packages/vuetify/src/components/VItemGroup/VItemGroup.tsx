@@ -6,10 +6,8 @@ import type { GroupProvide } from '@/composables/group'
 import { makeGroupProps, useGroup } from '@/composables/group'
 import { makeTagProps } from '@/composables/tag'
 import { makeThemeProps, provideTheme } from '@/composables/theme'
-import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
-import type { UnwrapRef } from '@uni-store/core'
-import { computed } from '@uni-store/core'
+import type { PropType, UniNode, UnwrapRef } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 export const VItemGroupSymbol = Symbol.for('vuetify:v-item-group')
 

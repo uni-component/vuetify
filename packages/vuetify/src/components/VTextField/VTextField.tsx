@@ -1,7 +1,9 @@
 import type { PropType } from '@uni-component/core'
 import {
+  computed,
   Fragment,
   h,
+  ref,
   uni2Platform,
   uniComponent,
 } from '@uni-component/core'
@@ -22,7 +24,6 @@ import Intersect from '@/directives/intersect'
 import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, ref } from '@uni-store/core'
 import { filterInputAttrs } from '@/util'
 
 // import { useForwardRef } from '@/composables/forwardRef'

@@ -1,8 +1,7 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 import { makeTagProps } from '@/composables/tag'
-import { computed } from '@uni-store/core'
 
 const UniVListItemAvatar = uniComponent('v-list-item-avatar', {
   left: Boolean,

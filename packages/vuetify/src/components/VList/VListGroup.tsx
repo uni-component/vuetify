@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 import { VListGroupItems } from './VListGroupItems'
 
@@ -7,7 +7,6 @@ import { useNestedGroup } from '@/composables/nested/nested'
 import { makeTagProps } from '@/composables/tag'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { useList } from './VList'
 
 // Types

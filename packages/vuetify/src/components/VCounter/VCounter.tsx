@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VCounter.sass'
@@ -9,7 +9,6 @@ import { VSlideYTransition } from '@/composables/transitions'
 // Utilities
 import type { Transition } from '@/composables/transition'
 import { makeTransitionProps, useTransition } from '@/composables/transition'
-import { computed } from '@uni-store/core'
 import { isObject } from '@/util'
 
 export const CounterRender = Function as PropType<(scope: {

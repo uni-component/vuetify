@@ -1,6 +1,5 @@
 // Utilities
-import { ref, watch } from '@uni-store/core'
-import { onUnmounted } from '@uni-component/core'
+import { onUnmounted, ref, watch } from '@uni-component/core'
 
 export function useIntersectionObserver (callback?: IntersectionObserverCallback) {
   const intersectionRef = ref<HTMLElement>()

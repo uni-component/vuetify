@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VMain.sass'
@@ -7,7 +7,6 @@ import './VMain.sass'
 import { makeTagProps } from '@/composables/tag'
 import { useLayout } from '@/composables/layout'
 import { useSsrBoot } from '@/composables/ssrBoot'
-import { computed } from '@uni-store/core'
 
 const UniVMain = uniComponent('v-main', makeTagProps({ tag: 'main' }), (name, props) => {
   const { mainStyles } = useLayout()

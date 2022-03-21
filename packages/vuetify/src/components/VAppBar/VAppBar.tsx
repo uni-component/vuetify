@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 // Styles
 import './VAppBar.sass'
 
@@ -16,7 +16,6 @@ import { useBackgroundColor } from '@/composables/color'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 // Types

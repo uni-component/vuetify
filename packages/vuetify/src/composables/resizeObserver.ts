@@ -1,6 +1,5 @@
-import { readonly, ref, watch } from '@uni-store/core'
-import { onUnmounted } from '@uni-component/core'
-import type { DeepReadonly, Ref } from '@uni-store/core'
+import { onUnmounted, readonly, ref, watch } from '@uni-component/core'
+import type { DeepReadonly, Ref } from '@uni-component/core'
 
 interface ResizeState {
   resizeRef: Ref<Element | undefined>

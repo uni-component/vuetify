@@ -1,12 +1,10 @@
-import { computed } from '@uni-store/core'
-import { inject, provide } from '@uni-component/core'
+import { computed, inject, provide } from '@uni-component/core'
 import { consoleError, consoleWarn, getObjectValueByPath, wrapInRef } from '@/util'
 
 import en from '@/locale/en'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { getRootInstance, InjectionKey } from '@uni-component/core'
+import type { getRootInstance, InjectionKey, Ref } from '@uni-component/core'
 import type { MaybeRef } from '@/util'
 
 type App = ReturnType<typeof getRootInstance>

@@ -1,5 +1,5 @@
 import type { PropType } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Composables
 import { makeDimensionProps, useDimension } from '@/composables/dimensions'
@@ -10,8 +10,6 @@ import { useProxiedModel } from '@/composables/proxiedModel'
 // Directives
 import { Intersect } from '@/directives/intersect'
 import { useDirective } from '@/composables/directive'
-
-import { computed } from '@uni-store/core'
 
 const UniVLazy = uniComponent('v-lazy', {
   modelValue: Boolean,

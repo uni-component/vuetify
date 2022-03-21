@@ -1,12 +1,9 @@
 // Utilities
-import { computed, ref } from '@uni-store/core'
-import { inject, onUnmounted, provide } from '@uni-component/core'
+import { computed, inject, onUnmounted, provide, ref } from '@uni-component/core'
 import { convertToUnit, getUid, propsFactory } from '@/util'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { Prop } from '@vue/runtime-core'
-import type { InjectionKey } from '@uni-component/core'
+import type { InjectionKey, Prop, Ref } from '@uni-component/core'
 
 type Position = 'top' | 'left' | 'right' | 'bottom'
 

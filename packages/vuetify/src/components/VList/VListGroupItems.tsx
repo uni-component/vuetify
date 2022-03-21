@@ -1,10 +1,9 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 import { VExpandTransition } from '@/composables/transitions'
 import { VListChildren } from './VListChildren'
 import { createList } from './VList'
 import type { Prop, PropType, UniNode } from '@uni-component/core'
 import type { ListItem } from './VList'
-import { computed } from '@uni-store/core'
 
 const UniVListGroupItems = uniComponent('v-list-group-items', {
   open: Boolean,

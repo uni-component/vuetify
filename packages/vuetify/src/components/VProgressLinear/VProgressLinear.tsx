@@ -4,7 +4,9 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   h,
+  toRef,
   uni2Platform,
   uniComponent,
   useRef,
@@ -24,7 +26,6 @@ import { useRtl } from '@/composables/rtl'
 import { useTransition } from '@/composables/transition'
 
 import { convertToUnit } from '@/util'
-import { computed, toRef } from '@uni-store/core'
 
 const UniVProgressLinear = uniComponent('v-progress-linear', {
   active: {

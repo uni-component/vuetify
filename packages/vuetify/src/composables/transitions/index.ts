@@ -1,4 +1,4 @@
-import type { Ref } from '@uni-store/core'
+import type { Ref } from '@uni-component/core'
 import {
   createCssTransition,
   createJavascriptTransition,

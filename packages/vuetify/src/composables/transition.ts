@@ -1,11 +1,8 @@
 import { propsFactory } from '@/util'
 
 // Types
-import type { PropType } from '@uni-component/core'
-import { onMounted, onUnmounted, useRef } from '@uni-component/core'
-
-import type { Ref } from '@uni-store/core'
-import { computed, nextTick, ref, watch } from '@uni-store/core'
+import type { PropType, Ref } from '@uni-component/core'
+import { computed, nextTick, onMounted, onUnmounted, ref, useRef, watch } from '@uni-component/core'
 
 export function nextFrame (cb: FrameRequestCallback) {
   requestAnimationFrame(() => {

@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VCard.sass'
@@ -32,7 +32,6 @@ import { genOverlays, makeVariantProps, useVariant } from '@/composables/variant
 import { Ripple } from '@/directives/ripple'
 
 import { useDirective } from '@/composables/directive'
-import { computed } from '@uni-store/core'
 
 const UniVCard = uniComponent('v-card', {
   appendAvatar: String,

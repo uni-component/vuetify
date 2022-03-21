@@ -1,10 +1,9 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VDivider.sass'
 
 // Utilities
-import { computed } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 // Composables

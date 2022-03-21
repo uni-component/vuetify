@@ -10,8 +10,7 @@ import { makeGroupProps, useGroup } from '@/composables/group'
 
 // Types
 import type { GroupProvide } from '@/composables/group'
-import type { InjectionKey, PropType, UniNode } from '@uni-component/core'
-import type { UnwrapRef } from '@uni-store/core'
+import type { InjectionKey, PropType, UniNode, UnwrapRef } from '@uni-component/core'
 
 // export type BtnToggleSlotProps = 'isSelected' | 'select' | 'selected' | 'next' | 'prev'
 // export interface DefaultBtnToggleSlot extends Pick<GroupProvide, BtnToggleSlotProps> {}

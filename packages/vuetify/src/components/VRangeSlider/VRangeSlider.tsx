@@ -1,4 +1,4 @@
-import { h, uni2Platform, uniComponent, useRef } from '@uni-component/core'
+import { computed, h, ref, uni2Platform, uniComponent, useRef, watchEffect } from '@uni-component/core'
 
 // Components
 import { VInput } from '../VInput'
@@ -11,11 +11,9 @@ import { getOffset, makeSliderProps, useSlider } from '../VSlider/slider'
 import { useFocus } from '@/composables/focus'
 
 // Utilities
-import { computed, ref, watchEffect } from '@uni-store/core'
 
 import type { Tick } from '../VSlider/slider'
-import type { PropType, UniNode } from '@uni-component/core'
-import type { WritableComputedRef } from '@uni-store/core'
+import type { PropType, UniNode, WritableComputedRef } from '@uni-component/core'
 import { filterInputProps, makeVInputProps } from '../VInput/VInput'
 
 const UniVRangeSlider = uniComponent('v-range-slider', {

@@ -4,8 +4,10 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   Fragment,
   h,
+  ref,
   uni2Platform,
   uniComponent,
   useRef,
@@ -25,7 +27,6 @@ import { useLocale } from '@/composables/locale'
 import { useProxiedModel } from '@/composables/proxiedModel'
 
 // Utilities
-import { computed, ref } from '@uni-store/core'
 import { filterInputAttrs, humanReadableFileSize, wrapInArray } from '@/util'
 
 import { filterInputProps, makeVInputProps, VInput } from '@/components/VInput/VInput'

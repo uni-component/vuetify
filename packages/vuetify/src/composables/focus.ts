@@ -1,4 +1,4 @@
-import { ref } from '@uni-store/core'
+import { ref } from '@uni-component/core'
 
 export const useFocus = () => {
   const isFocused = ref(false)

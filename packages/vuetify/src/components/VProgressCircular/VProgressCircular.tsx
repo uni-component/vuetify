@@ -4,8 +4,10 @@ import type {
 } from '@uni-component/core'
 import {
   classNames,
+  computed,
   h,
   mergeStyle,
+  toRef,
   uni2Platform,
   uniComponent,
   useRef,
@@ -21,7 +23,6 @@ import { makeThemeProps, provideTheme } from '@/composables/theme'
 import { useIntersectionObserver } from '@/composables/intersectionObserver'
 import { useTextColor } from '@/composables/color'
 
-import { computed, toRef } from '@uni-store/core'
 import { convertToUnit } from '@/util'
 
 const MAGIC_RADIUS_CONSTANT = 20

@@ -1,11 +1,9 @@
 // Utilities
-import { computed, isRef } from '@uni-store/core'
-import { h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, inject, isRef, uni2Platform, uniComponent } from '@uni-component/core'
 import { propsFactory } from '@/util'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { InjectionKey, PlatformComponent, PropType } from '@uni-component/core'
+import type { InjectionKey, PlatformComponent, PropType, Ref } from '@uni-component/core'
 
 export type IconValue = string | PlatformComponent<any, any>
 

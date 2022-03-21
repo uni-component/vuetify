@@ -1,11 +1,10 @@
-import { h, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Styles
 import './VLabel.sass'
 
 // Composables
 import { makeThemeProps } from '@/composables/theme'
-import { computed } from '@uni-store/core'
 
 const UniVLabel = uniComponent('v-label', {
   disabled: Boolean,

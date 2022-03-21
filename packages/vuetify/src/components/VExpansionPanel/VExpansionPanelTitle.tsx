@@ -1,5 +1,5 @@
 import type { PropType, UniNode } from '@uni-component/core'
-import { h, inject, uni2Platform, uniComponent } from '@uni-component/core'
+import { computed, h, inject, toRef, uni2Platform, uniComponent } from '@uni-component/core'
 
 // Components
 import { VIcon } from '@/components/VIcon'
@@ -13,7 +13,6 @@ import { Ripple } from '@/directives/ripple'
 import { useDirective } from '@/composables/directive'
 
 // Utilities
-import { computed, toRef } from '@uni-store/core'
 import { propsFactory } from '@/util'
 
 export const makeVExpansionPanelTitleProps = propsFactory({

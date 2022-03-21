@@ -1,14 +1,12 @@
 import { useProxiedModel } from '@/composables/proxiedModel'
 import { getUid, propsFactory } from '@/util'
-import { computed, ref } from '@uni-store/core'
-import { inject, onUnmounted, provide } from '@uni-component/core'
+import { computed, inject, onUnmounted, provide, ref } from '@uni-component/core'
 import { multipleOpenStrategy, singleOpenStrategy } from './openStrategies'
 import { classicSelectStrategy, independentSelectStrategy, leafSelectStrategy } from './selectStrategies'
 import { classicActiveStrategy } from './activeStrategies'
 
 // Types
-import type { Ref } from '@uni-store/core'
-import type { Context, InjectionKey, Prop } from '@uni-component/core'
+import type { Context, InjectionKey, Prop, Ref } from '@uni-component/core'
 import type { SelectStrategyFn } from './selectStrategies'
 import type { OpenStrategyFn } from './openStrategies'
 import type { ActiveStrategyFn } from './activeStrategies'
