@@ -20,12 +20,10 @@ import {
   VBreadcrumbs,
   VCard,
   VCardText,
-  VCardActions,
   VCheckbox,
   VChip,
   VCounter,
   VDefaultsProvider,
-  VDialog,
   VDivider,
   VExpansionPanels,
   VExpansionPanel,
@@ -61,6 +59,7 @@ import {
   VTooltip,
   VThemeProvider,
 } from 'vuetify'
+import DemoDialog from './cases/Dialog'
 
 export default uni2Platform(uniComponent('pg-demo', () => {
   const btnGroupValue = ref('center')
@@ -113,11 +112,6 @@ export default uni2Platform(uniComponent('pg-demo', () => {
     },
   }))
 
-  const dialog = ref(false)
-  const setDialog = (val = false) => {
-    dialog.value = val
-  }
-
   const navigationDrawerItems = [
     { title: 'Dashboard', icon: 'mdi-view-dashboard' },
     { title: 'Photos', icon: 'mdi-image' },
@@ -167,9 +161,6 @@ export default uni2Platform(uniComponent('pg-demo', () => {
 
     defaults,
 
-    dialog,
-    setDialog,
-
     navigationDrawerItems,
 
     page,
@@ -210,9 +201,6 @@ export default uni2Platform(uniComponent('pg-demo', () => {
     toggleCounter,
 
     defaults,
-
-    dialog,
-    setDialog,
 
     navigationDrawerItems,
 
@@ -479,31 +467,7 @@ export default uni2Platform(uniComponent('pg-demo', () => {
             <VCard title='Title' subtitle='Subtitle' class='ma-10'></VCard>
           </VDefaultsProvider>
         </div>
-        <div class='section-dialog'>
-          <div class='text-center'>
-            <VDialog
-              modelValue={dialog}
-              onUpdate:modelValue={setDialog}
-              activatorRender={({ props }) => (
-                <VBtn
-                  color='primary'
-                  {...props}
-                >
-                  Open Dialog
-                </VBtn>
-              )}
-            >
-              <VCard>
-                <VCardText>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </VCardText>
-                <VCardActions>
-                  <VBtn color='primary' block onClick={() => setDialog()}>Close Dialog</VBtn>
-                </VCardActions>
-              </VCard>
-            </VDialog>
-          </div>
-        </div>
+        <DemoDialog />
         <div class='section-divider'>
           <p>before</p>
           <VDivider />
